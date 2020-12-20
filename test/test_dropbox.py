@@ -24,7 +24,7 @@ from dropbox import (
     session,
     stone_serializers,
 )
-from dropbox.dropbox import PATH_ROOT_HEADER
+from dropbox.dropbox import PATH_ROOT_HEADER, SELECT_USER_HEADER
 from dropbox.exceptions import (
     ApiError,
     AuthError,
@@ -56,6 +56,17 @@ def dbx_from_env(f):
         return f(self, *args, **kwargs)
     return wrapped
 
+def refresh_dbx_from_env(f):
+    @functools.wraps(f)
+    def wrapped(self, *args, **kwargs):
+        refresh_token = _token_from_env_or_die("DROPBOX_REFRESH_TOKEN")
+        app_key = _token_from_env_or_die("DROPBOX_APP_KEY")
+        app_secret = _token_from_env_or_die("DROPBOX_APP_SECRET")
+        args += (Dropbox(oauth2_refresh_token=refresh_token,
+                         app_key=app_key, app_secret=app_secret),)
+        return f(self, *args, **kwargs)
+    return wrapped
+
 def dbx_team_from_env(f):
     @functools.wraps(f)
     def wrapped(self, *args, **kwargs):
@@ -78,7 +89,7 @@ class TestDropbox(unittest.TestCase):
 
         six.assertRegex(
             self,
-            flow_obj._get_authorize_url('http://localhost/redirect', 'state'),
+            flow_obj._get_authorize_url('http://localhost/redirect', 'state', 'legacy'),
             r'^https://{}/oauth2/authorize\?'.format(re.escape(session.WEB_HOST)),
         )
 
@@ -104,6 +115,18 @@ class TestDropbox(unittest.TestCase):
         with self.assertRaises(AuthError) as cm:
             invalid_token_dbx.files_list_folder('')
         self.assertTrue(cm.exception.error.is_invalid_access_token())
+
+    @refresh_dbx_from_env
+    def test_refresh(self, dbx):
+        dbx.users_get_current_account()
+
+    @refresh_dbx_from_env
+    def test_downscope(self, dbx):
+        dbx.users_get_current_account()
+        dbx.refresh_access_token(scope=['files.metadata.read'])
+        with self.assertRaises(AuthError):
+            # Should fail because downscoped to not include needed scope
+            dbx.users_get_current_account()
 
     @dbx_from_env
     def test_rpc(self, dbx):
@@ -216,7 +239,15 @@ class TestDropboxTeam(unittest.TestCase):
     @dbx_team_from_env
     def test_as_user(self, dbxt):
         dbx_as_user = dbxt.as_user('1')
-        self.assertIsInstance(dbx_as_user, Dropbox)
+        path_root = PathRoot.root("123")
+
+        dbx_new = dbx_as_user.with_path_root(path_root)
+
+        self.assertIsInstance(dbx_new, Dropbox)
+        self.assertEqual(dbx_new._headers.get(SELECT_USER_HEADER), '1')
+
+        expected = stone_serializers.json_encode(PathRoot_validator, path_root)
+        self.assertEqual(dbx_new._headers.get(PATH_ROOT_HEADER), expected)
 
     @dbx_team_from_env
     def test_as_admin(self, dbxt):
