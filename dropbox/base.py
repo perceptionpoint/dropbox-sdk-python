@@ -42,9 +42,12 @@ class DropboxBase(object):
         """
         Sets a user's profile photo.
 
+<<<<<<< HEAD
+=======
         Route attributes:
             scope: account_info.write
 
+>>>>>>> 818d795d8be058270c261f9620d145089382c02d
         :param photo: Image to set as the user's new profile photo.
         :type photo: :class:`dropbox.account.PhotoSourceArg`
         :rtype: :class:`dropbox.account.SetProfilePhotoResult`
@@ -113,7 +116,11 @@ class DropboxBase(object):
     # Routes in check namespace
 
     def check_app(self,
+<<<<<<< HEAD
+                  query=u''):
+=======
                   query=''):
+>>>>>>> 818d795d8be058270c261f9620d145089382c02d
         """
         This endpoint performs App Authentication, validating the supplied app
         key and secret, and returns the supplied string, to allow you to test
@@ -135,7 +142,11 @@ class DropboxBase(object):
         return r
 
     def check_user(self,
+<<<<<<< HEAD
+                   query=u''):
+=======
                    query=''):
+>>>>>>> 818d795d8be058270c261f9620d145089382c02d
         """
         This endpoint performs User Authentication, validating the supplied
         access token, and returns the supplied string, to allow you to test your
@@ -144,9 +155,12 @@ class DropboxBase(object):
         least part of the Dropbox API infrastructure is working and that the
         access token is valid.
 
+<<<<<<< HEAD
+=======
         Route attributes:
             scope: account_info.read
 
+>>>>>>> 818d795d8be058270c261f9620d145089382c02d
         :param str query: The string that you'd like to be echoed back to you.
         :rtype: :class:`dropbox.check.EchoResult`
         """
@@ -187,9 +201,12 @@ class DropboxBase(object):
         """
         Removes manually added contacts from the given list.
 
+<<<<<<< HEAD
+=======
         Route attributes:
             scope: contacts.write
 
+>>>>>>> 818d795d8be058270c261f9620d145089382c02d
         :param List[str] email_addresses: List of manually added contacts to be
             deleted.
         :rtype: None
@@ -318,9 +335,12 @@ class DropboxBase(object):
         """
         Search across property templates for particular property field values.
 
+<<<<<<< HEAD
+=======
         Route attributes:
             scope: files.metadata.read
 
+>>>>>>> 818d795d8be058270c261f9620d145089382c02d
         :param List[:class:`dropbox.file_properties.PropertiesSearchQuery`]
             queries: Queries to search.
         :param template_filter: Filter results to contain only properties
@@ -565,9 +585,12 @@ class DropboxBase(object):
         Returns the total number of file requests owned by this user. Includes
         both open and closed file requests.
 
+<<<<<<< HEAD
+=======
         Route attributes:
             scope: file_requests.read
 
+>>>>>>> 818d795d8be058270c261f9620d145089382c02d
         :rtype: :class:`dropbox.file_requests.CountFileRequestsResult`
         """
         arg = None
@@ -626,9 +649,12 @@ class DropboxBase(object):
         """
         Delete a batch of closed file requests.
 
+<<<<<<< HEAD
+=======
         Route attributes:
             scope: file_requests.write
 
+>>>>>>> 818d795d8be058270c261f9620d145089382c02d
         :param List[str] ids: List IDs of the file requests to delete.
         :rtype: :class:`dropbox.file_requests.DeleteFileRequestsResult`
         :raises: :class:`.exceptions.ApiError`
@@ -649,9 +675,12 @@ class DropboxBase(object):
         """
         Delete all closed file requests owned by this user.
 
+<<<<<<< HEAD
+=======
         Route attributes:
             scope: file_requests.write
 
+>>>>>>> 818d795d8be058270c261f9620d145089382c02d
         :rtype: :class:`dropbox.file_requests.DeleteAllClosedFileRequestsResult`
         """
         arg = None
@@ -690,9 +719,12 @@ class DropboxBase(object):
         app folder permission, this will only return file requests with
         destinations in the app folder.
 
+<<<<<<< HEAD
+=======
         Route attributes:
             scope: file_requests.read
 
+>>>>>>> 818d795d8be058270c261f9620d145089382c02d
         :param int limit: The maximum number of file requests that should be
             returned per request.
         :rtype: :class:`dropbox.file_requests.ListFileRequestsV2Result`
@@ -734,9 +766,12 @@ class DropboxBase(object):
         previous call to :meth:`file_requests_list_v2` or
         :meth:`file_requests_list_continue`.
 
+<<<<<<< HEAD
+=======
         Route attributes:
             scope: file_requests.read
 
+>>>>>>> 818d795d8be058270c261f9620d145089382c02d
         :param str cursor: The cursor returned by the previous API call
             specified in the endpoint description.
         :rtype: :class:`dropbox.file_requests.ListFileRequestsV2Result`
@@ -810,9 +845,12 @@ class DropboxBase(object):
         compatible with the properties API. Note: Metadata for the root folder
         is unsupported.
 
+<<<<<<< HEAD
+=======
         Route attributes:
             scope: files.metadata.read
 
+>>>>>>> 818d795d8be058270c261f9620d145089382c02d
         :param Nullable[List[str]] include_property_templates: If set to a valid
             list of template IDs, ``FileMetadata.property_groups`` is set for
             files with custom properties.
@@ -901,9 +939,12 @@ class DropboxBase(object):
         Copy a file or folder to a different location in the user's Dropbox. If
         the source path is a folder all its contents will be copied.
 
+<<<<<<< HEAD
+=======
         Route attributes:
             scope: files.content.write
 
+>>>>>>> 818d795d8be058270c261f9620d145089382c02d
         :param bool allow_shared_folder: This flag has no effect.
         :param bool autorename: If there's a conflict, have the Dropbox server
             try to autorename the file to avoid the conflict.
@@ -939,9 +980,12 @@ class DropboxBase(object):
         Copy a file or folder to a different location in the user's Dropbox. If
         the source path is a folder all its contents will be copied.
 
+<<<<<<< HEAD
+=======
         Route attributes:
             scope: files.content.write
 
+>>>>>>> 818d795d8be058270c261f9620d145089382c02d
         :param bool allow_shared_folder: This flag has no effect.
         :param bool autorename: If there's a conflict, have the Dropbox server
             try to autorename the file to avoid the conflict.
@@ -983,9 +1027,12 @@ class DropboxBase(object):
         copy job in background. Please use :meth:`files_copy_batch_check_v2` to
         check the job status.
 
+<<<<<<< HEAD
+=======
         Route attributes:
             scope: files.content.write
 
+>>>>>>> 818d795d8be058270c261f9620d145089382c02d
         :param List[:class:`dropbox.files.RelocationPath`] entries: List of
             entries to be moved or copied. Each entry is
             :class:`dropbox.files.RelocationPath`.
@@ -1014,9 +1061,12 @@ class DropboxBase(object):
         async copy job in background. Please use :meth:`files_copy_batch_check`
         to check the job status.
 
+<<<<<<< HEAD
+=======
         Route attributes:
             scope: files.content.write
 
+>>>>>>> 818d795d8be058270c261f9620d145089382c02d
         :param bool allow_shared_folder: This flag has no effect.
         :param bool allow_ownership_transfer: Allow moves by owner even if it
             would result in an ownership transfer for the content being moved.
@@ -1223,9 +1273,12 @@ class DropboxBase(object):
         behaviour by using the ``CreateFolderBatchArg.force_async`` flag.  Use
         :meth:`files_create_folder_batch_check` to check the job status.
 
+<<<<<<< HEAD
+=======
         Route attributes:
             scope: files.content.write
 
+>>>>>>> 818d795d8be058270c261f9620d145089382c02d
         :param List[str] paths: List of paths to be created in the user's
             Dropbox. Duplicate path arguments in the batch are considered only
             once.
@@ -1352,9 +1405,12 @@ class DropboxBase(object):
         returns a job ID immediately and runs the delete batch asynchronously.
         Use :meth:`files_delete_batch_check` to check the job status.
 
+<<<<<<< HEAD
+=======
         Route attributes:
             scope: files.content.write
 
+>>>>>>> 818d795d8be058270c261f9620d145089382c02d
         :type entries: List[:class:`dropbox.files.DeleteArg`]
         :rtype: :class:`dropbox.files.DeleteBatchLaunch`
         """
@@ -1527,13 +1583,20 @@ class DropboxBase(object):
         return r[0]
 
     def files_export(self,
+<<<<<<< HEAD
+                     path):
+=======
                      path,
                      export_format=None):
+>>>>>>> 818d795d8be058270c261f9620d145089382c02d
         """
         Export a file from a user's Dropbox. This route only supports exporting
         files that cannot be downloaded directly  and whose
         ``ExportResult.file_metadata`` has ``ExportInfo.export_as`` populated.
 
+<<<<<<< HEAD
+        :param str path: The path of the file to be exported.
+=======
         Route attributes:
             scope: files.content.read
 
@@ -1543,6 +1606,7 @@ class DropboxBase(object):
             file's export_options returned by :meth:`files_get_metadata`. If
             none is specified, the default format (specified in export_as in
             file metadata) will be used.
+>>>>>>> 818d795d8be058270c261f9620d145089382c02d
         :rtype: (:class:`dropbox.files.ExportResult`,
                  :class:`requests.models.Response`)
         :raises: :class:`.exceptions.ApiError`
@@ -1556,8 +1620,12 @@ class DropboxBase(object):
         <https://docs.python.org/2/library/contextlib.html#contextlib.closing>`_
         context manager to ensure this.
         """
+<<<<<<< HEAD
+        arg = files.ExportArg(path)
+=======
         arg = files.ExportArg(path,
                               export_format)
+>>>>>>> 818d795d8be058270c261f9620d145089382c02d
         r = self.request(
             files.export,
             'files',
@@ -1568,13 +1636,21 @@ class DropboxBase(object):
 
     def files_export_to_file(self,
                              download_path,
+<<<<<<< HEAD
+                             path):
+=======
                              path,
                              export_format=None):
+>>>>>>> 818d795d8be058270c261f9620d145089382c02d
         """
         Export a file from a user's Dropbox. This route only supports exporting
         files that cannot be downloaded directly  and whose
         ``ExportResult.file_metadata`` has ``ExportInfo.export_as`` populated.
 
+<<<<<<< HEAD
+        :param str download_path: Path on local machine to save file.
+        :param str path: The path of the file to be exported.
+=======
         Route attributes:
             scope: files.content.read
 
@@ -1585,14 +1661,19 @@ class DropboxBase(object):
             file's export_options returned by :meth:`files_get_metadata`. If
             none is specified, the default format (specified in export_as in
             file metadata) will be used.
+>>>>>>> 818d795d8be058270c261f9620d145089382c02d
         :rtype: :class:`dropbox.files.ExportResult`
         :raises: :class:`.exceptions.ApiError`
 
         If this raises, ApiError will contain:
             :class:`dropbox.files.ExportError`
         """
+<<<<<<< HEAD
+        arg = files.ExportArg(path)
+=======
         arg = files.ExportArg(path,
                               export_format)
+>>>>>>> 818d795d8be058270c261f9620d145089382c02d
         r = self.request(
             files.export,
             'files',
@@ -1607,9 +1688,12 @@ class DropboxBase(object):
         """
         Return the lock metadata for the given list of paths.
 
+<<<<<<< HEAD
+=======
         Route attributes:
             scope: files.content.read
 
+>>>>>>> 818d795d8be058270c261f9620d145089382c02d
         :param List[:class:`dropbox.files.LockFileArg`] entries: List of
             'entries'. Each 'entry' contains a path of the file which will be
             locked or queried. Duplicate path arguments in the batch are
@@ -1685,9 +1769,12 @@ class DropboxBase(object):
         .rtf. HTML previews are generated for files with the following
         extensions: .csv, .ods, .xls, .xlsm, .gsheet, .xlsx. Other formats will
         return an unsupported extension error.
+<<<<<<< HEAD
+=======
 
         Route attributes:
             scope: files.content.read
+>>>>>>> 818d795d8be058270c261f9620d145089382c02d
 
         :param str path: The path of the file to preview.
         :param Nullable[str] rev: Please specify revision in ``path`` instead.
@@ -1725,9 +1812,12 @@ class DropboxBase(object):
         .rtf. HTML previews are generated for files with the following
         extensions: .csv, .ods, .xls, .xlsm, .gsheet, .xlsx. Other formats will
         return an unsupported extension error.
+<<<<<<< HEAD
+=======
 
         Route attributes:
             scope: files.content.read
+>>>>>>> 818d795d8be058270c261f9620d145089382c02d
 
         :param str download_path: Path on local machine to save file.
         :param str path: The path of the file to preview.
@@ -1933,6 +2023,9 @@ class DropboxBase(object):
                                size=files.ThumbnailSize.w64h64,
                                mode=files.ThumbnailMode.strict):
         """
+<<<<<<< HEAD
+        Get a thumbnail for a file.
+=======
         Get a thumbnail for an image. This method currently supports files with
         the following file extensions: jpg, jpeg, png, tiff, tif, gif, webp, ppm
         and bmp. Photos that are larger than 20MB in size won't be converted to
@@ -1940,6 +2033,7 @@ class DropboxBase(object):
 
         Route attributes:
             scope: files.content.read
+>>>>>>> 818d795d8be058270c261f9620d145089382c02d
 
         :param resource: Information specifying which file to preview. This
             could be a path to a file, a shared link pointing to a file, or a
@@ -1986,6 +2080,9 @@ class DropboxBase(object):
                                        size=files.ThumbnailSize.w64h64,
                                        mode=files.ThumbnailMode.strict):
         """
+<<<<<<< HEAD
+        Get a thumbnail for a file.
+=======
         Get a thumbnail for an image. This method currently supports files with
         the following file extensions: jpg, jpeg, png, tiff, tif, gif, webp, ppm
         and bmp. Photos that are larger than 20MB in size won't be converted to
@@ -1993,6 +2090,7 @@ class DropboxBase(object):
 
         Route attributes:
             scope: files.content.read
+>>>>>>> 818d795d8be058270c261f9620d145089382c02d
 
         :param str download_path: Path on local machine to save file.
         :param resource: Information specifying which file to preview. This
@@ -2337,9 +2435,12 @@ class DropboxBase(object):
         been locked. Returns a list of the locked file paths and their metadata
         after this operation.
 
+<<<<<<< HEAD
+=======
         Route attributes:
             scope: files.content.write
 
+>>>>>>> 818d795d8be058270c261f9620d145089382c02d
         :param List[:class:`dropbox.files.LockFileArg`] entries: List of
             'entries'. Each 'entry' contains a path of the file which will be
             locked or queried. Duplicate path arguments in the batch are
@@ -2369,9 +2470,12 @@ class DropboxBase(object):
         Move a file or folder to a different location in the user's Dropbox. If
         the source path is a folder all its contents will be moved. Note that we
         do not currently support case-only renaming.
+<<<<<<< HEAD
+=======
 
         Route attributes:
             scope: files.content.write
+>>>>>>> 818d795d8be058270c261f9620d145089382c02d
 
         :param bool allow_shared_folder: This flag has no effect.
         :param bool autorename: If there's a conflict, have the Dropbox server
@@ -2408,9 +2512,12 @@ class DropboxBase(object):
         Move a file or folder to a different location in the user's Dropbox. If
         the source path is a folder all its contents will be moved.
 
+<<<<<<< HEAD
+=======
         Route attributes:
             scope: files.content.write
 
+>>>>>>> 818d795d8be058270c261f9620d145089382c02d
         :param bool allow_shared_folder: This flag has no effect.
         :param bool autorename: If there's a conflict, have the Dropbox server
             try to autorename the file to avoid the conflict.
@@ -2484,9 +2591,12 @@ class DropboxBase(object):
         async moving job in background. Please use
         :meth:`files_move_batch_check` to check the job status.
 
+<<<<<<< HEAD
+=======
         Route attributes:
             scope: files.content.write
 
+>>>>>>> 818d795d8be058270c261f9620d145089382c02d
         :param bool allow_shared_folder: This flag has no effect.
         :param bool allow_ownership_transfer: Allow moves by owner even if it
             would result in an ownership transfer for the content being moved.
@@ -2647,9 +2757,12 @@ class DropboxBase(object):
         yet deleted, this route will first delete it. It is possible for this
         route to successfully delete, then fail to permanently delete. Note:
         This endpoint is only available for Dropbox Business apps.
+<<<<<<< HEAD
+=======
 
         Route attributes:
             scope: files.permanent_delete
+>>>>>>> 818d795d8be058270c261f9620d145089382c02d
 
         :param str path: Path in the user's Dropbox to delete.
         :param Nullable[str] parent_rev: Perform delete if given "rev" matches
@@ -3135,6 +3248,27 @@ class DropboxBase(object):
     def files_unlock_file_batch(self,
                                 entries):
         """
+<<<<<<< HEAD
+        Searches for files and folders. Note: Recent changes will be reflected
+        in search results within a few seconds and older revisions of existing
+        files may still match your query for up to a few days.
+
+        :param str path: The path in the user's Dropbox to search. Should
+            probably be a folder.
+        :param str query: The string to search for. Query string may be
+            rewritten to improve relevance of results. The string is split on
+            spaces into multiple tokens. For file name searching, the last token
+            is used for prefix matching (i.e. "bat c" matches "bat cave" but not
+            "batman car").
+        :param int start: The starting index within the search results (used for
+            paging).
+        :param int max_results: The maximum number of search results to return.
+        :param mode: The search mode (filename, filename_and_content, or
+            deleted_filename). Note that searching file content is only
+            available for Dropbox Business accounts.
+        :type mode: :class:`dropbox.files.SearchMode`
+        :rtype: :class:`dropbox.files.SearchResult`
+=======
         Unlock the files at the given paths. A locked file can only be unlocked
         by the lock holder or, if a business account, a team admin. A successful
         response indicates that the file has been unlocked. Returns a list of
@@ -3142,6 +3276,112 @@ class DropboxBase(object):
 
         Route attributes:
             scope: files.content.write
+
+        :param List[:class:`dropbox.files.UnlockFileArg`] entries: List of
+            'entries'. Each 'entry' contains a path of the file which will be
+            unlocked. Duplicate path arguments in the batch are considered only
+            once.
+        :rtype: :class:`dropbox.files.LockFileBatchResult`
+>>>>>>> 818d795d8be058270c261f9620d145089382c02d
+        :raises: :class:`.exceptions.ApiError`
+
+        If this raises, ApiError will contain:
+            :class:`dropbox.files.LockFileError`
+        """
+<<<<<<< HEAD
+        warnings.warn(
+            'search is deprecated. Use search.',
+            DeprecationWarning,
+        )
+        arg = files.SearchArg(path,
+                              query,
+                              start,
+                              max_results,
+                              mode)
+=======
+        arg = files.UnlockFileBatchArg(entries)
+>>>>>>> 818d795d8be058270c261f9620d145089382c02d
+        r = self.request(
+            files.unlock_file_batch,
+            'files',
+            arg,
+            None,
+        )
+        return r
+
+    def files_search_v2(self,
+                        query,
+                        options=None,
+                        match_field_options=None,
+                        include_highlights=None):
+        """
+        Searches for files and folders. Note: :meth:`files_search_v2` along with
+        :meth:`files_search_continue_v2` can only be used to retrieve a maximum
+        of 10,000 matches. Recent changes may not immediately be reflected in
+        search results due to a short delay in indexing. Duplicate results may
+        be returned across pages. Some results may not be returned.
+
+        :param str query: The string to search for. May match across multiple
+            fields based on the request arguments. Query string may be rewritten
+            to improve relevance of results.
+        :param Nullable[:class:`dropbox.files.SearchOptions`] options: Options
+            for more targeted search results.
+        :param Nullable[:class:`dropbox.files.SearchMatchFieldOptions`]
+            match_field_options: Options for search results match fields.
+        :param Nullable[bool] include_highlights: Deprecated and moved this
+            option to SearchMatchFieldOptions.
+        :rtype: :class:`dropbox.files.SearchV2Result`
+        :raises: :class:`.exceptions.ApiError`
+
+        If this raises, ApiError will contain:
+            :class:`dropbox.files.SearchError`
+        """
+        arg = files.SearchV2Arg(query,
+                                options,
+                                match_field_options,
+                                include_highlights)
+        r = self.request(
+            files.search_v2,
+            'files',
+            arg,
+            None,
+        )
+        return r
+
+    def files_search_continue_v2(self,
+                                 cursor):
+        """
+        Fetches the next page of search results returned from
+        :meth:`files_search_v2`. Note: :meth:`files_search_v2` along with
+        :meth:`files_search_continue_v2` can only be used to retrieve a maximum
+        of 10,000 matches. Recent changes may not immediately be reflected in
+        search results due to a short delay in indexing. Duplicate results may
+        be returned across pages. Some results may not be returned.
+
+        :param str cursor: The cursor returned by your last call to
+            :meth:`files_search_v2`. Used to fetch the next page of results.
+        :rtype: :class:`dropbox.files.SearchV2Result`
+        :raises: :class:`.exceptions.ApiError`
+
+        If this raises, ApiError will contain:
+            :class:`dropbox.files.SearchError`
+        """
+        arg = files.SearchV2ContinueArg(cursor)
+        r = self.request(
+            files.search_continue_v2,
+            'files',
+            arg,
+            None,
+        )
+        return r
+
+    def files_unlock_file_batch(self,
+                                entries):
+        """
+        Unlock the files at the given paths. A locked file can only be unlocked
+        by the lock holder or, if a business account, a team admin. A successful
+        response indicates that the file has been unlocked. Returns a list of
+        the unlocked file paths and their metadata after this operation.
 
         :param List[:class:`dropbox.files.UnlockFileArg`] entries: List of
             'entries'. Each 'entry' contains a path of the file which will be
@@ -3185,11 +3425,38 @@ class DropboxBase(object):
             scope: files.content.write
 
         :param bytes f: Contents to upload.
+<<<<<<< HEAD
+        :param str path: Path in the user's Dropbox to save the file.
+        :param mode: Selects what to do if the file already exists.
+        :type mode: :class:`dropbox.files.WriteMode`
+        :param bool autorename: If there's a conflict, as determined by
+            ``mode``, have the Dropbox server try to autorename the file to
+            avoid conflict.
+        :param Nullable[datetime] client_modified: The value to store as the
+            ``client_modified`` timestamp. Dropbox automatically records the
+            time at which the file was written to the Dropbox servers. It can
+            also record an additional timestamp, provided by Dropbox desktop
+            clients, mobile clients, and API apps of when the file was actually
+            created or modified.
+        :param bool mute: Normally, users are made aware of any file
+            modifications in their Dropbox account via notifications in the
+            client software. If ``True``, this tells the clients that this
+            modification shouldn't result in a user notification.
+        :param Nullable[List[:class:`dropbox.files.PropertyGroup`]]
+            property_groups: List of custom properties to add to file.
+        :param bool strict_conflict: Be more strict about how each
+            :class:`dropbox.files.WriteMode` detects conflict. For example,
+            always return a conflict error when ``mode`` = ``WriteMode.update``
+            and the given "rev" doesn't match the existing file's "rev", even if
+            the existing file has been deleted. This also forces a conflict even
+            when the target path refers to a file with identical contents.
+=======
         :param Nullable[str] content_hash: A hash of the file content uploaded
             in this call. If provided and the uploaded content does not match
             this hash, an error will be returned. For more information see our
             `Content hash
             <https://www.dropbox.com/developers/reference/content-hash>`_ page.
+>>>>>>> 818d795d8be058270c261f9620d145089382c02d
         :rtype: :class:`dropbox.files.FileMetadata`
         :raises: :class:`.exceptions.ApiError`
 
@@ -3371,9 +3638,12 @@ class DropboxBase(object):
         information, see the `Data transport limit page
         <https://www.dropbox.com/developers/reference/data-transport-limit>`_.
 
+<<<<<<< HEAD
+=======
         Route attributes:
             scope: files.content.write
 
+>>>>>>> 818d795d8be058270c261f9620d145089382c02d
         :param List[:class:`dropbox.files.UploadSessionFinishArg`] entries:
             Commit information for each file in the batch.
         :rtype: :class:`dropbox.files.UploadSessionFinishBatchLaunch`
@@ -3457,8 +3727,12 @@ class DropboxBase(object):
     def files_upload_session_start(self,
                                    f,
                                    close=False,
+<<<<<<< HEAD
+                                   session_type=None):
+=======
                                    session_type=None,
                                    content_hash=None):
+>>>>>>> 818d795d8be058270c261f9620d145089382c02d
         """
         Upload sessions allow you to upload a single file in one or more
         requests, for example where the size of the file is greater than 150 MB.
@@ -3494,9 +3768,12 @@ class DropboxBase(object):
         bytes (except for last :meth:`files_upload_session_append_v2` with
         ``UploadSessionStartArg.close`` to ``True``, that may contain any
         remaining data).
+<<<<<<< HEAD
+=======
 
         Route attributes:
             scope: files.content.write
+>>>>>>> 818d795d8be058270c261f9620d145089382c02d
 
         :param bytes f: Contents to upload.
         :param bool close: If true, the current session will be closed, at which
@@ -3506,11 +3783,14 @@ class DropboxBase(object):
         :param Nullable[:class:`dropbox.files.UploadSessionType`] session_type:
             Type of upload session you want to start. If not specified, default
             is ``UploadSessionType.sequential``.
+<<<<<<< HEAD
+=======
         :param Nullable[str] content_hash: A hash of the file content uploaded
             in this call. If provided and the uploaded content does not match
             this hash, an error will be returned. For more information see our
             `Content hash
             <https://www.dropbox.com/developers/reference/content-hash>`_ page.
+>>>>>>> 818d795d8be058270c261f9620d145089382c02d
         :rtype: :class:`dropbox.files.UploadSessionStartResult`
         :raises: :class:`.exceptions.ApiError`
 
@@ -3518,8 +3798,12 @@ class DropboxBase(object):
             :class:`dropbox.files.UploadSessionStartError`
         """
         arg = files.UploadSessionStartArg(close,
+<<<<<<< HEAD
+                                          session_type)
+=======
                                           session_type,
                                           content_hash)
+>>>>>>> 818d795d8be058270c261f9620d145089382c02d
         r = self.request(
             files.upload_session_start,
             'files',
@@ -3569,9 +3853,12 @@ class DropboxBase(object):
         retired in September 2020. Refer to the `Paper Migration Guide
         <https://www.dropbox.com/lp/developers/reference/paper-migration-guide>`_
         for more information.
+<<<<<<< HEAD
+=======
 
         Route attributes:
             scope: files.content.write
+>>>>>>> 818d795d8be058270c261f9620d145089382c02d
 
         :param str doc_id: The Paper doc ID.
         :rtype: None
@@ -3606,9 +3893,12 @@ class DropboxBase(object):
         retired in September 2020. Refer to the `Paper Migration Guide
         <https://www.dropbox.com/lp/developers/reference/paper-migration-guide>`_
         for more information.
+<<<<<<< HEAD
+=======
 
         Route attributes:
             scope: files.content.write
+>>>>>>> 818d795d8be058270c261f9620d145089382c02d
 
         :param bytes f: Contents to upload.
         :param Nullable[str] parent_folder_id: The Paper folder ID where the
@@ -3648,9 +3938,12 @@ class DropboxBase(object):
         `Paper Migration Guide
         <https://www.dropbox.com/lp/developers/reference/paper-migration-guide>`_
         for migration information.
+<<<<<<< HEAD
+=======
 
         Route attributes:
             scope: files.content.read
+>>>>>>> 818d795d8be058270c261f9620d145089382c02d
 
         :type export_format: :class:`dropbox.paper.ExportFormat`
         :rtype: (:class:`dropbox.paper.PaperDocExportResult`,
@@ -3693,9 +3986,12 @@ class DropboxBase(object):
         `Paper Migration Guide
         <https://www.dropbox.com/lp/developers/reference/paper-migration-guide>`_
         for migration information.
+<<<<<<< HEAD
+=======
 
         Route attributes:
             scope: files.content.read
+>>>>>>> 818d795d8be058270c261f9620d145089382c02d
 
         :param str download_path: Path on local machine to save file.
         :type export_format: :class:`dropbox.paper.ExportFormat`
@@ -3735,9 +4031,12 @@ class DropboxBase(object):
         Migration Guide
         <https://www.dropbox.com/lp/developers/reference/paper-migration-guide>`_
         for migration information.
+<<<<<<< HEAD
+=======
 
         Route attributes:
             scope: sharing.read
+>>>>>>> 818d795d8be058270c261f9620d145089382c02d
 
         :param int limit: Size limit per batch. The maximum number of users that
             can be retrieved per batch is 1000. Higher value results in invalid
@@ -3775,9 +4074,12 @@ class DropboxBase(object):
         version of Paper. Refer to the `Paper Migration Guide
         <https://www.dropbox.com/lp/developers/reference/paper-migration-guide>`_
         for migration information.
+<<<<<<< HEAD
+=======
 
         Route attributes:
             scope: sharing.read
+>>>>>>> 818d795d8be058270c261f9620d145089382c02d
 
         :param str cursor: The cursor obtained from
             :meth:`paper_docs_folder_users_list` or
@@ -3819,9 +4121,12 @@ class DropboxBase(object):
         Migration Guide
         <https://www.dropbox.com/lp/developers/reference/paper-migration-guide>`_
         for migration information.
+<<<<<<< HEAD
+=======
 
         Route attributes:
             scope: sharing.read
+>>>>>>> 818d795d8be058270c261f9620d145089382c02d
 
         :param str doc_id: The Paper doc ID.
         :rtype: :class:`dropbox.paper.FoldersContainingPaperDoc`
@@ -3859,9 +4164,12 @@ class DropboxBase(object):
         Migration Guide
         <https://www.dropbox.com/lp/developers/reference/paper-migration-guide>`_
         for migration information.
+<<<<<<< HEAD
+=======
 
         Route attributes:
             scope: files.metadata.read
+>>>>>>> 818d795d8be058270c261f9620d145089382c02d
 
         :param filter_by: Allows user to specify how the Paper docs should be
             filtered.
@@ -3904,9 +4212,12 @@ class DropboxBase(object):
         Migration Guide
         <https://www.dropbox.com/lp/developers/reference/paper-migration-guide>`_
         for migration information.
+<<<<<<< HEAD
+=======
 
         Route attributes:
             scope: files.metadata.read
+>>>>>>> 818d795d8be058270c261f9620d145089382c02d
 
         :param str cursor: The cursor obtained from :meth:`paper_docs_list` or
             :meth:`paper_docs_list_continue`. Allows for pagination.
@@ -3941,9 +4252,12 @@ class DropboxBase(object):
         Refer to the `Paper Migration Guide
         <https://www.dropbox.com/lp/developers/reference/paper-migration-guide>`_
         for migration information.
+<<<<<<< HEAD
+=======
 
         Route attributes:
             scope: files.permanent_delete
+>>>>>>> 818d795d8be058270c261f9620d145089382c02d
 
         :param str doc_id: The Paper doc ID.
         :rtype: None
@@ -3976,9 +4290,12 @@ class DropboxBase(object):
         Migration Guide
         <https://www.dropbox.com/lp/developers/reference/paper-migration-guide>`_
         for migration information.
+<<<<<<< HEAD
+=======
 
         Route attributes:
             scope: sharing.read
+>>>>>>> 818d795d8be058270c261f9620d145089382c02d
 
         :param str doc_id: The Paper doc ID.
         :rtype: :class:`dropbox.paper.SharingPolicy`
@@ -4015,9 +4332,12 @@ class DropboxBase(object):
         version of Paper. Refer to the `Paper Migration Guide
         <https://www.dropbox.com/lp/developers/reference/paper-migration-guide>`_
         for migration information.
+<<<<<<< HEAD
+=======
 
         Route attributes:
             scope: sharing.write
+>>>>>>> 818d795d8be058270c261f9620d145089382c02d
 
         :param sharing_policy: The default sharing policy to be set for the
             Paper doc.
@@ -4057,9 +4377,12 @@ class DropboxBase(object):
         retired in September 2020. Refer to the `Paper Migration Guide
         <https://www.dropbox.com/lp/developers/reference/paper-migration-guide>`_
         for more information.
+<<<<<<< HEAD
+=======
 
         Route attributes:
             scope: files.content.write
+>>>>>>> 818d795d8be058270c261f9620d145089382c02d
 
         :param bytes f: Contents to upload.
         :param doc_update_policy: The policy used for the current update call.
@@ -4108,9 +4431,12 @@ class DropboxBase(object):
         <https://www.dropbox.com/lp/developers/reference/paper-migration-guide>`_
         for migration information.
 
+<<<<<<< HEAD
+=======
         Route attributes:
             scope: sharing.write
 
+>>>>>>> 818d795d8be058270c261f9620d145089382c02d
         :param List[:class:`dropbox.paper.AddMember`] members: User which should
             be added to the Paper doc. Specify only email address or Dropbox
             account ID.
@@ -4156,9 +4482,12 @@ class DropboxBase(object):
         version of Paper. Refer to the `Paper Migration Guide
         <https://www.dropbox.com/lp/developers/reference/paper-migration-guide>`_
         for migration information.
+<<<<<<< HEAD
+=======
 
         Route attributes:
             scope: sharing.read
+>>>>>>> 818d795d8be058270c261f9620d145089382c02d
 
         :param int limit: Size limit per batch. The maximum number of users that
             can be retrieved per batch is 1000. Higher value results in invalid
@@ -4200,9 +4529,12 @@ class DropboxBase(object):
         Migration Guide
         <https://www.dropbox.com/lp/developers/reference/paper-migration-guide>`_
         for migration information.
+<<<<<<< HEAD
+=======
 
         Route attributes:
             scope: sharing.read
+>>>>>>> 818d795d8be058270c261f9620d145089382c02d
 
         :param str cursor: The cursor obtained from
             :meth:`paper_docs_users_list` or
@@ -4240,9 +4572,12 @@ class DropboxBase(object):
         Refer to the `Paper Migration Guide
         <https://www.dropbox.com/lp/developers/reference/paper-migration-guide>`_
         for migration information.
+<<<<<<< HEAD
+=======
 
         Route attributes:
             scope: sharing.write
+>>>>>>> 818d795d8be058270c261f9620d145089382c02d
 
         :param member: User which should be removed from the Paper doc. Specify
             only email address or Dropbox account ID.
@@ -4281,9 +4616,12 @@ class DropboxBase(object):
         <https://www.dropbox.com/lp/developers/reference/paper-migration-guide>`_
         for migration information.
 
+<<<<<<< HEAD
+=======
         Route attributes:
             scope: files.content.write
 
+>>>>>>> 818d795d8be058270c261f9620d145089382c02d
         :param str name: The name of the new Paper folder.
         :param Nullable[str] parent_folder_id: The encrypted Paper folder Id
             where the new Paper folder should be created. The API user has to
@@ -4335,7 +4673,11 @@ class DropboxBase(object):
         :param str file: File to which to add members.
         :param List[:class:`dropbox.sharing.MemberSelector`] members: Members to
             add. Note that even an email address is given, this may result in a
+<<<<<<< HEAD
+            user being directy added to the membership if that email is the
+=======
             user being directly added to the membership if that email is the
+>>>>>>> 818d795d8be058270c261f9620d145089382c02d
             user's main account email.
         :param Nullable[str] custom_message: Message to send to added members in
             their invitation.
@@ -4497,7 +4839,11 @@ class DropboxBase(object):
             scope: sharing.write
 
         :param str path: The path to share.
+<<<<<<< HEAD
+        :param bool short_url: Whether to return a shortened URL.
+=======
         :type short_url: bool
+>>>>>>> 818d795d8be058270c261f9620d145089382c02d
         :param Nullable[:class:`dropbox.sharing.PendingUploadMode`]
             pending_upload: If it's okay to share a path that does not yet
             exist, set this to either ``PendingUploadMode.file`` or
@@ -4592,9 +4938,12 @@ class DropboxBase(object):
         """
         Returns shared file metadata.
 
+<<<<<<< HEAD
+=======
         Route attributes:
             scope: sharing.read
 
+>>>>>>> 818d795d8be058270c261f9620d145089382c02d
         :param List[str] files: The files to query.
         :param Nullable[List[:class:`dropbox.sharing.FileAction`]] actions: A
             list of `FileAction`s corresponding to `FilePermission`s that should
@@ -4767,9 +5116,12 @@ class DropboxBase(object):
         all shared links that allow access to the given path.  Collection links
         are never returned in this case.
 
+<<<<<<< HEAD
+=======
         Route attributes:
             scope: sharing.read
 
+>>>>>>> 818d795d8be058270c261f9620d145089382c02d
         :param Nullable[str] path: See :meth:`sharing_get_shared_links`
             description.
         :rtype: :class:`dropbox.sharing.GetSharedLinksResult`
@@ -4838,9 +5190,12 @@ class DropboxBase(object):
         Inherited users and groups are not included in the result, and
         permissions are not returned for this endpoint.
 
+<<<<<<< HEAD
+=======
         Route attributes:
             scope: sharing.read
 
+>>>>>>> 818d795d8be058270c261f9620d145089382c02d
         :param List[str] files: Files for which to return members.
         :param int limit: Number of members to return max per query. Defaults to
             10 if no limit is specified.
@@ -5131,9 +5486,12 @@ class DropboxBase(object):
         parent folders of the given path. Links to parent folders can be
         suppressed by setting direct_only to true.
 
+<<<<<<< HEAD
+=======
         Route attributes:
             scope: sharing.read
 
+>>>>>>> 818d795d8be058270c261f9620d145089382c02d
         :param Nullable[str] path: See :meth:`sharing_list_shared_links`
             description.
         :param Nullable[str] cursor: The cursor returned by your last call to
@@ -5463,9 +5821,12 @@ class DropboxBase(object):
         :meth:`sharing_check_share_job_status` until the action completes to get
         the metadata for the folder.
 
+<<<<<<< HEAD
+=======
         Route attributes:
             scope: sharing.write
 
+>>>>>>> 818d795d8be058270c261f9620d145089382c02d
         :param Nullable[List[:class:`dropbox.sharing.FolderAction`]] actions: A
             list of `FolderAction`s corresponding to `FolderPermission`s that
             should appear in the  response's
@@ -5747,9 +6108,12 @@ class DropboxBase(object):
         Get a list of feature values that may be configured for the current
         account.
 
+<<<<<<< HEAD
+=======
         Route attributes:
             scope: account_info.read
 
+>>>>>>> 818d795d8be058270c261f9620d145089382c02d
         :param List[:class:`dropbox.users.UserFeature`] features: A list of
             features in :class:`dropbox.users.UserFeature`. If the list is
             empty, this route will return
@@ -5799,9 +6163,12 @@ class DropboxBase(object):
         Get information about multiple user accounts.  At most 300 accounts may
         be queried per request.
 
+<<<<<<< HEAD
+=======
         Route attributes:
             scope: sharing.read
 
+>>>>>>> 818d795d8be058270c261f9620d145089382c02d
         :param List[str] account_ids: List of user account identifiers.  Should
             not contain any duplicate account IDs.
         :rtype: List[:class:`dropbox.users.BasicAccount`]
