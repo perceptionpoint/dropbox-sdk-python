@@ -357,4 +357,3 @@ UserRootInfo._all_fields_ = RootInfo._all_fields_ + UserRootInfo._fields_
 
 ROUTES = {
 }
-

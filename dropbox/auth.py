@@ -699,4 +699,3 @@ ROUTES = {
     'token/from_oauth1': token_from_oauth1,
     'token/revoke': token_revoke,
 }
-

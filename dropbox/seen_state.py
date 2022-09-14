@@ -147,4 +147,3 @@ PlatformType.other = PlatformType('other')
 
 ROUTES = {
 }
-

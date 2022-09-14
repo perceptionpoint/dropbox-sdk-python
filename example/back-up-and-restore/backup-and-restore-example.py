@@ -2,6 +2,7 @@
 Backs up and restores a settings file to Dropbox.
 This is an example app for API v2.
 """
+from __future__ import print_function
 
 import sys
 import dropbox

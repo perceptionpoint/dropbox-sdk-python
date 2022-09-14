@@ -2294,4 +2294,3 @@ ROUTES = {
     'templates/update_for_team': templates_update_for_team,
     'templates/update_for_user': templates_update_for_user,
 }
-

@@ -8,7 +8,7 @@ import subprocess
 import sys
 
 cmdline_desc = """\
-Runs Stone to generate Python types and client for the Dropbox client. 
+Runs Stone to generate Python types and client for the Dropbox client.
 """
 
 _cmdline_parser = argparse.ArgumentParser(description=cmdline_desc)

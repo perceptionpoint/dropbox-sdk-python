@@ -726,7 +726,6 @@ class Dropbox(_DropboxTransport, DropboxBase):
     token. Methods of this class are meant to act on the corresponding user's
     Dropbox.
     """
-    pass
 
 class DropboxTeam(_DropboxTransport, DropboxTeamBase):
     """
@@ -795,4 +794,3 @@ class BadInputException(Exception):
     This should only ever be thrown during testing, app should have validation of input prior to
     reaching this point
     """
-    pass

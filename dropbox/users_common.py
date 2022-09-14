@@ -77,4 +77,3 @@ AccountType.business = AccountType('business')
 
 ROUTES = {
 }
-
