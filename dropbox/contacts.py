@@ -135,3 +135,4 @@ ROUTES = {
     'delete_manual_contacts': delete_manual_contacts,
     'delete_manual_contacts_batch': delete_manual_contacts_batch,
 }
+

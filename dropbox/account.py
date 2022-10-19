@@ -256,3 +256,4 @@ set_profile_photo = bb.Route(
 ROUTES = {
     'set_profile_photo': set_profile_photo,
 }
+

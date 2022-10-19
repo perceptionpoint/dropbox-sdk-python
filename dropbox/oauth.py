@@ -540,6 +540,7 @@ class BadRequestException(Exception):
 
     The recommended action is to show an HTTP 400 error page.
     """
+    pass
 
 
 class BadStateException(Exception):
@@ -549,6 +550,7 @@ class BadStateException(Exception):
 
     The recommended action is to redirect the user's browser to try the approval process again.
     """
+    pass
 
 
 class CsrfException(Exception):
@@ -558,12 +560,14 @@ class CsrfException(Exception):
 
     The recommended action is to respond with an HTTP 403 error page.
     """
+    pass
 
 
 class NotApprovedException(Exception):
     """
     The user chose not to approve your app.
     """
+    pass
 
 
 class ProviderException(Exception):
@@ -573,6 +577,7 @@ class ProviderException(Exception):
     The recommended action is to log the error, tell the user something went wrong, and let them try
     again.
     """
+    pass
 
 
 class BadInputException(Exception):
@@ -582,6 +587,7 @@ class BadInputException(Exception):
     This should only ever be thrown during testing, app should have validation of input prior to
     reaching this point
     """
+    pass
 
 
 def _safe_equals(a, b):
