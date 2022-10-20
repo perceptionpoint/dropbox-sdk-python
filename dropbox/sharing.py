@@ -88,6 +88,8 @@ class AccessLevel(bb.Union):
         folder.
     :ivar sharing.AccessLevel.viewer_no_comment: The collaborator can only view
         the shared folder and does not have any access to comments.
+    :ivar sharing.AccessLevel.traverse: The collaborator can only view the
+        shared folder that they have access to.
     """
 
     _catch_all = 'other'
@@ -99,6 +101,8 @@ class AccessLevel(bb.Union):
     viewer = None
     # Attribute is overwritten below the class definition
     viewer_no_comment = None
+    # Attribute is overwritten below the class definition
+    traverse = None
     # Attribute is overwritten below the class definition
     other = None
 
@@ -133,6 +137,14 @@ class AccessLevel(bb.Union):
         :rtype: bool
         """
         return self._tag == 'viewer_no_comment'
+
+    def is_traverse(self):
+        """
+        Check if the union tag is ``traverse``.
+
+        :rtype: bool
+        """
+        return self._tag == 'traverse'
 
     def is_other(self):
         """
@@ -205,12 +217,12 @@ class AddFileMemberArgs(bb.Struct):
 
     :ivar sharing.AddFileMemberArgs.file: File to which to add members.
     :ivar sharing.AddFileMemberArgs.members: Members to add. Note that even an
-        email address is given, this may result in a user being directy added to
-        the membership if that email is the user's main account email.
+        email address is given, this may result in a user being directly added
+        to the membership if that email is the user's main account email.
     :ivar sharing.AddFileMemberArgs.custom_message: Message to send to added
         members in their invitation.
     :ivar sharing.AddFileMemberArgs.quiet: Whether added members should be
-        notified via device notifications of their invitation.
+        notified via email and device notifications of their invitation.
     :ivar sharing.AddFileMemberArgs.access_level: AccessLevel union object,
         describing what access level we want to give new members.
     :ivar sharing.AddFileMemberArgs.add_message_as_comment: If the custom
@@ -912,6 +924,160 @@ class AddMemberSelectorError(bb.Union):
 
 AddMemberSelectorError_validator = bv.Union(AddMemberSelectorError)
 
+class RequestedVisibility(bb.Union):
+    """
+    The access permission that can be requested by the caller for the shared
+    link. Note that the final resolved visibility of the shared link takes into
+    account other aspects, such as team and shared folder settings. Check the
+    :class:`ResolvedVisibility` for more info on the possible resolved
+    visibility values of shared links.
+
+    This class acts as a tagged union. Only one of the ``is_*`` methods will
+    return true. To get the associated value of a tag (if one exists), use the
+    corresponding ``get_*`` method.
+
+    :ivar sharing.RequestedVisibility.public: Anyone who has received the link
+        can access it. No login required.
+    :ivar sharing.RequestedVisibility.team_only: Only members of the same team
+        can access the link. Login is required.
+    :ivar sharing.RequestedVisibility.password: A link-specific password is
+        required to access the link. Login is not required.
+    """
+
+    _catch_all = None
+    # Attribute is overwritten below the class definition
+    public = None
+    # Attribute is overwritten below the class definition
+    team_only = None
+    # Attribute is overwritten below the class definition
+    password = None
+
+    def is_public(self):
+        """
+        Check if the union tag is ``public``.
+
+        :rtype: bool
+        """
+        return self._tag == 'public'
+
+    def is_team_only(self):
+        """
+        Check if the union tag is ``team_only``.
+
+        :rtype: bool
+        """
+        return self._tag == 'team_only'
+
+    def is_password(self):
+        """
+        Check if the union tag is ``password``.
+
+        :rtype: bool
+        """
+        return self._tag == 'password'
+
+    def _process_custom_annotations(self, annotation_type, field_path, processor):
+        super(RequestedVisibility, self)._process_custom_annotations(annotation_type, field_path, processor)
+
+RequestedVisibility_validator = bv.Union(RequestedVisibility)
+
+class ResolvedVisibility(RequestedVisibility):
+    """
+    The actual access permissions values of shared links after taking into
+    account user preferences and the team and shared folder settings. Check the
+    :class:`RequestedVisibility` for more info on the possible visibility values
+    that can be set by the shared link's owner.
+
+    This class acts as a tagged union. Only one of the ``is_*`` methods will
+    return true. To get the associated value of a tag (if one exists), use the
+    corresponding ``get_*`` method.
+
+    :ivar sharing.ResolvedVisibility.team_and_password: Only members of the same
+        team who have the link-specific password can access the link. Login is
+        required.
+    :ivar sharing.ResolvedVisibility.shared_folder_only: Only members of the
+        shared folder containing the linked file can access the link. Login is
+        required.
+    :ivar sharing.ResolvedVisibility.no_one: The link merely points the user to
+        the content, and does not grant any additional rights. Existing members
+        of the content who use this link can only access the content with their
+        pre-existing access rights. Either on the file directly, or inherited
+        from a parent folder.
+    :ivar sharing.ResolvedVisibility.only_you: Only the current user can view
+        this link.
+    """
+
+    _catch_all = 'other'
+    # Attribute is overwritten below the class definition
+    team_and_password = None
+    # Attribute is overwritten below the class definition
+    shared_folder_only = None
+    # Attribute is overwritten below the class definition
+    no_one = None
+    # Attribute is overwritten below the class definition
+    only_you = None
+    # Attribute is overwritten below the class definition
+    other = None
+
+    def is_team_and_password(self):
+        """
+        Check if the union tag is ``team_and_password``.
+
+        :rtype: bool
+        """
+        return self._tag == 'team_and_password'
+
+    def is_shared_folder_only(self):
+        """
+        Check if the union tag is ``shared_folder_only``.
+
+        :rtype: bool
+        """
+        return self._tag == 'shared_folder_only'
+
+    def is_no_one(self):
+        """
+        Check if the union tag is ``no_one``.
+
+        :rtype: bool
+        """
+        return self._tag == 'no_one'
+
+    def is_only_you(self):
+        """
+        Check if the union tag is ``only_you``.
+
+        :rtype: bool
+        """
+        return self._tag == 'only_you'
+
+    def is_other(self):
+        """
+        Check if the union tag is ``other``.
+
+        :rtype: bool
+        """
+        return self._tag == 'other'
+
+    def _process_custom_annotations(self, annotation_type, field_path, processor):
+        super(ResolvedVisibility, self)._process_custom_annotations(annotation_type, field_path, processor)
+
+ResolvedVisibility_validator = bv.Union(ResolvedVisibility)
+
+class AlphaResolvedVisibility(ResolvedVisibility):
+    """
+    check documentation for ResolvedVisibility.
+
+    This class acts as a tagged union. Only one of the ``is_*`` methods will
+    return true. To get the associated value of a tag (if one exists), use the
+    corresponding ``get_*`` method.
+    """
+
+    def _process_custom_annotations(self, annotation_type, field_path, processor):
+        super(AlphaResolvedVisibility, self)._process_custom_annotations(annotation_type, field_path, processor)
+
+AlphaResolvedVisibility_validator = bv.Union(AlphaResolvedVisibility)
+
 class AudienceExceptionContentInfo(bb.Struct):
     """
     Information about the content that has a link audience different than that
@@ -1030,55 +1196,6 @@ class AudienceRestrictingSharedFolder(bb.Struct):
 
 AudienceRestrictingSharedFolder_validator = bv.Struct(AudienceRestrictingSharedFolder)
 
-class ChangeFileMemberAccessArgs(bb.Struct):
-    """
-    Arguments for
-    :meth:`dropbox.dropbox_client.Dropbox.sharing_change_file_member_access`.
-
-    :ivar sharing.ChangeFileMemberAccessArgs.file: File for which we are
-        changing a member's access.
-    :ivar sharing.ChangeFileMemberAccessArgs.member: The member whose access we
-        are changing.
-    :ivar sharing.ChangeFileMemberAccessArgs.access_level: The new access level
-        for the member.
-    """
-
-    __slots__ = [
-        '_file_value',
-        '_member_value',
-        '_access_level_value',
-    ]
-
-    _has_required_fields = True
-
-    def __init__(self,
-                 file=None,
-                 member=None,
-                 access_level=None):
-        self._file_value = bb.NOT_SET
-        self._member_value = bb.NOT_SET
-        self._access_level_value = bb.NOT_SET
-        if file is not None:
-            self.file = file
-        if member is not None:
-            self.member = member
-        if access_level is not None:
-            self.access_level = access_level
-
-    # Instance attribute type: str (validator is set below)
-    file = bb.Attribute("file")
-
-    # Instance attribute type: MemberSelector (validator is set below)
-    member = bb.Attribute("member", user_defined=True)
-
-    # Instance attribute type: AccessLevel (validator is set below)
-    access_level = bb.Attribute("access_level", user_defined=True)
-
-    def _process_custom_annotations(self, annotation_type, field_path, processor):
-        super(ChangeFileMemberAccessArgs, self)._process_custom_annotations(annotation_type, field_path, processor)
-
-ChangeFileMemberAccessArgs_validator = bv.Struct(ChangeFileMemberAccessArgs)
-
 class LinkMetadata(bb.Struct):
     """
     Metadata for a shared link. This can be either a :class:`PathLinkMetadata`
@@ -1152,8 +1269,6 @@ CollectionLinkMetadata_validator = bv.Struct(CollectionLinkMetadata)
 class CreateSharedLinkArg(bb.Struct):
     """
     :ivar sharing.CreateSharedLinkArg.path: The path to share.
-    :ivar sharing.CreateSharedLinkArg.short_url: Whether to return a shortened
-        URL.
     :ivar sharing.CreateSharedLinkArg.pending_upload: If it's okay to share a
         path that does not yet exist, set this to either
         ``PendingUploadMode.file`` or ``PendingUploadMode.folder`` to indicate
@@ -1303,8 +1418,10 @@ class CreateSharedLinkWithSettingsError(bb.Union):
     :ivar SharedLinkSettingsError
         CreateSharedLinkWithSettingsError.settings_error: There is an error with
         the given settings.
-    :ivar sharing.CreateSharedLinkWithSettingsError.access_denied: Access to the
-        requested path is forbidden.
+    :ivar sharing.CreateSharedLinkWithSettingsError.access_denied: The user is
+        not allowed to create a shared link to the specified file. For  example,
+        this can occur if the file is restricted or if the user's links are
+        `banned <https://help.dropbox.com/files-folders/share/banned-links>`_.
     """
 
     _catch_all = None
@@ -2147,8 +2264,11 @@ class FileMemberActionIndividualResult(bb.Union):
     corresponding ``get_*`` method.
 
     :ivar Optional[AccessLevel]
-        sharing.FileMemberActionIndividualResult.success: Member was
-        successfully removed from this file. If AccessLevel is given, the member
+        sharing.FileMemberActionIndividualResult.success: Part of the response
+        for both add_file_member and remove_file_member_v1 (deprecated). For
+        add_file_member, indicates giving access was successful and at what
+        AccessLevel. For remove_file_member_v1, indicates member was
+        successfully removed from the file. If AccessLevel is given, the member
         still has access via a parent shared folder.
     :ivar FileMemberActionError FileMemberActionIndividualResult.member_error:
         User was not able to perform this action.
@@ -2196,7 +2316,10 @@ class FileMemberActionIndividualResult(bb.Union):
 
     def get_success(self):
         """
-        Member was successfully removed from this file. If AccessLevel is given,
+        Part of the response for both add_file_member and remove_file_member_v1
+        (deprecated). For add_file_member, indicates giving access was
+        successful and at what AccessLevel. For remove_file_member_v1, indicates
+        member was successfully removed from the file. If AccessLevel is given,
         the member still has access via a parent shared folder.
 
         Only call this if :meth:`is_success` is true.
@@ -2227,36 +2350,57 @@ FileMemberActionIndividualResult_validator = bv.Union(FileMemberActionIndividual
 class FileMemberActionResult(bb.Struct):
     """
     Per-member result for
-    :meth:`dropbox.dropbox_client.Dropbox.sharing_add_file_member` or
-    :meth:`dropbox.dropbox_client.Dropbox.sharing_change_file_member_access`.
+    :meth:`dropbox.dropbox_client.Dropbox.sharing_add_file_member`.
 
     :ivar sharing.FileMemberActionResult.member: One of specified input members.
     :ivar sharing.FileMemberActionResult.result: The outcome of the action on
         this member.
+    :ivar sharing.FileMemberActionResult.sckey_sha1: The SHA-1 encrypted shared
+        content key.
+    :ivar sharing.FileMemberActionResult.invitation_signature: The sharing
+        sender-recipient invitation signatures for the input member_id. A
+        member_id can be a group and thus have multiple users and multiple
+        invitation signatures.
     """
 
     __slots__ = [
         '_member_value',
         '_result_value',
+        '_sckey_sha1_value',
+        '_invitation_signature_value',
     ]
 
     _has_required_fields = True
 
     def __init__(self,
                  member=None,
-                 result=None):
+                 result=None,
+                 sckey_sha1=None,
+                 invitation_signature=None):
         self._member_value = bb.NOT_SET
         self._result_value = bb.NOT_SET
+        self._sckey_sha1_value = bb.NOT_SET
+        self._invitation_signature_value = bb.NOT_SET
         if member is not None:
             self.member = member
         if result is not None:
             self.result = result
+        if sckey_sha1 is not None:
+            self.sckey_sha1 = sckey_sha1
+        if invitation_signature is not None:
+            self.invitation_signature = invitation_signature
 
     # Instance attribute type: MemberSelector (validator is set below)
     member = bb.Attribute("member", user_defined=True)
 
     # Instance attribute type: FileMemberActionIndividualResult (validator is set below)
     result = bb.Attribute("result", user_defined=True)
+
+    # Instance attribute type: str (validator is set below)
+    sckey_sha1 = bb.Attribute("sckey_sha1", nullable=True)
+
+    # Instance attribute type: list of [str] (validator is set below)
+    invitation_signature = bb.Attribute("invitation_signature", nullable=True)
 
     def _process_custom_annotations(self, annotation_type, field_path, processor):
         super(FileMemberActionResult, self)._process_custom_annotations(annotation_type, field_path, processor)
@@ -4024,8 +4168,9 @@ class LinkAudience(bb.Union):
         merely points the user to the content, and does not grant additional
         rights to the user. Members of the content who use this link can only
         access the content with their pre-existing access rights.
-    :ivar sharing.LinkAudience.password: A link-specific password is required to
-        access the link. Login is not required.
+    :ivar sharing.LinkAudience.password: Use `require_password` instead. A
+        link-specific password is required to access the link. Login is not
+        required.
     :ivar sharing.LinkAudience.members: Link is accessible only by members of
         the content.
     """
@@ -4096,6 +4241,166 @@ class LinkAudience(bb.Union):
         super(LinkAudience, self)._process_custom_annotations(annotation_type, field_path, processor)
 
 LinkAudience_validator = bv.Union(LinkAudience)
+
+class VisibilityPolicyDisallowedReason(bb.Union):
+    """
+    This class acts as a tagged union. Only one of the ``is_*`` methods will
+    return true. To get the associated value of a tag (if one exists), use the
+    corresponding ``get_*`` method.
+
+    :ivar sharing.VisibilityPolicyDisallowedReason.delete_and_recreate: The user
+        needs to delete and recreate the link to change the visibility policy.
+    :ivar sharing.VisibilityPolicyDisallowedReason.restricted_by_shared_folder:
+        The parent shared folder restricts sharing of links outside the shared
+        folder. To change the visibility policy, remove the restriction from the
+        parent shared folder.
+    :ivar sharing.VisibilityPolicyDisallowedReason.restricted_by_team: The team
+        policy prevents links being shared outside the team.
+    :ivar sharing.VisibilityPolicyDisallowedReason.user_not_on_team: The user
+        needs to be on a team to set this policy.
+    :ivar sharing.VisibilityPolicyDisallowedReason.user_account_type: The user
+        is a basic user or is on a limited team.
+    :ivar sharing.VisibilityPolicyDisallowedReason.permission_denied: The user
+        does not have permission.
+    """
+
+    _catch_all = 'other'
+    # Attribute is overwritten below the class definition
+    delete_and_recreate = None
+    # Attribute is overwritten below the class definition
+    restricted_by_shared_folder = None
+    # Attribute is overwritten below the class definition
+    restricted_by_team = None
+    # Attribute is overwritten below the class definition
+    user_not_on_team = None
+    # Attribute is overwritten below the class definition
+    user_account_type = None
+    # Attribute is overwritten below the class definition
+    permission_denied = None
+    # Attribute is overwritten below the class definition
+    other = None
+
+    def is_delete_and_recreate(self):
+        """
+        Check if the union tag is ``delete_and_recreate``.
+
+        :rtype: bool
+        """
+        return self._tag == 'delete_and_recreate'
+
+    def is_restricted_by_shared_folder(self):
+        """
+        Check if the union tag is ``restricted_by_shared_folder``.
+
+        :rtype: bool
+        """
+        return self._tag == 'restricted_by_shared_folder'
+
+    def is_restricted_by_team(self):
+        """
+        Check if the union tag is ``restricted_by_team``.
+
+        :rtype: bool
+        """
+        return self._tag == 'restricted_by_team'
+
+    def is_user_not_on_team(self):
+        """
+        Check if the union tag is ``user_not_on_team``.
+
+        :rtype: bool
+        """
+        return self._tag == 'user_not_on_team'
+
+    def is_user_account_type(self):
+        """
+        Check if the union tag is ``user_account_type``.
+
+        :rtype: bool
+        """
+        return self._tag == 'user_account_type'
+
+    def is_permission_denied(self):
+        """
+        Check if the union tag is ``permission_denied``.
+
+        :rtype: bool
+        """
+        return self._tag == 'permission_denied'
+
+    def is_other(self):
+        """
+        Check if the union tag is ``other``.
+
+        :rtype: bool
+        """
+        return self._tag == 'other'
+
+    def _process_custom_annotations(self, annotation_type, field_path, processor):
+        super(VisibilityPolicyDisallowedReason, self)._process_custom_annotations(annotation_type, field_path, processor)
+
+VisibilityPolicyDisallowedReason_validator = bv.Union(VisibilityPolicyDisallowedReason)
+
+class LinkAudienceDisallowedReason(VisibilityPolicyDisallowedReason):
+    """
+    check documentation for VisibilityPolicyDisallowedReason.
+
+    This class acts as a tagged union. Only one of the ``is_*`` methods will
+    return true. To get the associated value of a tag (if one exists), use the
+    corresponding ``get_*`` method.
+    """
+
+    def _process_custom_annotations(self, annotation_type, field_path, processor):
+        super(LinkAudienceDisallowedReason, self)._process_custom_annotations(annotation_type, field_path, processor)
+
+LinkAudienceDisallowedReason_validator = bv.Union(LinkAudienceDisallowedReason)
+
+class LinkAudienceOption(bb.Struct):
+    """
+    :ivar sharing.LinkAudienceOption.audience: Specifies who can access the
+        link.
+    :ivar sharing.LinkAudienceOption.allowed: Whether the user calling this API
+        can select this audience option.
+    :ivar sharing.LinkAudienceOption.disallowed_reason: If ``allowed`` is
+        ``False``, this will provide the reason that the user is not permitted
+        to set the visibility to this policy.
+    """
+
+    __slots__ = [
+        '_audience_value',
+        '_allowed_value',
+        '_disallowed_reason_value',
+    ]
+
+    _has_required_fields = True
+
+    def __init__(self,
+                 audience=None,
+                 allowed=None,
+                 disallowed_reason=None):
+        self._audience_value = bb.NOT_SET
+        self._allowed_value = bb.NOT_SET
+        self._disallowed_reason_value = bb.NOT_SET
+        if audience is not None:
+            self.audience = audience
+        if allowed is not None:
+            self.allowed = allowed
+        if disallowed_reason is not None:
+            self.disallowed_reason = disallowed_reason
+
+    # Instance attribute type: LinkAudience (validator is set below)
+    audience = bb.Attribute("audience", user_defined=True)
+
+    # Instance attribute type: bool (validator is set below)
+    allowed = bb.Attribute("allowed")
+
+    # Instance attribute type: LinkAudienceDisallowedReason (validator is set below)
+    disallowed_reason = bb.Attribute("disallowed_reason", nullable=True, user_defined=True)
+
+    def _process_custom_annotations(self, annotation_type, field_path, processor):
+        super(LinkAudienceOption, self)._process_custom_annotations(annotation_type, field_path, processor)
+
+LinkAudienceOption_validator = bv.Struct(LinkAudienceOption)
 
 class LinkExpiry(bb.Union):
     """
@@ -4310,6 +4615,35 @@ class LinkPermissions(bb.Struct):
         not depend on who is calling this API. In particular,
         `link_access_level` does not take into account the API caller's current
         permissions to the content.
+    :ivar sharing.LinkPermissions.visibility_policies: A list of policies that
+        the user might be able to set for the visibility.
+    :ivar sharing.LinkPermissions.can_set_expiry: Whether the user can set the
+        expiry settings of the link. This refers to the ability to create a new
+        expiry and modify an existing expiry.
+    :ivar sharing.LinkPermissions.can_remove_expiry: Whether the user can remove
+        the expiry of the link.
+    :ivar sharing.LinkPermissions.allow_download: Whether the link can be
+        downloaded or not.
+    :ivar sharing.LinkPermissions.can_allow_download: Whether the user can allow
+        downloads via the link. This refers to the ability to remove a
+        no-download restriction on the link.
+    :ivar sharing.LinkPermissions.can_disallow_download: Whether the user can
+        disallow downloads via the link. This refers to the ability to impose a
+        no-download restriction on the link.
+    :ivar sharing.LinkPermissions.allow_comments: Whether comments are enabled
+        for the linked file. This takes the team commenting policy into account.
+    :ivar sharing.LinkPermissions.team_restricts_comments: Whether the team has
+        disabled commenting globally.
+    :ivar sharing.LinkPermissions.audience_options: A list of link audience
+        options the user might be able to set as the new audience.
+    :ivar sharing.LinkPermissions.can_set_password: Whether the user can set a
+        password for the link.
+    :ivar sharing.LinkPermissions.can_remove_password: Whether the user can
+        remove the password of the link.
+    :ivar sharing.LinkPermissions.require_password: Whether the user is required
+        to provide a password to view the link.
+    :ivar sharing.LinkPermissions.can_use_extended_sharing_controls: Whether the
+        user can use extended sharing controls, based on their account type.
     """
 
     __slots__ = [
@@ -4319,23 +4653,62 @@ class LinkPermissions(bb.Struct):
         '_revoke_failure_reason_value',
         '_effective_audience_value',
         '_link_access_level_value',
+        '_visibility_policies_value',
+        '_can_set_expiry_value',
+        '_can_remove_expiry_value',
+        '_allow_download_value',
+        '_can_allow_download_value',
+        '_can_disallow_download_value',
+        '_allow_comments_value',
+        '_team_restricts_comments_value',
+        '_audience_options_value',
+        '_can_set_password_value',
+        '_can_remove_password_value',
+        '_require_password_value',
+        '_can_use_extended_sharing_controls_value',
     ]
 
     _has_required_fields = True
 
     def __init__(self,
                  can_revoke=None,
+                 visibility_policies=None,
+                 can_set_expiry=None,
+                 can_remove_expiry=None,
+                 allow_download=None,
+                 can_allow_download=None,
+                 can_disallow_download=None,
+                 allow_comments=None,
+                 team_restricts_comments=None,
                  resolved_visibility=None,
                  requested_visibility=None,
                  revoke_failure_reason=None,
                  effective_audience=None,
-                 link_access_level=None):
+                 link_access_level=None,
+                 audience_options=None,
+                 can_set_password=None,
+                 can_remove_password=None,
+                 require_password=None,
+                 can_use_extended_sharing_controls=None):
         self._resolved_visibility_value = bb.NOT_SET
         self._requested_visibility_value = bb.NOT_SET
         self._can_revoke_value = bb.NOT_SET
         self._revoke_failure_reason_value = bb.NOT_SET
         self._effective_audience_value = bb.NOT_SET
         self._link_access_level_value = bb.NOT_SET
+        self._visibility_policies_value = bb.NOT_SET
+        self._can_set_expiry_value = bb.NOT_SET
+        self._can_remove_expiry_value = bb.NOT_SET
+        self._allow_download_value = bb.NOT_SET
+        self._can_allow_download_value = bb.NOT_SET
+        self._can_disallow_download_value = bb.NOT_SET
+        self._allow_comments_value = bb.NOT_SET
+        self._team_restricts_comments_value = bb.NOT_SET
+        self._audience_options_value = bb.NOT_SET
+        self._can_set_password_value = bb.NOT_SET
+        self._can_remove_password_value = bb.NOT_SET
+        self._require_password_value = bb.NOT_SET
+        self._can_use_extended_sharing_controls_value = bb.NOT_SET
         if resolved_visibility is not None:
             self.resolved_visibility = resolved_visibility
         if requested_visibility is not None:
@@ -4348,6 +4721,32 @@ class LinkPermissions(bb.Struct):
             self.effective_audience = effective_audience
         if link_access_level is not None:
             self.link_access_level = link_access_level
+        if visibility_policies is not None:
+            self.visibility_policies = visibility_policies
+        if can_set_expiry is not None:
+            self.can_set_expiry = can_set_expiry
+        if can_remove_expiry is not None:
+            self.can_remove_expiry = can_remove_expiry
+        if allow_download is not None:
+            self.allow_download = allow_download
+        if can_allow_download is not None:
+            self.can_allow_download = can_allow_download
+        if can_disallow_download is not None:
+            self.can_disallow_download = can_disallow_download
+        if allow_comments is not None:
+            self.allow_comments = allow_comments
+        if team_restricts_comments is not None:
+            self.team_restricts_comments = team_restricts_comments
+        if audience_options is not None:
+            self.audience_options = audience_options
+        if can_set_password is not None:
+            self.can_set_password = can_set_password
+        if can_remove_password is not None:
+            self.can_remove_password = can_remove_password
+        if require_password is not None:
+            self.require_password = require_password
+        if can_use_extended_sharing_controls is not None:
+            self.can_use_extended_sharing_controls = can_use_extended_sharing_controls
 
     # Instance attribute type: ResolvedVisibility (validator is set below)
     resolved_visibility = bb.Attribute("resolved_visibility", nullable=True, user_defined=True)
@@ -4366,6 +4765,45 @@ class LinkPermissions(bb.Struct):
 
     # Instance attribute type: LinkAccessLevel (validator is set below)
     link_access_level = bb.Attribute("link_access_level", nullable=True, user_defined=True)
+
+    # Instance attribute type: list of [VisibilityPolicy] (validator is set below)
+    visibility_policies = bb.Attribute("visibility_policies")
+
+    # Instance attribute type: bool (validator is set below)
+    can_set_expiry = bb.Attribute("can_set_expiry")
+
+    # Instance attribute type: bool (validator is set below)
+    can_remove_expiry = bb.Attribute("can_remove_expiry")
+
+    # Instance attribute type: bool (validator is set below)
+    allow_download = bb.Attribute("allow_download")
+
+    # Instance attribute type: bool (validator is set below)
+    can_allow_download = bb.Attribute("can_allow_download")
+
+    # Instance attribute type: bool (validator is set below)
+    can_disallow_download = bb.Attribute("can_disallow_download")
+
+    # Instance attribute type: bool (validator is set below)
+    allow_comments = bb.Attribute("allow_comments")
+
+    # Instance attribute type: bool (validator is set below)
+    team_restricts_comments = bb.Attribute("team_restricts_comments")
+
+    # Instance attribute type: list of [LinkAudienceOption] (validator is set below)
+    audience_options = bb.Attribute("audience_options", nullable=True)
+
+    # Instance attribute type: bool (validator is set below)
+    can_set_password = bb.Attribute("can_set_password", nullable=True)
+
+    # Instance attribute type: bool (validator is set below)
+    can_remove_password = bb.Attribute("can_remove_password", nullable=True)
+
+    # Instance attribute type: bool (validator is set below)
+    require_password = bb.Attribute("require_password", nullable=True)
+
+    # Instance attribute type: bool (validator is set below)
+    can_use_extended_sharing_controls = bb.Attribute("can_use_extended_sharing_controls", nullable=True)
 
     def _process_custom_annotations(self, annotation_type, field_path, processor):
         super(LinkPermissions, self)._process_custom_annotations(annotation_type, field_path, processor)
@@ -6636,7 +7074,8 @@ class RelinquishFolderMembershipArg(bb.Struct):
     :ivar sharing.RelinquishFolderMembershipArg.shared_folder_id: The ID for the
         shared folder.
     :ivar sharing.RelinquishFolderMembershipArg.leave_a_copy: Keep a copy of the
-        folder's contents upon relinquishing membership.
+        folder's contents upon relinquishing membership. This must be set to
+        false when the folder is within a team folder or another shared folder.
     """
 
     __slots__ = [
@@ -6968,8 +7407,9 @@ class RemoveFolderMemberArg(bb.Struct):
         folder.
     :ivar sharing.RemoveFolderMemberArg.leave_a_copy: If true, the removed user
         will keep their copy of the folder after it's unshared, assuming it was
-        mounted. Otherwise, it will be removed from their Dropbox. Also, this
-        must be set to false when kicking a group.
+        mounted. Otherwise, it will be removed from their Dropbox. This must be
+        set to false when removing a group, or when the folder is within a team
+        folder or another shared folder.
     """
 
     __slots__ = [
@@ -7291,119 +7731,6 @@ class RequestedLinkAccessLevel(bb.Union):
         super(RequestedLinkAccessLevel, self)._process_custom_annotations(annotation_type, field_path, processor)
 
 RequestedLinkAccessLevel_validator = bv.Union(RequestedLinkAccessLevel)
-
-class RequestedVisibility(bb.Union):
-    """
-    The access permission that can be requested by the caller for the shared
-    link. Note that the final resolved visibility of the shared link takes into
-    account other aspects, such as team and shared folder settings. Check the
-    :class:`ResolvedVisibility` for more info on the possible resolved
-    visibility values of shared links.
-
-    This class acts as a tagged union. Only one of the ``is_*`` methods will
-    return true. To get the associated value of a tag (if one exists), use the
-    corresponding ``get_*`` method.
-
-    :ivar sharing.RequestedVisibility.public: Anyone who has received the link
-        can access it. No login required.
-    :ivar sharing.RequestedVisibility.team_only: Only members of the same team
-        can access the link. Login is required.
-    :ivar sharing.RequestedVisibility.password: A link-specific password is
-        required to access the link. Login is not required.
-    """
-
-    _catch_all = None
-    # Attribute is overwritten below the class definition
-    public = None
-    # Attribute is overwritten below the class definition
-    team_only = None
-    # Attribute is overwritten below the class definition
-    password = None
-
-    def is_public(self):
-        """
-        Check if the union tag is ``public``.
-
-        :rtype: bool
-        """
-        return self._tag == 'public'
-
-    def is_team_only(self):
-        """
-        Check if the union tag is ``team_only``.
-
-        :rtype: bool
-        """
-        return self._tag == 'team_only'
-
-    def is_password(self):
-        """
-        Check if the union tag is ``password``.
-
-        :rtype: bool
-        """
-        return self._tag == 'password'
-
-    def _process_custom_annotations(self, annotation_type, field_path, processor):
-        super(RequestedVisibility, self)._process_custom_annotations(annotation_type, field_path, processor)
-
-RequestedVisibility_validator = bv.Union(RequestedVisibility)
-
-class ResolvedVisibility(RequestedVisibility):
-    """
-    The actual access permissions values of shared links after taking into
-    account user preferences and the team and shared folder settings. Check the
-    :class:`RequestedVisibility` for more info on the possible visibility values
-    that can be set by the shared link's owner.
-
-    This class acts as a tagged union. Only one of the ``is_*`` methods will
-    return true. To get the associated value of a tag (if one exists), use the
-    corresponding ``get_*`` method.
-
-    :ivar sharing.ResolvedVisibility.team_and_password: Only members of the same
-        team who have the link-specific password can access the link. Login is
-        required.
-    :ivar sharing.ResolvedVisibility.shared_folder_only: Only members of the
-        shared folder containing the linked file can access the link. Login is
-        required.
-    """
-
-    _catch_all = 'other'
-    # Attribute is overwritten below the class definition
-    team_and_password = None
-    # Attribute is overwritten below the class definition
-    shared_folder_only = None
-    # Attribute is overwritten below the class definition
-    other = None
-
-    def is_team_and_password(self):
-        """
-        Check if the union tag is ``team_and_password``.
-
-        :rtype: bool
-        """
-        return self._tag == 'team_and_password'
-
-    def is_shared_folder_only(self):
-        """
-        Check if the union tag is ``shared_folder_only``.
-
-        :rtype: bool
-        """
-        return self._tag == 'shared_folder_only'
-
-    def is_other(self):
-        """
-        Check if the union tag is ``other``.
-
-        :rtype: bool
-        """
-        return self._tag == 'other'
-
-    def _process_custom_annotations(self, annotation_type, field_path, processor):
-        super(ResolvedVisibility, self)._process_custom_annotations(annotation_type, field_path, processor)
-
-ResolvedVisibility_validator = bv.Union(ResolvedVisibility)
 
 class RevokeSharedLinkArg(bb.Struct):
     """
@@ -7973,6 +8300,8 @@ class SharePathError(bb.Union):
         folder inside a Mac OS X package.
     :ivar sharing.SharePathError.is_vault: We do not support sharing the Vault
         folder.
+    :ivar sharing.SharePathError.is_vault_locked: We do not support sharing a
+        folder inside a locked Vault.
     :ivar sharing.SharePathError.is_family: We do not support sharing the Family
         folder.
     """
@@ -8004,6 +8333,8 @@ class SharePathError(bb.Union):
     inside_osx_package = None
     # Attribute is overwritten below the class definition
     is_vault = None
+    # Attribute is overwritten below the class definition
+    is_vault_locked = None
     # Attribute is overwritten below the class definition
     is_family = None
     # Attribute is overwritten below the class definition
@@ -8131,6 +8462,14 @@ class SharePathError(bb.Union):
         :rtype: bool
         """
         return self._tag == 'is_vault'
+
+    def is_is_vault_locked(self):
+        """
+        Check if the union tag is ``is_vault_locked``.
+
+        :rtype: bool
+        """
+        return self._tag == 'is_vault_locked'
 
     def is_is_family(self):
         """
@@ -9094,11 +9433,10 @@ SharedLinkPolicy_validator = bv.Union(SharedLinkPolicy)
 
 class SharedLinkSettings(bb.Struct):
     """
-    :ivar sharing.SharedLinkSettings.requested_visibility: The requested access
-        for this shared link.
-    :ivar sharing.SharedLinkSettings.link_password: If ``requested_visibility``
-        is ``RequestedVisibility.password`` this is needed to specify the
-        password to access the link.
+    :ivar sharing.SharedLinkSettings.require_password: Boolean flag to enable or
+        disable password protection.
+    :ivar sharing.SharedLinkSettings.link_password: If ``require_password`` is
+        true, this is needed to specify the password to access the link.
     :ivar sharing.SharedLinkSettings.expires: Expiration time of the shared
         link. By default the link won't expire.
     :ivar sharing.SharedLinkSettings.audience: The new audience who can benefit
@@ -9110,31 +9448,41 @@ class SharedLinkSettings(bb.Struct):
     :ivar sharing.SharedLinkSettings.access: Requested access level you want the
         audience to gain from this link. Note, modifying access level for an
         existing link is not supported.
+    :ivar sharing.SharedLinkSettings.requested_visibility: Use ``audience``
+        instead.  The requested access for this shared link.
+    :ivar sharing.SharedLinkSettings.allow_download: Boolean flag to allow or
+        not download capabilities for shared links.
     """
 
     __slots__ = [
-        '_requested_visibility_value',
+        '_require_password_value',
         '_link_password_value',
         '_expires_value',
         '_audience_value',
         '_access_value',
+        '_requested_visibility_value',
+        '_allow_download_value',
     ]
 
     _has_required_fields = False
 
     def __init__(self,
-                 requested_visibility=None,
+                 require_password=None,
                  link_password=None,
                  expires=None,
                  audience=None,
-                 access=None):
-        self._requested_visibility_value = bb.NOT_SET
+                 access=None,
+                 requested_visibility=None,
+                 allow_download=None):
+        self._require_password_value = bb.NOT_SET
         self._link_password_value = bb.NOT_SET
         self._expires_value = bb.NOT_SET
         self._audience_value = bb.NOT_SET
         self._access_value = bb.NOT_SET
-        if requested_visibility is not None:
-            self.requested_visibility = requested_visibility
+        self._requested_visibility_value = bb.NOT_SET
+        self._allow_download_value = bb.NOT_SET
+        if require_password is not None:
+            self.require_password = require_password
         if link_password is not None:
             self.link_password = link_password
         if expires is not None:
@@ -9143,9 +9491,13 @@ class SharedLinkSettings(bb.Struct):
             self.audience = audience
         if access is not None:
             self.access = access
+        if requested_visibility is not None:
+            self.requested_visibility = requested_visibility
+        if allow_download is not None:
+            self.allow_download = allow_download
 
-    # Instance attribute type: RequestedVisibility (validator is set below)
-    requested_visibility = bb.Attribute("requested_visibility", nullable=True, user_defined=True)
+    # Instance attribute type: bool (validator is set below)
+    require_password = bb.Attribute("require_password", nullable=True)
 
     # Instance attribute type: str (validator is set below)
     link_password = bb.Attribute("link_password", nullable=True)
@@ -9158,6 +9510,12 @@ class SharedLinkSettings(bb.Struct):
 
     # Instance attribute type: RequestedLinkAccessLevel (validator is set below)
     access = bb.Attribute("access", nullable=True, user_defined=True)
+
+    # Instance attribute type: RequestedVisibility (validator is set below)
+    requested_visibility = bb.Attribute("requested_visibility", nullable=True, user_defined=True)
+
+    # Instance attribute type: bool (validator is set below)
+    allow_download = bb.Attribute("allow_download", nullable=True)
 
     def _process_custom_annotations(self, annotation_type, field_path, processor):
         super(SharedLinkSettings, self)._process_custom_annotations(annotation_type, field_path, processor)
@@ -9895,13 +10253,23 @@ class UnshareFolderError(bb.Union):
 
 UnshareFolderError_validator = bv.Union(UnshareFolderError)
 
-class UpdateFileMemberArgs(ChangeFileMemberAccessArgs):
+class UpdateFileMemberArgs(bb.Struct):
     """
     Arguments for
     :meth:`dropbox.dropbox_client.Dropbox.sharing_update_file_member`.
+
+    :ivar sharing.UpdateFileMemberArgs.file: File for which we are changing a
+        member's access.
+    :ivar sharing.UpdateFileMemberArgs.member: The member whose access we are
+        changing.
+    :ivar sharing.UpdateFileMemberArgs.access_level: The new access level for
+        the member.
     """
 
     __slots__ = [
+        '_file_value',
+        '_member_value',
+        '_access_level_value',
     ]
 
     _has_required_fields = True
@@ -9910,9 +10278,24 @@ class UpdateFileMemberArgs(ChangeFileMemberAccessArgs):
                  file=None,
                  member=None,
                  access_level=None):
-        super(UpdateFileMemberArgs, self).__init__(file,
-                                                   member,
-                                                   access_level)
+        self._file_value = bb.NOT_SET
+        self._member_value = bb.NOT_SET
+        self._access_level_value = bb.NOT_SET
+        if file is not None:
+            self.file = file
+        if member is not None:
+            self.member = member
+        if access_level is not None:
+            self.access_level = access_level
+
+    # Instance attribute type: str (validator is set below)
+    file = bb.Attribute("file")
+
+    # Instance attribute type: MemberSelector (validator is set below)
+    member = bb.Attribute("member", user_defined=True)
+
+    # Instance attribute type: AccessLevel (validator is set below)
+    access_level = bb.Attribute("access_level", user_defined=True)
 
     def _process_custom_annotations(self, annotation_type, field_path, processor):
         super(UpdateFileMemberArgs, self)._process_custom_annotations(annotation_type, field_path, processor)
@@ -10360,7 +10743,8 @@ class UserFileMembershipInfo(UserMembershipInfo):
     last seen timestamp.
 
     :ivar sharing.UserFileMembershipInfo.time_last_seen: The UTC timestamp of
-        when the user has last seen the content, if they have.
+        when the user has last seen the content. Only populated if the user has
+        seen the content and the caller has a plan that includes viewer history.
     :ivar sharing.UserFileMembershipInfo.platform_type: The platform on which
         the user has last seen the content, or unknown.
     """
@@ -10610,12 +10994,71 @@ class Visibility(bb.Union):
 
 Visibility_validator = bv.Union(Visibility)
 
+class VisibilityPolicy(bb.Struct):
+    """
+    :ivar sharing.VisibilityPolicy.policy: This is the value to submit when
+        saving the visibility setting.
+    :ivar sharing.VisibilityPolicy.resolved_policy: This is what the effective
+        policy would be, if you selected this option. The resolved policy is
+        obtained after considering external effects such as shared folder
+        settings and team policy. This value is guaranteed to be provided.
+    :ivar sharing.VisibilityPolicy.allowed: Whether the user is permitted to set
+        the visibility to this policy.
+    :ivar sharing.VisibilityPolicy.disallowed_reason: If ``allowed`` is
+        ``False``, this will provide the reason that the user is not permitted
+        to set the visibility to this policy.
+    """
+
+    __slots__ = [
+        '_policy_value',
+        '_resolved_policy_value',
+        '_allowed_value',
+        '_disallowed_reason_value',
+    ]
+
+    _has_required_fields = True
+
+    def __init__(self,
+                 policy=None,
+                 resolved_policy=None,
+                 allowed=None,
+                 disallowed_reason=None):
+        self._policy_value = bb.NOT_SET
+        self._resolved_policy_value = bb.NOT_SET
+        self._allowed_value = bb.NOT_SET
+        self._disallowed_reason_value = bb.NOT_SET
+        if policy is not None:
+            self.policy = policy
+        if resolved_policy is not None:
+            self.resolved_policy = resolved_policy
+        if allowed is not None:
+            self.allowed = allowed
+        if disallowed_reason is not None:
+            self.disallowed_reason = disallowed_reason
+
+    # Instance attribute type: RequestedVisibility (validator is set below)
+    policy = bb.Attribute("policy", user_defined=True)
+
+    # Instance attribute type: AlphaResolvedVisibility (validator is set below)
+    resolved_policy = bb.Attribute("resolved_policy", user_defined=True)
+
+    # Instance attribute type: bool (validator is set below)
+    allowed = bb.Attribute("allowed")
+
+    # Instance attribute type: VisibilityPolicyDisallowedReason (validator is set below)
+    disallowed_reason = bb.Attribute("disallowed_reason", nullable=True, user_defined=True)
+
+    def _process_custom_annotations(self, annotation_type, field_path, processor):
+        super(VisibilityPolicy, self)._process_custom_annotations(annotation_type, field_path, processor)
+
+VisibilityPolicy_validator = bv.Struct(VisibilityPolicy)
+
 DropboxId_validator = bv.String(min_length=1)
 GetSharedLinkFileArg_validator = GetSharedLinkMetadataArg_validator
 GetSharedLinkFileArg = GetSharedLinkMetadataArg
 Id_validator = files.Id_validator
 Path_validator = files.Path_validator
-PathOrId_validator = bv.String(min_length=1, pattern=u'((/|id:).*|nspath:[0-9]+:.*)|ns:[0-9]+(/.*)?')
+PathOrId_validator = bv.String(min_length=1, pattern='((/|id:).*|nspath:[0-9]+:.*)|ns:[0-9]+(/.*)?')
 ReadPath_validator = files.ReadPath_validator
 Rev_validator = files.Rev_validator
 TeamInfo_validator = users.Team_validator
@@ -10637,12 +11080,14 @@ AccessLevel._owner_validator = bv.Void()
 AccessLevel._editor_validator = bv.Void()
 AccessLevel._viewer_validator = bv.Void()
 AccessLevel._viewer_no_comment_validator = bv.Void()
+AccessLevel._traverse_validator = bv.Void()
 AccessLevel._other_validator = bv.Void()
 AccessLevel._tagmap = {
     'owner': AccessLevel._owner_validator,
     'editor': AccessLevel._editor_validator,
     'viewer': AccessLevel._viewer_validator,
     'viewer_no_comment': AccessLevel._viewer_no_comment_validator,
+    'traverse': AccessLevel._traverse_validator,
     'other': AccessLevel._other_validator,
 }
 
@@ -10650,6 +11095,7 @@ AccessLevel.owner = AccessLevel('owner')
 AccessLevel.editor = AccessLevel('editor')
 AccessLevel.viewer = AccessLevel('viewer')
 AccessLevel.viewer_no_comment = AccessLevel('viewer_no_comment')
+AccessLevel.traverse = AccessLevel('traverse')
 AccessLevel.other = AccessLevel('other')
 
 AclUpdatePolicy._owner_validator = bv.Void()
@@ -10797,6 +11243,43 @@ AddMemberSelectorError.group_deleted = AddMemberSelectorError('group_deleted')
 AddMemberSelectorError.group_not_on_team = AddMemberSelectorError('group_not_on_team')
 AddMemberSelectorError.other = AddMemberSelectorError('other')
 
+RequestedVisibility._public_validator = bv.Void()
+RequestedVisibility._team_only_validator = bv.Void()
+RequestedVisibility._password_validator = bv.Void()
+RequestedVisibility._tagmap = {
+    'public': RequestedVisibility._public_validator,
+    'team_only': RequestedVisibility._team_only_validator,
+    'password': RequestedVisibility._password_validator,
+}
+
+RequestedVisibility.public = RequestedVisibility('public')
+RequestedVisibility.team_only = RequestedVisibility('team_only')
+RequestedVisibility.password = RequestedVisibility('password')
+
+ResolvedVisibility._team_and_password_validator = bv.Void()
+ResolvedVisibility._shared_folder_only_validator = bv.Void()
+ResolvedVisibility._no_one_validator = bv.Void()
+ResolvedVisibility._only_you_validator = bv.Void()
+ResolvedVisibility._other_validator = bv.Void()
+ResolvedVisibility._tagmap = {
+    'team_and_password': ResolvedVisibility._team_and_password_validator,
+    'shared_folder_only': ResolvedVisibility._shared_folder_only_validator,
+    'no_one': ResolvedVisibility._no_one_validator,
+    'only_you': ResolvedVisibility._only_you_validator,
+    'other': ResolvedVisibility._other_validator,
+}
+ResolvedVisibility._tagmap.update(RequestedVisibility._tagmap)
+
+ResolvedVisibility.team_and_password = ResolvedVisibility('team_and_password')
+ResolvedVisibility.shared_folder_only = ResolvedVisibility('shared_folder_only')
+ResolvedVisibility.no_one = ResolvedVisibility('no_one')
+ResolvedVisibility.only_you = ResolvedVisibility('only_you')
+ResolvedVisibility.other = ResolvedVisibility('other')
+
+AlphaResolvedVisibility._tagmap = {
+}
+AlphaResolvedVisibility._tagmap.update(ResolvedVisibility._tagmap)
+
 AudienceExceptionContentInfo.name.validator = bv.String()
 AudienceExceptionContentInfo._all_field_names_ = set(['name'])
 AudienceExceptionContentInfo._all_fields_ = [('name', AudienceExceptionContentInfo.name.validator)]
@@ -10826,20 +11309,6 @@ AudienceRestrictingSharedFolder._all_fields_ = [
     ('audience', AudienceRestrictingSharedFolder.audience.validator),
 ]
 
-ChangeFileMemberAccessArgs.file.validator = PathOrId_validator
-ChangeFileMemberAccessArgs.member.validator = MemberSelector_validator
-ChangeFileMemberAccessArgs.access_level.validator = AccessLevel_validator
-ChangeFileMemberAccessArgs._all_field_names_ = set([
-    'file',
-    'member',
-    'access_level',
-])
-ChangeFileMemberAccessArgs._all_fields_ = [
-    ('file', ChangeFileMemberAccessArgs.file.validator),
-    ('member', ChangeFileMemberAccessArgs.member.validator),
-    ('access_level', ChangeFileMemberAccessArgs.access_level.validator),
-]
-
 LinkMetadata.url.validator = bv.String()
 LinkMetadata.visibility.validator = Visibility_validator
 LinkMetadata.expires.validator = bv.Nullable(common.DropboxTimestamp_validator)
@@ -10857,12 +11326,12 @@ LinkMetadata._fields_ = [
 LinkMetadata._all_fields_ = LinkMetadata._fields_
 
 LinkMetadata._tag_to_subtype_ = {
-    (u'path',): PathLinkMetadata_validator,
-    (u'collection',): CollectionLinkMetadata_validator,
+    ('path',): PathLinkMetadata_validator,
+    ('collection',): CollectionLinkMetadata_validator,
 }
 LinkMetadata._pytype_to_tag_and_subtype_ = {
-    PathLinkMetadata: ((u'path',), PathLinkMetadata_validator),
-    CollectionLinkMetadata: ((u'collection',), CollectionLinkMetadata_validator),
+    PathLinkMetadata: (('path',), PathLinkMetadata_validator),
+    CollectionLinkMetadata: (('collection',), CollectionLinkMetadata_validator),
 }
 LinkMetadata._is_catch_all_ = True
 
@@ -11038,12 +11507,12 @@ SharedLinkMetadata._fields_ = [
 SharedLinkMetadata._all_fields_ = SharedLinkMetadata._fields_
 
 SharedLinkMetadata._tag_to_subtype_ = {
-    (u'file',): FileLinkMetadata_validator,
-    (u'folder',): FolderLinkMetadata_validator,
+    ('file',): FileLinkMetadata_validator,
+    ('folder',): FolderLinkMetadata_validator,
 }
 SharedLinkMetadata._pytype_to_tag_and_subtype_ = {
-    FileLinkMetadata: ((u'file',), FileLinkMetadata_validator),
-    FolderLinkMetadata: ((u'folder',), FolderLinkMetadata_validator),
+    FileLinkMetadata: (('file',), FileLinkMetadata_validator),
+    FolderLinkMetadata: (('folder',), FolderLinkMetadata_validator),
 }
 SharedLinkMetadata._is_catch_all_ = True
 
@@ -11092,13 +11561,19 @@ FileMemberActionIndividualResult._tagmap = {
 
 FileMemberActionResult.member.validator = MemberSelector_validator
 FileMemberActionResult.result.validator = FileMemberActionIndividualResult_validator
+FileMemberActionResult.sckey_sha1.validator = bv.Nullable(bv.String())
+FileMemberActionResult.invitation_signature.validator = bv.Nullable(bv.List(bv.String()))
 FileMemberActionResult._all_field_names_ = set([
     'member',
     'result',
+    'sckey_sha1',
+    'invitation_signature',
 ])
 FileMemberActionResult._all_fields_ = [
     ('member', FileMemberActionResult.member.validator),
     ('result', FileMemberActionResult.result.validator),
+    ('sckey_sha1', FileMemberActionResult.sckey_sha1.validator),
+    ('invitation_signature', FileMemberActionResult.invitation_signature.validator),
 ]
 
 FileMemberRemoveActionResult._success_validator = MemberAccessLevelResult_validator
@@ -11501,6 +11976,49 @@ LinkAudience.password = LinkAudience('password')
 LinkAudience.members = LinkAudience('members')
 LinkAudience.other = LinkAudience('other')
 
+VisibilityPolicyDisallowedReason._delete_and_recreate_validator = bv.Void()
+VisibilityPolicyDisallowedReason._restricted_by_shared_folder_validator = bv.Void()
+VisibilityPolicyDisallowedReason._restricted_by_team_validator = bv.Void()
+VisibilityPolicyDisallowedReason._user_not_on_team_validator = bv.Void()
+VisibilityPolicyDisallowedReason._user_account_type_validator = bv.Void()
+VisibilityPolicyDisallowedReason._permission_denied_validator = bv.Void()
+VisibilityPolicyDisallowedReason._other_validator = bv.Void()
+VisibilityPolicyDisallowedReason._tagmap = {
+    'delete_and_recreate': VisibilityPolicyDisallowedReason._delete_and_recreate_validator,
+    'restricted_by_shared_folder': VisibilityPolicyDisallowedReason._restricted_by_shared_folder_validator,
+    'restricted_by_team': VisibilityPolicyDisallowedReason._restricted_by_team_validator,
+    'user_not_on_team': VisibilityPolicyDisallowedReason._user_not_on_team_validator,
+    'user_account_type': VisibilityPolicyDisallowedReason._user_account_type_validator,
+    'permission_denied': VisibilityPolicyDisallowedReason._permission_denied_validator,
+    'other': VisibilityPolicyDisallowedReason._other_validator,
+}
+
+VisibilityPolicyDisallowedReason.delete_and_recreate = VisibilityPolicyDisallowedReason('delete_and_recreate')
+VisibilityPolicyDisallowedReason.restricted_by_shared_folder = VisibilityPolicyDisallowedReason('restricted_by_shared_folder')
+VisibilityPolicyDisallowedReason.restricted_by_team = VisibilityPolicyDisallowedReason('restricted_by_team')
+VisibilityPolicyDisallowedReason.user_not_on_team = VisibilityPolicyDisallowedReason('user_not_on_team')
+VisibilityPolicyDisallowedReason.user_account_type = VisibilityPolicyDisallowedReason('user_account_type')
+VisibilityPolicyDisallowedReason.permission_denied = VisibilityPolicyDisallowedReason('permission_denied')
+VisibilityPolicyDisallowedReason.other = VisibilityPolicyDisallowedReason('other')
+
+LinkAudienceDisallowedReason._tagmap = {
+}
+LinkAudienceDisallowedReason._tagmap.update(VisibilityPolicyDisallowedReason._tagmap)
+
+LinkAudienceOption.audience.validator = LinkAudience_validator
+LinkAudienceOption.allowed.validator = bv.Boolean()
+LinkAudienceOption.disallowed_reason.validator = bv.Nullable(LinkAudienceDisallowedReason_validator)
+LinkAudienceOption._all_field_names_ = set([
+    'audience',
+    'allowed',
+    'disallowed_reason',
+])
+LinkAudienceOption._all_fields_ = [
+    ('audience', LinkAudienceOption.audience.validator),
+    ('allowed', LinkAudienceOption.allowed.validator),
+    ('disallowed_reason', LinkAudienceOption.disallowed_reason.validator),
+]
+
 LinkExpiry._remove_expiry_validator = bv.Void()
 LinkExpiry._set_expiry_validator = common.DropboxTimestamp_validator
 LinkExpiry._other_validator = bv.Void()
@@ -11545,6 +12063,19 @@ LinkPermissions.can_revoke.validator = bv.Boolean()
 LinkPermissions.revoke_failure_reason.validator = bv.Nullable(SharedLinkAccessFailureReason_validator)
 LinkPermissions.effective_audience.validator = bv.Nullable(LinkAudience_validator)
 LinkPermissions.link_access_level.validator = bv.Nullable(LinkAccessLevel_validator)
+LinkPermissions.visibility_policies.validator = bv.List(VisibilityPolicy_validator)
+LinkPermissions.can_set_expiry.validator = bv.Boolean()
+LinkPermissions.can_remove_expiry.validator = bv.Boolean()
+LinkPermissions.allow_download.validator = bv.Boolean()
+LinkPermissions.can_allow_download.validator = bv.Boolean()
+LinkPermissions.can_disallow_download.validator = bv.Boolean()
+LinkPermissions.allow_comments.validator = bv.Boolean()
+LinkPermissions.team_restricts_comments.validator = bv.Boolean()
+LinkPermissions.audience_options.validator = bv.Nullable(bv.List(LinkAudienceOption_validator))
+LinkPermissions.can_set_password.validator = bv.Nullable(bv.Boolean())
+LinkPermissions.can_remove_password.validator = bv.Nullable(bv.Boolean())
+LinkPermissions.require_password.validator = bv.Nullable(bv.Boolean())
+LinkPermissions.can_use_extended_sharing_controls.validator = bv.Nullable(bv.Boolean())
 LinkPermissions._all_field_names_ = set([
     'resolved_visibility',
     'requested_visibility',
@@ -11552,6 +12083,19 @@ LinkPermissions._all_field_names_ = set([
     'revoke_failure_reason',
     'effective_audience',
     'link_access_level',
+    'visibility_policies',
+    'can_set_expiry',
+    'can_remove_expiry',
+    'allow_download',
+    'can_allow_download',
+    'can_disallow_download',
+    'allow_comments',
+    'team_restricts_comments',
+    'audience_options',
+    'can_set_password',
+    'can_remove_password',
+    'require_password',
+    'can_use_extended_sharing_controls',
 ])
 LinkPermissions._all_fields_ = [
     ('resolved_visibility', LinkPermissions.resolved_visibility.validator),
@@ -11560,6 +12104,19 @@ LinkPermissions._all_fields_ = [
     ('revoke_failure_reason', LinkPermissions.revoke_failure_reason.validator),
     ('effective_audience', LinkPermissions.effective_audience.validator),
     ('link_access_level', LinkPermissions.link_access_level.validator),
+    ('visibility_policies', LinkPermissions.visibility_policies.validator),
+    ('can_set_expiry', LinkPermissions.can_set_expiry.validator),
+    ('can_remove_expiry', LinkPermissions.can_remove_expiry.validator),
+    ('allow_download', LinkPermissions.allow_download.validator),
+    ('can_allow_download', LinkPermissions.can_allow_download.validator),
+    ('can_disallow_download', LinkPermissions.can_disallow_download.validator),
+    ('allow_comments', LinkPermissions.allow_comments.validator),
+    ('team_restricts_comments', LinkPermissions.team_restricts_comments.validator),
+    ('audience_options', LinkPermissions.audience_options.validator),
+    ('can_set_password', LinkPermissions.can_set_password.validator),
+    ('can_remove_password', LinkPermissions.can_remove_password.validator),
+    ('require_password', LinkPermissions.require_password.validator),
+    ('can_use_extended_sharing_controls', LinkPermissions.can_use_extended_sharing_controls.validator),
 ]
 
 LinkSettings.access_level.validator = bv.Nullable(AccessLevel_validator)
@@ -12171,33 +12728,6 @@ RequestedLinkAccessLevel.editor = RequestedLinkAccessLevel('editor')
 RequestedLinkAccessLevel.max = RequestedLinkAccessLevel('max')
 RequestedLinkAccessLevel.other = RequestedLinkAccessLevel('other')
 
-RequestedVisibility._public_validator = bv.Void()
-RequestedVisibility._team_only_validator = bv.Void()
-RequestedVisibility._password_validator = bv.Void()
-RequestedVisibility._tagmap = {
-    'public': RequestedVisibility._public_validator,
-    'team_only': RequestedVisibility._team_only_validator,
-    'password': RequestedVisibility._password_validator,
-}
-
-RequestedVisibility.public = RequestedVisibility('public')
-RequestedVisibility.team_only = RequestedVisibility('team_only')
-RequestedVisibility.password = RequestedVisibility('password')
-
-ResolvedVisibility._team_and_password_validator = bv.Void()
-ResolvedVisibility._shared_folder_only_validator = bv.Void()
-ResolvedVisibility._other_validator = bv.Void()
-ResolvedVisibility._tagmap = {
-    'team_and_password': ResolvedVisibility._team_and_password_validator,
-    'shared_folder_only': ResolvedVisibility._shared_folder_only_validator,
-    'other': ResolvedVisibility._other_validator,
-}
-ResolvedVisibility._tagmap.update(RequestedVisibility._tagmap)
-
-ResolvedVisibility.team_and_password = ResolvedVisibility('team_and_password')
-ResolvedVisibility.shared_folder_only = ResolvedVisibility('shared_folder_only')
-ResolvedVisibility.other = ResolvedVisibility('other')
-
 RevokeSharedLinkArg.url.validator = bv.String()
 RevokeSharedLinkArg._all_field_names_ = set(['url'])
 RevokeSharedLinkArg._all_fields_ = [('url', RevokeSharedLinkArg.url.validator)]
@@ -12324,6 +12854,7 @@ SharePathError._invalid_path_validator = bv.Void()
 SharePathError._is_osx_package_validator = bv.Void()
 SharePathError._inside_osx_package_validator = bv.Void()
 SharePathError._is_vault_validator = bv.Void()
+SharePathError._is_vault_locked_validator = bv.Void()
 SharePathError._is_family_validator = bv.Void()
 SharePathError._other_validator = bv.Void()
 SharePathError._tagmap = {
@@ -12341,6 +12872,7 @@ SharePathError._tagmap = {
     'is_osx_package': SharePathError._is_osx_package_validator,
     'inside_osx_package': SharePathError._inside_osx_package_validator,
     'is_vault': SharePathError._is_vault_validator,
+    'is_vault_locked': SharePathError._is_vault_locked_validator,
     'is_family': SharePathError._is_family_validator,
     'other': SharePathError._other_validator,
 }
@@ -12358,6 +12890,7 @@ SharePathError.invalid_path = SharePathError('invalid_path')
 SharePathError.is_osx_package = SharePathError('is_osx_package')
 SharePathError.inside_osx_package = SharePathError('inside_osx_package')
 SharePathError.is_vault = SharePathError('is_vault')
+SharePathError.is_vault_locked = SharePathError('is_vault_locked')
 SharePathError.is_family = SharePathError('is_family')
 SharePathError.other = SharePathError('other')
 
@@ -12592,24 +13125,30 @@ SharedLinkPolicy.team = SharedLinkPolicy('team')
 SharedLinkPolicy.members = SharedLinkPolicy('members')
 SharedLinkPolicy.other = SharedLinkPolicy('other')
 
-SharedLinkSettings.requested_visibility.validator = bv.Nullable(RequestedVisibility_validator)
+SharedLinkSettings.require_password.validator = bv.Nullable(bv.Boolean())
 SharedLinkSettings.link_password.validator = bv.Nullable(bv.String())
 SharedLinkSettings.expires.validator = bv.Nullable(common.DropboxTimestamp_validator)
 SharedLinkSettings.audience.validator = bv.Nullable(LinkAudience_validator)
 SharedLinkSettings.access.validator = bv.Nullable(RequestedLinkAccessLevel_validator)
+SharedLinkSettings.requested_visibility.validator = bv.Nullable(RequestedVisibility_validator)
+SharedLinkSettings.allow_download.validator = bv.Nullable(bv.Boolean())
 SharedLinkSettings._all_field_names_ = set([
-    'requested_visibility',
+    'require_password',
     'link_password',
     'expires',
     'audience',
     'access',
+    'requested_visibility',
+    'allow_download',
 ])
 SharedLinkSettings._all_fields_ = [
-    ('requested_visibility', SharedLinkSettings.requested_visibility.validator),
+    ('require_password', SharedLinkSettings.require_password.validator),
     ('link_password', SharedLinkSettings.link_password.validator),
     ('expires', SharedLinkSettings.expires.validator),
     ('audience', SharedLinkSettings.audience.validator),
     ('access', SharedLinkSettings.access.validator),
+    ('requested_visibility', SharedLinkSettings.requested_visibility.validator),
+    ('allow_download', SharedLinkSettings.allow_download.validator),
 ]
 
 SharedLinkSettingsError._invalid_settings_validator = bv.Void()
@@ -12769,8 +13308,19 @@ UnshareFolderError.no_permission = UnshareFolderError('no_permission')
 UnshareFolderError.too_many_files = UnshareFolderError('too_many_files')
 UnshareFolderError.other = UnshareFolderError('other')
 
-UpdateFileMemberArgs._all_field_names_ = ChangeFileMemberAccessArgs._all_field_names_.union(set([]))
-UpdateFileMemberArgs._all_fields_ = ChangeFileMemberAccessArgs._all_fields_ + []
+UpdateFileMemberArgs.file.validator = PathOrId_validator
+UpdateFileMemberArgs.member.validator = MemberSelector_validator
+UpdateFileMemberArgs.access_level.validator = AccessLevel_validator
+UpdateFileMemberArgs._all_field_names_ = set([
+    'file',
+    'member',
+    'access_level',
+])
+UpdateFileMemberArgs._all_fields_ = [
+    ('file', UpdateFileMemberArgs.file.validator),
+    ('member', UpdateFileMemberArgs.member.validator),
+    ('access_level', UpdateFileMemberArgs.access_level.validator),
+]
 
 UpdateFolderMemberArg.shared_folder_id.validator = common.SharedFolderId_validator
 UpdateFolderMemberArg.member.validator = MemberSelector_validator
@@ -12925,6 +13475,23 @@ Visibility.team_and_password = Visibility('team_and_password')
 Visibility.shared_folder_only = Visibility('shared_folder_only')
 Visibility.other = Visibility('other')
 
+VisibilityPolicy.policy.validator = RequestedVisibility_validator
+VisibilityPolicy.resolved_policy.validator = AlphaResolvedVisibility_validator
+VisibilityPolicy.allowed.validator = bv.Boolean()
+VisibilityPolicy.disallowed_reason.validator = bv.Nullable(VisibilityPolicyDisallowedReason_validator)
+VisibilityPolicy._all_field_names_ = set([
+    'policy',
+    'resolved_policy',
+    'allowed',
+    'disallowed_reason',
+])
+VisibilityPolicy._all_fields_ = [
+    ('policy', VisibilityPolicy.policy.validator),
+    ('resolved_policy', VisibilityPolicy.resolved_policy.validator),
+    ('allowed', VisibilityPolicy.allowed.validator),
+    ('disallowed_reason', VisibilityPolicy.disallowed_reason.validator),
+]
+
 AddFileMemberArgs.quiet.default = False
 AddFileMemberArgs.access_level.default = AccessLevel.viewer
 AddFileMemberArgs.add_message_as_comment.default = False
@@ -12952,8 +13519,9 @@ add_file_member = bb.Route(
     AddFileMemberArgs_validator,
     bv.List(FileMemberActionResult_validator),
     AddFileMemberError_validator,
-    {'host': u'api',
-     'style': u'rpc'},
+    {'auth': 'user',
+     'host': 'api',
+     'style': 'rpc'},
 )
 add_folder_member = bb.Route(
     'add_folder_member',
@@ -12962,18 +13530,9 @@ add_folder_member = bb.Route(
     AddFolderMemberArg_validator,
     bv.Void(),
     AddFolderMemberError_validator,
-    {'host': u'api',
-     'style': u'rpc'},
-)
-change_file_member_access = bb.Route(
-    'change_file_member_access',
-    1,
-    True,
-    ChangeFileMemberAccessArgs_validator,
-    FileMemberActionResult_validator,
-    FileMemberActionError_validator,
-    {'host': u'api',
-     'style': u'rpc'},
+    {'auth': 'user',
+     'host': 'api',
+     'style': 'rpc'},
 )
 check_job_status = bb.Route(
     'check_job_status',
@@ -12982,8 +13541,9 @@ check_job_status = bb.Route(
     async_.PollArg_validator,
     JobStatus_validator,
     async_.PollError_validator,
-    {'host': u'api',
-     'style': u'rpc'},
+    {'auth': 'user',
+     'host': 'api',
+     'style': 'rpc'},
 )
 check_remove_member_job_status = bb.Route(
     'check_remove_member_job_status',
@@ -12992,8 +13552,9 @@ check_remove_member_job_status = bb.Route(
     async_.PollArg_validator,
     RemoveMemberJobStatus_validator,
     async_.PollError_validator,
-    {'host': u'api',
-     'style': u'rpc'},
+    {'auth': 'user',
+     'host': 'api',
+     'style': 'rpc'},
 )
 check_share_job_status = bb.Route(
     'check_share_job_status',
@@ -13002,8 +13563,9 @@ check_share_job_status = bb.Route(
     async_.PollArg_validator,
     ShareFolderJobStatus_validator,
     async_.PollError_validator,
-    {'host': u'api',
-     'style': u'rpc'},
+    {'auth': 'user',
+     'host': 'api',
+     'style': 'rpc'},
 )
 create_shared_link = bb.Route(
     'create_shared_link',
@@ -13012,8 +13574,9 @@ create_shared_link = bb.Route(
     CreateSharedLinkArg_validator,
     PathLinkMetadata_validator,
     CreateSharedLinkError_validator,
-    {'host': u'api',
-     'style': u'rpc'},
+    {'auth': 'user',
+     'host': 'api',
+     'style': 'rpc'},
 )
 create_shared_link_with_settings = bb.Route(
     'create_shared_link_with_settings',
@@ -13022,8 +13585,9 @@ create_shared_link_with_settings = bb.Route(
     CreateSharedLinkWithSettingsArg_validator,
     SharedLinkMetadata_validator,
     CreateSharedLinkWithSettingsError_validator,
-    {'host': u'api',
-     'style': u'rpc'},
+    {'auth': 'user',
+     'host': 'api',
+     'style': 'rpc'},
 )
 get_file_metadata = bb.Route(
     'get_file_metadata',
@@ -13032,8 +13596,9 @@ get_file_metadata = bb.Route(
     GetFileMetadataArg_validator,
     SharedFileMetadata_validator,
     GetFileMetadataError_validator,
-    {'host': u'api',
-     'style': u'rpc'},
+    {'auth': 'user',
+     'host': 'api',
+     'style': 'rpc'},
 )
 get_file_metadata_batch = bb.Route(
     'get_file_metadata/batch',
@@ -13042,8 +13607,9 @@ get_file_metadata_batch = bb.Route(
     GetFileMetadataBatchArg_validator,
     bv.List(GetFileMetadataBatchResult_validator),
     SharingUserError_validator,
-    {'host': u'api',
-     'style': u'rpc'},
+    {'auth': 'user',
+     'host': 'api',
+     'style': 'rpc'},
 )
 get_folder_metadata = bb.Route(
     'get_folder_metadata',
@@ -13052,8 +13618,9 @@ get_folder_metadata = bb.Route(
     GetMetadataArgs_validator,
     SharedFolderMetadata_validator,
     SharedFolderAccessError_validator,
-    {'host': u'api',
-     'style': u'rpc'},
+    {'auth': 'user',
+     'host': 'api',
+     'style': 'rpc'},
 )
 get_shared_link_file = bb.Route(
     'get_shared_link_file',
@@ -13062,8 +13629,9 @@ get_shared_link_file = bb.Route(
     GetSharedLinkFileArg_validator,
     SharedLinkMetadata_validator,
     GetSharedLinkFileError_validator,
-    {'host': u'content',
-     'style': u'download'},
+    {'auth': 'user',
+     'host': 'content',
+     'style': 'download'},
 )
 get_shared_link_metadata = bb.Route(
     'get_shared_link_metadata',
@@ -13072,8 +13640,9 @@ get_shared_link_metadata = bb.Route(
     GetSharedLinkMetadataArg_validator,
     SharedLinkMetadata_validator,
     SharedLinkError_validator,
-    {'host': u'api',
-     'style': u'rpc'},
+    {'auth': 'app, user',
+     'host': 'api',
+     'style': 'rpc'},
 )
 get_shared_links = bb.Route(
     'get_shared_links',
@@ -13082,8 +13651,9 @@ get_shared_links = bb.Route(
     GetSharedLinksArg_validator,
     GetSharedLinksResult_validator,
     GetSharedLinksError_validator,
-    {'host': u'api',
-     'style': u'rpc'},
+    {'auth': 'user',
+     'host': 'api',
+     'style': 'rpc'},
 )
 list_file_members = bb.Route(
     'list_file_members',
@@ -13092,8 +13662,9 @@ list_file_members = bb.Route(
     ListFileMembersArg_validator,
     SharedFileMembers_validator,
     ListFileMembersError_validator,
-    {'host': u'api',
-     'style': u'rpc'},
+    {'auth': 'user',
+     'host': 'api',
+     'style': 'rpc'},
 )
 list_file_members_batch = bb.Route(
     'list_file_members/batch',
@@ -13102,8 +13673,9 @@ list_file_members_batch = bb.Route(
     ListFileMembersBatchArg_validator,
     bv.List(ListFileMembersBatchResult_validator),
     SharingUserError_validator,
-    {'host': u'api',
-     'style': u'rpc'},
+    {'auth': 'user',
+     'host': 'api',
+     'style': 'rpc'},
 )
 list_file_members_continue = bb.Route(
     'list_file_members/continue',
@@ -13112,8 +13684,9 @@ list_file_members_continue = bb.Route(
     ListFileMembersContinueArg_validator,
     SharedFileMembers_validator,
     ListFileMembersContinueError_validator,
-    {'host': u'api',
-     'style': u'rpc'},
+    {'auth': 'user',
+     'host': 'api',
+     'style': 'rpc'},
 )
 list_folder_members = bb.Route(
     'list_folder_members',
@@ -13122,8 +13695,9 @@ list_folder_members = bb.Route(
     ListFolderMembersArgs_validator,
     SharedFolderMembers_validator,
     SharedFolderAccessError_validator,
-    {'host': u'api',
-     'style': u'rpc'},
+    {'auth': 'user',
+     'host': 'api',
+     'style': 'rpc'},
 )
 list_folder_members_continue = bb.Route(
     'list_folder_members/continue',
@@ -13132,8 +13706,9 @@ list_folder_members_continue = bb.Route(
     ListFolderMembersContinueArg_validator,
     SharedFolderMembers_validator,
     ListFolderMembersContinueError_validator,
-    {'host': u'api',
-     'style': u'rpc'},
+    {'auth': 'user',
+     'host': 'api',
+     'style': 'rpc'},
 )
 list_folders = bb.Route(
     'list_folders',
@@ -13142,8 +13717,9 @@ list_folders = bb.Route(
     ListFoldersArgs_validator,
     ListFoldersResult_validator,
     bv.Void(),
-    {'host': u'api',
-     'style': u'rpc'},
+    {'auth': 'user',
+     'host': 'api',
+     'style': 'rpc'},
 )
 list_folders_continue = bb.Route(
     'list_folders/continue',
@@ -13152,8 +13728,9 @@ list_folders_continue = bb.Route(
     ListFoldersContinueArg_validator,
     ListFoldersResult_validator,
     ListFoldersContinueError_validator,
-    {'host': u'api',
-     'style': u'rpc'},
+    {'auth': 'user',
+     'host': 'api',
+     'style': 'rpc'},
 )
 list_mountable_folders = bb.Route(
     'list_mountable_folders',
@@ -13162,8 +13739,9 @@ list_mountable_folders = bb.Route(
     ListFoldersArgs_validator,
     ListFoldersResult_validator,
     bv.Void(),
-    {'host': u'api',
-     'style': u'rpc'},
+    {'auth': 'user',
+     'host': 'api',
+     'style': 'rpc'},
 )
 list_mountable_folders_continue = bb.Route(
     'list_mountable_folders/continue',
@@ -13172,8 +13750,9 @@ list_mountable_folders_continue = bb.Route(
     ListFoldersContinueArg_validator,
     ListFoldersResult_validator,
     ListFoldersContinueError_validator,
-    {'host': u'api',
-     'style': u'rpc'},
+    {'auth': 'user',
+     'host': 'api',
+     'style': 'rpc'},
 )
 list_received_files = bb.Route(
     'list_received_files',
@@ -13182,8 +13761,9 @@ list_received_files = bb.Route(
     ListFilesArg_validator,
     ListFilesResult_validator,
     SharingUserError_validator,
-    {'host': u'api',
-     'style': u'rpc'},
+    {'auth': 'user',
+     'host': 'api',
+     'style': 'rpc'},
 )
 list_received_files_continue = bb.Route(
     'list_received_files/continue',
@@ -13192,8 +13772,9 @@ list_received_files_continue = bb.Route(
     ListFilesContinueArg_validator,
     ListFilesResult_validator,
     ListFilesContinueError_validator,
-    {'host': u'api',
-     'style': u'rpc'},
+    {'auth': 'user',
+     'host': 'api',
+     'style': 'rpc'},
 )
 list_shared_links = bb.Route(
     'list_shared_links',
@@ -13202,8 +13783,9 @@ list_shared_links = bb.Route(
     ListSharedLinksArg_validator,
     ListSharedLinksResult_validator,
     ListSharedLinksError_validator,
-    {'host': u'api',
-     'style': u'rpc'},
+    {'auth': 'user',
+     'host': 'api',
+     'style': 'rpc'},
 )
 modify_shared_link_settings = bb.Route(
     'modify_shared_link_settings',
@@ -13212,8 +13794,9 @@ modify_shared_link_settings = bb.Route(
     ModifySharedLinkSettingsArgs_validator,
     SharedLinkMetadata_validator,
     ModifySharedLinkSettingsError_validator,
-    {'host': u'api',
-     'style': u'rpc'},
+    {'auth': 'user',
+     'host': 'api',
+     'style': 'rpc'},
 )
 mount_folder = bb.Route(
     'mount_folder',
@@ -13222,8 +13805,9 @@ mount_folder = bb.Route(
     MountFolderArg_validator,
     SharedFolderMetadata_validator,
     MountFolderError_validator,
-    {'host': u'api',
-     'style': u'rpc'},
+    {'auth': 'user',
+     'host': 'api',
+     'style': 'rpc'},
 )
 relinquish_file_membership = bb.Route(
     'relinquish_file_membership',
@@ -13232,8 +13816,9 @@ relinquish_file_membership = bb.Route(
     RelinquishFileMembershipArg_validator,
     bv.Void(),
     RelinquishFileMembershipError_validator,
-    {'host': u'api',
-     'style': u'rpc'},
+    {'auth': 'user',
+     'host': 'api',
+     'style': 'rpc'},
 )
 relinquish_folder_membership = bb.Route(
     'relinquish_folder_membership',
@@ -13242,8 +13827,9 @@ relinquish_folder_membership = bb.Route(
     RelinquishFolderMembershipArg_validator,
     async_.LaunchEmptyResult_validator,
     RelinquishFolderMembershipError_validator,
-    {'host': u'api',
-     'style': u'rpc'},
+    {'auth': 'user',
+     'host': 'api',
+     'style': 'rpc'},
 )
 remove_file_member = bb.Route(
     'remove_file_member',
@@ -13252,8 +13838,9 @@ remove_file_member = bb.Route(
     RemoveFileMemberArg_validator,
     FileMemberActionIndividualResult_validator,
     RemoveFileMemberError_validator,
-    {'host': u'api',
-     'style': u'rpc'},
+    {'auth': 'user',
+     'host': 'api',
+     'style': 'rpc'},
 )
 remove_file_member_2 = bb.Route(
     'remove_file_member_2',
@@ -13262,8 +13849,9 @@ remove_file_member_2 = bb.Route(
     RemoveFileMemberArg_validator,
     FileMemberRemoveActionResult_validator,
     RemoveFileMemberError_validator,
-    {'host': u'api',
-     'style': u'rpc'},
+    {'auth': 'user',
+     'host': 'api',
+     'style': 'rpc'},
 )
 remove_folder_member = bb.Route(
     'remove_folder_member',
@@ -13272,8 +13860,9 @@ remove_folder_member = bb.Route(
     RemoveFolderMemberArg_validator,
     async_.LaunchResultBase_validator,
     RemoveFolderMemberError_validator,
-    {'host': u'api',
-     'style': u'rpc'},
+    {'auth': 'user',
+     'host': 'api',
+     'style': 'rpc'},
 )
 revoke_shared_link = bb.Route(
     'revoke_shared_link',
@@ -13282,8 +13871,9 @@ revoke_shared_link = bb.Route(
     RevokeSharedLinkArg_validator,
     bv.Void(),
     RevokeSharedLinkError_validator,
-    {'host': u'api',
-     'style': u'rpc'},
+    {'auth': 'user',
+     'host': 'api',
+     'style': 'rpc'},
 )
 set_access_inheritance = bb.Route(
     'set_access_inheritance',
@@ -13292,8 +13882,9 @@ set_access_inheritance = bb.Route(
     SetAccessInheritanceArg_validator,
     ShareFolderLaunch_validator,
     SetAccessInheritanceError_validator,
-    {'host': u'api',
-     'style': u'rpc'},
+    {'auth': 'user',
+     'host': 'api',
+     'style': 'rpc'},
 )
 share_folder = bb.Route(
     'share_folder',
@@ -13302,8 +13893,9 @@ share_folder = bb.Route(
     ShareFolderArg_validator,
     ShareFolderLaunch_validator,
     ShareFolderError_validator,
-    {'host': u'api',
-     'style': u'rpc'},
+    {'auth': 'user',
+     'host': 'api',
+     'style': 'rpc'},
 )
 transfer_folder = bb.Route(
     'transfer_folder',
@@ -13312,8 +13904,9 @@ transfer_folder = bb.Route(
     TransferFolderArg_validator,
     bv.Void(),
     TransferFolderError_validator,
-    {'host': u'api',
-     'style': u'rpc'},
+    {'auth': 'user',
+     'host': 'api',
+     'style': 'rpc'},
 )
 unmount_folder = bb.Route(
     'unmount_folder',
@@ -13322,8 +13915,9 @@ unmount_folder = bb.Route(
     UnmountFolderArg_validator,
     bv.Void(),
     UnmountFolderError_validator,
-    {'host': u'api',
-     'style': u'rpc'},
+    {'auth': 'user',
+     'host': 'api',
+     'style': 'rpc'},
 )
 unshare_file = bb.Route(
     'unshare_file',
@@ -13332,8 +13926,9 @@ unshare_file = bb.Route(
     UnshareFileArg_validator,
     bv.Void(),
     UnshareFileError_validator,
-    {'host': u'api',
-     'style': u'rpc'},
+    {'auth': 'user',
+     'host': 'api',
+     'style': 'rpc'},
 )
 unshare_folder = bb.Route(
     'unshare_folder',
@@ -13342,8 +13937,9 @@ unshare_folder = bb.Route(
     UnshareFolderArg_validator,
     async_.LaunchEmptyResult_validator,
     UnshareFolderError_validator,
-    {'host': u'api',
-     'style': u'rpc'},
+    {'auth': 'user',
+     'host': 'api',
+     'style': 'rpc'},
 )
 update_file_member = bb.Route(
     'update_file_member',
@@ -13352,8 +13948,9 @@ update_file_member = bb.Route(
     UpdateFileMemberArgs_validator,
     MemberAccessLevelResult_validator,
     FileMemberActionError_validator,
-    {'host': u'api',
-     'style': u'rpc'},
+    {'auth': 'user',
+     'host': 'api',
+     'style': 'rpc'},
 )
 update_folder_member = bb.Route(
     'update_folder_member',
@@ -13362,8 +13959,9 @@ update_folder_member = bb.Route(
     UpdateFolderMemberArg_validator,
     MemberAccessLevelResult_validator,
     UpdateFolderMemberError_validator,
-    {'host': u'api',
-     'style': u'rpc'},
+    {'auth': 'user',
+     'host': 'api',
+     'style': 'rpc'},
 )
 update_folder_policy = bb.Route(
     'update_folder_policy',
@@ -13372,14 +13970,14 @@ update_folder_policy = bb.Route(
     UpdateFolderPolicyArg_validator,
     SharedFolderMetadata_validator,
     UpdateFolderPolicyError_validator,
-    {'host': u'api',
-     'style': u'rpc'},
+    {'auth': 'user',
+     'host': 'api',
+     'style': 'rpc'},
 )
 
 ROUTES = {
     'add_file_member': add_file_member,
     'add_folder_member': add_folder_member,
-    'change_file_member_access': change_file_member_access,
     'check_job_status': check_job_status,
     'check_remove_member_job_status': check_remove_member_job_status,
     'check_share_job_status': check_share_job_status,

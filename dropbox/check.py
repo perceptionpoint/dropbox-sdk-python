@@ -63,7 +63,7 @@ class EchoResult(bb.Struct):
 
 EchoResult_validator = bv.Struct(EchoResult)
 
-EchoArg.query.validator = bv.String()
+EchoArg.query.validator = bv.String(max_length=500)
 EchoArg._all_field_names_ = set(['query'])
 EchoArg._all_fields_ = [('query', EchoArg.query.validator)]
 
@@ -71,8 +71,8 @@ EchoResult.result.validator = bv.String()
 EchoResult._all_field_names_ = set(['result'])
 EchoResult._all_fields_ = [('result', EchoResult.result.validator)]
 
-EchoArg.query.default = u''
-EchoResult.result.default = u''
+EchoArg.query.default = ''
+EchoResult.result.default = ''
 app = bb.Route(
     'app',
     1,
@@ -80,8 +80,9 @@ app = bb.Route(
     EchoArg_validator,
     EchoResult_validator,
     bv.Void(),
-    {'host': u'api',
-     'style': u'rpc'},
+    {'auth': 'app',
+     'host': 'api',
+     'style': 'rpc'},
 )
 user = bb.Route(
     'user',
@@ -90,8 +91,9 @@ user = bb.Route(
     EchoArg_validator,
     EchoResult_validator,
     bv.Void(),
-    {'host': u'api',
-     'style': u'rpc'},
+    {'auth': 'user',
+     'host': 'api',
+     'style': 'rpc'},
 )
 
 ROUTES = {

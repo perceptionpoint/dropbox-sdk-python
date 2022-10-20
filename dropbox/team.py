@@ -152,7 +152,7 @@ class AddSecondaryEmailResult(bb.Union):
     Result of trying to add a secondary email to a user. 'success' is the only
     value indicating that a secondary email was successfully added to a user.
     The other values explain the type of error that occurred, and include the
-    email for which the error occured.
+    email for which the error occurred.
 
     This class acts as a tagged union. Only one of the ``is_*`` methods will
     return true. To get the associated value of a tag (if one exists), use the
@@ -591,7 +591,8 @@ class AdminTier(bb.Union):
     :ivar team.AdminTier.user_management_admin: User can do most user
         provisioning, de-provisioning and management.
     :ivar team.AdminTier.support_admin: User can do a limited set of common
-        support tasks for existing users.
+        support tasks for existing users. Note: Dropbox is adding new types of
+        admin roles; these may display as support_admin.
     :ivar team.AdminTier.member_only: User is not an admin of the team.
     """
 
@@ -1081,7 +1082,7 @@ class DeleteSecondaryEmailResult(bb.Union):
     Result of trying to delete a secondary email address. 'success' is the only
     value indicating that a secondary email was successfully deleted. The other
     values explain the type of error that occurred, and include the email for
-    which the error occured.
+    which the error occurred.
 
     This class acts as a tagged union. Only one of the ``is_*`` methods will
     return true. To get the associated value of a tag (if one exists), use the
@@ -4461,7 +4462,7 @@ class LegalHoldPolicy(bb.Struct):
     :ivar team.LegalHoldPolicy.activation_time: The time at which the legal hold
         was activated.
     :ivar team.LegalHoldPolicy.members: Team members IDs and number of
-        permanetly deleted members under hold.
+        permanently deleted members under hold.
     :ivar team.LegalHoldPolicy.status: The current state of the hold.
     :ivar team.LegalHoldPolicy.start_date: Start date of the legal hold policy.
     :ivar team.LegalHoldPolicy.end_date: End date of the legal hold policy.
@@ -5343,6 +5344,8 @@ class LegalHoldsPolicyUpdateError(LegalHoldsError):
     return true. To get the associated value of a tag (if one exists), use the
     corresponding ``get_*`` method.
 
+    :ivar team.LegalHoldsPolicyUpdateError.transient_error: Temporary
+        infrastructure failure, please retry.
     :ivar team.LegalHoldsPolicyUpdateError.inactive_legal_hold: Trying to
         release an inactive legal hold.
     :ivar
@@ -5362,6 +5365,8 @@ class LegalHoldsPolicyUpdateError(LegalHoldsError):
     """
 
     # Attribute is overwritten below the class definition
+    transient_error = None
+    # Attribute is overwritten below the class definition
     inactive_legal_hold = None
     # Attribute is overwritten below the class definition
     legal_hold_performing_another_operation = None
@@ -5375,6 +5380,14 @@ class LegalHoldsPolicyUpdateError(LegalHoldsError):
     name_must_be_unique = None
     # Attribute is overwritten below the class definition
     legal_hold_policy_not_found = None
+
+    def is_transient_error(self):
+        """
+        Check if the union tag is ``transient_error``.
+
+        :rtype: bool
+        """
+        return self._tag == 'transient_error'
 
     def is_inactive_legal_hold(self):
         """
@@ -6246,19 +6259,21 @@ class MemberAccess(bb.Struct):
 
 MemberAccess_validator = bv.Struct(MemberAccess)
 
-class MemberAddArg(bb.Struct):
+class MemberAddArgBase(bb.Struct):
     """
-    :ivar team.MemberAddArg.member_given_name: Member's first name.
-    :ivar team.MemberAddArg.member_surname: Member's last name.
-    :ivar team.MemberAddArg.member_external_id: External ID for member.
-    :ivar team.MemberAddArg.member_persistent_id: Persistent ID for member. This
-        field is only available to teams using persistent ID SAML configuration.
-    :ivar team.MemberAddArg.send_welcome_email: Whether to send a welcome email
-        to the member. If send_welcome_email is false, no email invitation will
-        be sent to the user. This may be useful for apps using single sign-on
-        (SSO) flows for onboarding that want to handle announcements themselves.
-    :ivar team.MemberAddArg.is_directory_restricted: Whether a user is directory
-        restricted.
+    :ivar team.MemberAddArgBase.member_given_name: Member's first name.
+    :ivar team.MemberAddArgBase.member_surname: Member's last name.
+    :ivar team.MemberAddArgBase.member_external_id: External ID for member.
+    :ivar team.MemberAddArgBase.member_persistent_id: Persistent ID for member.
+        This field is only available to teams using persistent ID SAML
+        configuration.
+    :ivar team.MemberAddArgBase.send_welcome_email: Whether to send a welcome
+        email to the member. If send_welcome_email is false, no email invitation
+        will be sent to the user. This may be useful for apps using single
+        sign-on (SSO) flows for onboarding that want to handle announcements
+        themselves.
+    :ivar team.MemberAddArgBase.is_directory_restricted: Whether a user is
+        directory restricted.
     """
 
     __slots__ = [
@@ -6268,7 +6283,6 @@ class MemberAddArg(bb.Struct):
         '_member_external_id_value',
         '_member_persistent_id_value',
         '_send_welcome_email_value',
-        '_role_value',
         '_is_directory_restricted_value',
     ]
 
@@ -6281,7 +6295,6 @@ class MemberAddArg(bb.Struct):
                  member_external_id=None,
                  member_persistent_id=None,
                  send_welcome_email=None,
-                 role=None,
                  is_directory_restricted=None):
         self._member_email_value = bb.NOT_SET
         self._member_given_name_value = bb.NOT_SET
@@ -6289,7 +6302,6 @@ class MemberAddArg(bb.Struct):
         self._member_external_id_value = bb.NOT_SET
         self._member_persistent_id_value = bb.NOT_SET
         self._send_welcome_email_value = bb.NOT_SET
-        self._role_value = bb.NOT_SET
         self._is_directory_restricted_value = bb.NOT_SET
         if member_email is not None:
             self.member_email = member_email
@@ -6303,8 +6315,6 @@ class MemberAddArg(bb.Struct):
             self.member_persistent_id = member_persistent_id
         if send_welcome_email is not None:
             self.send_welcome_email = send_welcome_email
-        if role is not None:
-            self.role = role
         if is_directory_restricted is not None:
             self.is_directory_restricted = is_directory_restricted
 
@@ -6326,69 +6336,85 @@ class MemberAddArg(bb.Struct):
     # Instance attribute type: bool (validator is set below)
     send_welcome_email = bb.Attribute("send_welcome_email")
 
-    # Instance attribute type: AdminTier (validator is set below)
-    role = bb.Attribute("role", user_defined=True)
-
     # Instance attribute type: bool (validator is set below)
     is_directory_restricted = bb.Attribute("is_directory_restricted", nullable=True)
+
+    def _process_custom_annotations(self, annotation_type, field_path, processor):
+        super(MemberAddArgBase, self)._process_custom_annotations(annotation_type, field_path, processor)
+
+MemberAddArgBase_validator = bv.Struct(MemberAddArgBase)
+
+class MemberAddArg(MemberAddArgBase):
+
+    __slots__ = [
+        '_role_value',
+    ]
+
+    _has_required_fields = True
+
+    def __init__(self,
+                 member_email=None,
+                 member_given_name=None,
+                 member_surname=None,
+                 member_external_id=None,
+                 member_persistent_id=None,
+                 send_welcome_email=None,
+                 is_directory_restricted=None,
+                 role=None):
+        super(MemberAddArg, self).__init__(member_email,
+                                           member_given_name,
+                                           member_surname,
+                                           member_external_id,
+                                           member_persistent_id,
+                                           send_welcome_email,
+                                           is_directory_restricted)
+        self._role_value = bb.NOT_SET
+        if role is not None:
+            self.role = role
+
+    # Instance attribute type: AdminTier (validator is set below)
+    role = bb.Attribute("role", user_defined=True)
 
     def _process_custom_annotations(self, annotation_type, field_path, processor):
         super(MemberAddArg, self)._process_custom_annotations(annotation_type, field_path, processor)
 
 MemberAddArg_validator = bv.Struct(MemberAddArg)
 
-class MemberAddResult(bb.Union):
+class MemberAddResultBase(bb.Union):
     """
-    Describes the result of attempting to add a single user to the team.
-    'success' is the only value indicating that a user was indeed added to the
-    team - the other values explain the type of failure that occurred, and
-    include the email of the user for which the operation has failed.
-
     This class acts as a tagged union. Only one of the ``is_*`` methods will
     return true. To get the associated value of a tag (if one exists), use the
     corresponding ``get_*`` method.
 
-    :ivar TeamMemberInfo MemberAddResult.success: Describes a user that was
-        successfully added to the team.
-    :ivar str team.MemberAddResult.team_license_limit: Team is already full. The
-        organization has no available licenses.
-    :ivar str team.MemberAddResult.free_team_member_limit_reached: Team is
+    :ivar str team.MemberAddResultBase.team_license_limit: Team is already full.
+        The organization has no available licenses.
+    :ivar str team.MemberAddResultBase.free_team_member_limit_reached: Team is
         already full. The free team member limit has been reached.
-    :ivar str team.MemberAddResult.user_already_on_team: User is already on this
-        team. The provided email address is associated with a user who is
+    :ivar str team.MemberAddResultBase.user_already_on_team: User is already on
+        this team. The provided email address is associated with a user who is
         already a member of (including in recoverable state) or invited to the
         team.
-    :ivar str team.MemberAddResult.user_on_another_team: User is already on
+    :ivar str team.MemberAddResultBase.user_on_another_team: User is already on
         another team. The provided email address is associated with a user that
         is already a member or invited to another team.
-    :ivar str team.MemberAddResult.user_already_paired: User is already paired.
-    :ivar str team.MemberAddResult.user_migration_failed: User migration has
+    :ivar str team.MemberAddResultBase.user_already_paired: User is already
+        paired.
+    :ivar str team.MemberAddResultBase.user_migration_failed: User migration has
         failed.
-    :ivar str team.MemberAddResult.duplicate_external_member_id: A user with the
-        given external member ID already exists on the team (including in
+    :ivar str team.MemberAddResultBase.duplicate_external_member_id: A user with
+        the given external member ID already exists on the team (including in
         recoverable state).
-    :ivar str team.MemberAddResult.duplicate_member_persistent_id: A user with
-        the given persistent ID already exists on the team (including in
+    :ivar str team.MemberAddResultBase.duplicate_member_persistent_id: A user
+        with the given persistent ID already exists on the team (including in
         recoverable state).
-    :ivar str team.MemberAddResult.persistent_id_disabled: Persistent ID is only
-        available to teams with persistent ID SAML configuration. Please contact
-        Dropbox for more information.
-    :ivar str team.MemberAddResult.user_creation_failed: User creation has
+    :ivar str team.MemberAddResultBase.persistent_id_disabled: Persistent ID is
+        only available to teams with persistent ID SAML configuration. Please
+        contact Dropbox for more information.
+    :ivar str team.MemberAddResultBase.user_creation_failed: User creation has
         failed.
     """
 
     _catch_all = None
-
-    @classmethod
-    def success(cls, val):
-        """
-        Create an instance of this class set to the ``success`` tag with value
-        ``val``.
-
-        :param TeamMemberInfo val:
-        :rtype: MemberAddResult
-        """
-        return cls('success', val)
 
     @classmethod
     def team_license_limit(cls, val):
@@ -6397,7 +6423,7 @@ class MemberAddResult(bb.Union):
         with value ``val``.
 
         :param str val:
-        :rtype: MemberAddResult
+        :rtype: MemberAddResultBase
         """
         return cls('team_license_limit', val)
 
@@ -6408,7 +6434,7 @@ class MemberAddResult(bb.Union):
         ``free_team_member_limit_reached`` tag with value ``val``.
 
         :param str val:
-        :rtype: MemberAddResult
+        :rtype: MemberAddResultBase
         """
         return cls('free_team_member_limit_reached', val)
 
@@ -6419,7 +6445,7 @@ class MemberAddResult(bb.Union):
         with value ``val``.
 
         :param str val:
-        :rtype: MemberAddResult
+        :rtype: MemberAddResultBase
         """
         return cls('user_already_on_team', val)
 
@@ -6430,7 +6456,7 @@ class MemberAddResult(bb.Union):
         with value ``val``.
 
         :param str val:
-        :rtype: MemberAddResult
+        :rtype: MemberAddResultBase
         """
         return cls('user_on_another_team', val)
 
@@ -6441,7 +6467,7 @@ class MemberAddResult(bb.Union):
         with value ``val``.
 
         :param str val:
-        :rtype: MemberAddResult
+        :rtype: MemberAddResultBase
         """
         return cls('user_already_paired', val)
 
@@ -6452,7 +6478,7 @@ class MemberAddResult(bb.Union):
         tag with value ``val``.
 
         :param str val:
-        :rtype: MemberAddResult
+        :rtype: MemberAddResultBase
         """
         return cls('user_migration_failed', val)
 
@@ -6463,7 +6489,7 @@ class MemberAddResult(bb.Union):
         ``duplicate_external_member_id`` tag with value ``val``.
 
         :param str val:
-        :rtype: MemberAddResult
+        :rtype: MemberAddResultBase
         """
         return cls('duplicate_external_member_id', val)
 
@@ -6474,7 +6500,7 @@ class MemberAddResult(bb.Union):
         ``duplicate_member_persistent_id`` tag with value ``val``.
 
         :param str val:
-        :rtype: MemberAddResult
+        :rtype: MemberAddResultBase
         """
         return cls('duplicate_member_persistent_id', val)
 
@@ -6485,7 +6511,7 @@ class MemberAddResult(bb.Union):
         tag with value ``val``.
 
         :param str val:
-        :rtype: MemberAddResult
+        :rtype: MemberAddResultBase
         """
         return cls('persistent_id_disabled', val)
 
@@ -6496,17 +6522,9 @@ class MemberAddResult(bb.Union):
         with value ``val``.
 
         :param str val:
-        :rtype: MemberAddResult
+        :rtype: MemberAddResultBase
         """
         return cls('user_creation_failed', val)
-
-    def is_success(self):
-        """
-        Check if the union tag is ``success``.
-
-        :rtype: bool
-        """
-        return self._tag == 'success'
 
     def is_team_license_limit(self):
         """
@@ -6587,18 +6605,6 @@ class MemberAddResult(bb.Union):
         :rtype: bool
         """
         return self._tag == 'user_creation_failed'
-
-    def get_success(self):
-        """
-        Describes a user that was successfully added to the team.
-
-        Only call this if :meth:`is_success` is true.
-
-        :rtype: TeamMemberInfo
-        """
-        if not self.is_success():
-            raise AttributeError("tag 'success' not set")
-        return self._value
 
     def get_team_license_limit(self):
         """
@@ -6728,9 +6734,159 @@ class MemberAddResult(bb.Union):
         return self._value
 
     def _process_custom_annotations(self, annotation_type, field_path, processor):
+        super(MemberAddResultBase, self)._process_custom_annotations(annotation_type, field_path, processor)
+
+MemberAddResultBase_validator = bv.Union(MemberAddResultBase)
+
+class MemberAddResult(MemberAddResultBase):
+    """
+    Describes the result of attempting to add a single user to the team.
+    'success' is the only value indicating that a user was indeed added to the
+    team - the other values explain the type of failure that occurred, and
+    include the email of the user for which the operation has failed.
+
+    This class acts as a tagged union. Only one of the ``is_*`` methods will
+    return true. To get the associated value of a tag (if one exists), use the
+    corresponding ``get_*`` method.
+
+    :ivar TeamMemberInfo MemberAddResult.success: Describes a user that was
+        successfully added to the team.
+    """
+
+    @classmethod
+    def success(cls, val):
+        """
+        Create an instance of this class set to the ``success`` tag with value
+        ``val``.
+
+        :param TeamMemberInfo val:
+        :rtype: MemberAddResult
+        """
+        return cls('success', val)
+
+    def is_success(self):
+        """
+        Check if the union tag is ``success``.
+
+        :rtype: bool
+        """
+        return self._tag == 'success'
+
+    def get_success(self):
+        """
+        Describes a user that was successfully added to the team.
+
+        Only call this if :meth:`is_success` is true.
+
+        :rtype: TeamMemberInfo
+        """
+        if not self.is_success():
+            raise AttributeError("tag 'success' not set")
+        return self._value
+
+    def _process_custom_annotations(self, annotation_type, field_path, processor):
         super(MemberAddResult, self)._process_custom_annotations(annotation_type, field_path, processor)
 
 MemberAddResult_validator = bv.Union(MemberAddResult)
+
+class MemberAddV2Arg(MemberAddArgBase):
+
+    __slots__ = [
+        '_role_ids_value',
+    ]
+
+    _has_required_fields = True
+
+    def __init__(self,
+                 member_email=None,
+                 member_given_name=None,
+                 member_surname=None,
+                 member_external_id=None,
+                 member_persistent_id=None,
+                 send_welcome_email=None,
+                 is_directory_restricted=None,
+                 role_ids=None):
+        super(MemberAddV2Arg, self).__init__(member_email,
+                                             member_given_name,
+                                             member_surname,
+                                             member_external_id,
+                                             member_persistent_id,
+                                             send_welcome_email,
+                                             is_directory_restricted)
+        self._role_ids_value = bb.NOT_SET
+        if role_ids is not None:
+            self.role_ids = role_ids
+
+    # Instance attribute type: list of [str] (validator is set below)
+    role_ids = bb.Attribute("role_ids", nullable=True)
+
+    def _process_custom_annotations(self, annotation_type, field_path, processor):
+        super(MemberAddV2Arg, self)._process_custom_annotations(annotation_type, field_path, processor)
+
+MemberAddV2Arg_validator = bv.Struct(MemberAddV2Arg)
+
+class MemberAddV2Result(MemberAddResultBase):
+    """
+    Describes the result of attempting to add a single user to the team.
+    'success' is the only value indicating that a user was indeed added to the
+    team - the other values explain the type of failure that occurred, and
+    include the email of the user for which the operation has failed.
+
+    This class acts as a tagged union. Only one of the ``is_*`` methods will
+    return true. To get the associated value of a tag (if one exists), use the
+    corresponding ``get_*`` method.
+
+    :ivar TeamMemberInfoV2 MemberAddV2Result.success: Describes a user that was
+        successfully added to the team.
+    """
+
+    _catch_all = 'other'
+    # Attribute is overwritten below the class definition
+    other = None
+
+    @classmethod
+    def success(cls, val):
+        """
+        Create an instance of this class set to the ``success`` tag with value
+        ``val``.
+
+        :param TeamMemberInfoV2 val:
+        :rtype: MemberAddV2Result
+        """
+        return cls('success', val)
+
+    def is_success(self):
+        """
+        Check if the union tag is ``success``.
+
+        :rtype: bool
+        """
+        return self._tag == 'success'
+
+    def is_other(self):
+        """
+        Check if the union tag is ``other``.
+
+        :rtype: bool
+        """
+        return self._tag == 'other'
+
+    def get_success(self):
+        """
+        Describes a user that was successfully added to the team.
+
+        Only call this if :meth:`is_success` is true.
+
+        :rtype: TeamMemberInfoV2
+        """
+        if not self.is_success():
+            raise AttributeError("tag 'success' not set")
+        return self._value
+
+    def _process_custom_annotations(self, annotation_type, field_path, processor):
+        super(MemberAddV2Result, self)._process_custom_annotations(annotation_type, field_path, processor)
+
+MemberAddV2Result_validator = bv.Union(MemberAddV2Result)
 
 class MemberDevices(bb.Struct):
     """
@@ -7051,17 +7207,40 @@ class MemberSelectorError(UserSelectorError):
 
 MemberSelectorError_validator = bv.Union(MemberSelectorError)
 
-class MembersAddArg(bb.Struct):
+class MembersAddArgBase(bb.Struct):
     """
-    :ivar team.MembersAddArg.new_members: Details of new members to be added to
-        the team.
-    :ivar team.MembersAddArg.force_async: Whether to force the add to happen
+    :ivar team.MembersAddArgBase.force_async: Whether to force the add to happen
         asynchronously.
     """
 
     __slots__ = [
-        '_new_members_value',
         '_force_async_value',
+    ]
+
+    _has_required_fields = False
+
+    def __init__(self,
+                 force_async=None):
+        self._force_async_value = bb.NOT_SET
+        if force_async is not None:
+            self.force_async = force_async
+
+    # Instance attribute type: bool (validator is set below)
+    force_async = bb.Attribute("force_async")
+
+    def _process_custom_annotations(self, annotation_type, field_path, processor):
+        super(MembersAddArgBase, self)._process_custom_annotations(annotation_type, field_path, processor)
+
+MembersAddArgBase_validator = bv.Struct(MembersAddArgBase)
+
+class MembersAddArg(MembersAddArgBase):
+    """
+    :ivar team.MembersAddArg.new_members: Details of new members to be added to
+        the team.
+    """
+
+    __slots__ = [
+        '_new_members_value',
     ]
 
     _has_required_fields = True
@@ -7069,18 +7248,13 @@ class MembersAddArg(bb.Struct):
     def __init__(self,
                  new_members=None,
                  force_async=None):
+        super(MembersAddArg, self).__init__(force_async)
         self._new_members_value = bb.NOT_SET
-        self._force_async_value = bb.NOT_SET
         if new_members is not None:
             self.new_members = new_members
-        if force_async is not None:
-            self.force_async = force_async
 
     # Instance attribute type: list of [MemberAddArg] (validator is set below)
     new_members = bb.Attribute("new_members")
-
-    # Instance attribute type: bool (validator is set below)
-    force_async = bb.Attribute("force_async")
 
     def _process_custom_annotations(self, annotation_type, field_path, processor):
         super(MembersAddArg, self)._process_custom_annotations(annotation_type, field_path, processor)
@@ -7172,6 +7346,103 @@ class MembersAddJobStatus(async_.PollResultBase):
 
 MembersAddJobStatus_validator = bv.Union(MembersAddJobStatus)
 
+class MembersAddJobStatusV2Result(async_.PollResultBase):
+    """
+    This class acts as a tagged union. Only one of the ``is_*`` methods will
+    return true. To get the associated value of a tag (if one exists), use the
+    corresponding ``get_*`` method.
+
+    :ivar list of [MemberAddV2Result] team.MembersAddJobStatusV2Result.complete:
+        The asynchronous job has finished. For each member that was specified in
+        the parameter :type:`MembersAddArg` that was provided to
+        :route:`members/add:2`, a corresponding item is returned in this list.
+    :ivar str team.MembersAddJobStatusV2Result.failed: The asynchronous job
+        returned an error. The string contains an error message.
+    """
+
+    _catch_all = 'other'
+    # Attribute is overwritten below the class definition
+    other = None
+
+    @classmethod
+    def complete(cls, val):
+        """
+        Create an instance of this class set to the ``complete`` tag with value
+        ``val``.
+
+        :param list of [MemberAddV2Result] val:
+        :rtype: MembersAddJobStatusV2Result
+        """
+        return cls('complete', val)
+
+    @classmethod
+    def failed(cls, val):
+        """
+        Create an instance of this class set to the ``failed`` tag with value
+        ``val``.
+
+        :param str val:
+        :rtype: MembersAddJobStatusV2Result
+        """
+        return cls('failed', val)
+
+    def is_complete(self):
+        """
+        Check if the union tag is ``complete``.
+
+        :rtype: bool
+        """
+        return self._tag == 'complete'
+
+    def is_failed(self):
+        """
+        Check if the union tag is ``failed``.
+
+        :rtype: bool
+        """
+        return self._tag == 'failed'
+
+    def is_other(self):
+        """
+        Check if the union tag is ``other``.
+
+        :rtype: bool
+        """
+        return self._tag == 'other'
+
+    def get_complete(self):
+        """
+        The asynchronous job has finished. For each member that was specified in
+        the parameter :class:`MembersAddArg` that was provided to
+        :meth:`dropbox.dropbox_client.Dropbox.team_members_add`, a corresponding
+        item is returned in this list.
+
+        Only call this if :meth:`is_complete` is true.
+
+        :rtype: list of [MemberAddV2Result]
+        """
+        if not self.is_complete():
+            raise AttributeError("tag 'complete' not set")
+        return self._value
+
+    def get_failed(self):
+        """
+        The asynchronous job returned an error. The string contains an error
+        message.
+
+        Only call this if :meth:`is_failed` is true.
+
+        :rtype: str
+        """
+        if not self.is_failed():
+            raise AttributeError("tag 'failed' not set")
+        return self._value
+
+    def _process_custom_annotations(self, annotation_type, field_path, processor):
+        super(MembersAddJobStatusV2Result, self)._process_custom_annotations(annotation_type, field_path, processor)
+
+MembersAddJobStatusV2Result_validator = bv.Union(MembersAddJobStatusV2Result)
+
 class MembersAddLaunch(async_.LaunchResultBase):
     """
     This class acts as a tagged union. Only one of the ``is_*`` methods will
@@ -7212,6 +7483,87 @@ class MembersAddLaunch(async_.LaunchResultBase):
         super(MembersAddLaunch, self)._process_custom_annotations(annotation_type, field_path, processor)
 
 MembersAddLaunch_validator = bv.Union(MembersAddLaunch)
+
+class MembersAddLaunchV2Result(async_.LaunchResultBase):
+    """
+    This class acts as a tagged union. Only one of the ``is_*`` methods will
+    return true. To get the associated value of a tag (if one exists), use the
+    corresponding ``get_*`` method.
+    """
+
+    _catch_all = 'other'
+    # Attribute is overwritten below the class definition
+    other = None
+
+    @classmethod
+    def complete(cls, val):
+        """
+        Create an instance of this class set to the ``complete`` tag with value
+        ``val``.
+
+        :param list of [MemberAddV2Result] val:
+        :rtype: MembersAddLaunchV2Result
+        """
+        return cls('complete', val)
+
+    def is_complete(self):
+        """
+        Check if the union tag is ``complete``.
+
+        :rtype: bool
+        """
+        return self._tag == 'complete'
+
+    def is_other(self):
+        """
+        Check if the union tag is ``other``.
+
+        :rtype: bool
+        """
+        return self._tag == 'other'
+
+    def get_complete(self):
+        """
+        Only call this if :meth:`is_complete` is true.
+
+        :rtype: list of [MemberAddV2Result]
+        """
+        if not self.is_complete():
+            raise AttributeError("tag 'complete' not set")
+        return self._value
+
+    def _process_custom_annotations(self, annotation_type, field_path, processor):
+        super(MembersAddLaunchV2Result, self)._process_custom_annotations(annotation_type, field_path, processor)
+
+MembersAddLaunchV2Result_validator = bv.Union(MembersAddLaunchV2Result)
+
+class MembersAddV2Arg(MembersAddArgBase):
+    """
+    :ivar team.MembersAddV2Arg.new_members: Details of new members to be added
+        to the team.
+    """
+
+    __slots__ = [
+        '_new_members_value',
+    ]
+
+    _has_required_fields = True
+
+    def __init__(self,
+                 new_members=None,
+                 force_async=None):
+        super(MembersAddV2Arg, self).__init__(force_async)
+        self._new_members_value = bb.NOT_SET
+        if new_members is not None:
+            self.new_members = new_members
+
+    # Instance attribute type: list of [MemberAddV2Arg] (validator is set below)
+    new_members = bb.Attribute("new_members")
+
+    def _process_custom_annotations(self, annotation_type, field_path, processor):
+        super(MembersAddV2Arg, self)._process_custom_annotations(annotation_type, field_path, processor)
+
+MembersAddV2Arg_validator = bv.Struct(MembersAddV2Arg)
 
 class MembersDeactivateBaseArg(bb.Struct):
     """
@@ -7408,6 +7760,34 @@ class MembersDeleteProfilePhotoError(MemberSelectorError):
 
 MembersDeleteProfilePhotoError_validator = bv.Union(MembersDeleteProfilePhotoError)
 
+class MembersGetAvailableTeamMemberRolesResult(bb.Struct):
+    """
+    Available TeamMemberRole for the connected team. To be used with
+    :meth:`dropbox.dropbox_client.Dropbox.team_members_set_admin_permissions`.
+
+    :ivar team.MembersGetAvailableTeamMemberRolesResult.roles: Available roles.
+    """
+
+    __slots__ = [
+        '_roles_value',
+    ]
+
+    _has_required_fields = True
+
+    def __init__(self,
+                 roles=None):
+        self._roles_value = bb.NOT_SET
+        if roles is not None:
+            self.roles = roles
+
+    # Instance attribute type: list of [TeamMemberRole] (validator is set below)
+    roles = bb.Attribute("roles")
+
+    def _process_custom_annotations(self, annotation_type, field_path, processor):
+        super(MembersGetAvailableTeamMemberRolesResult, self)._process_custom_annotations(annotation_type, field_path, processor)
+
+MembersGetAvailableTeamMemberRolesResult_validator = bv.Struct(MembersGetAvailableTeamMemberRolesResult)
+
 class MembersGetInfoArgs(bb.Struct):
     """
     :ivar team.MembersGetInfoArgs.members: List of team members.
@@ -7457,21 +7837,17 @@ class MembersGetInfoError(bb.Union):
 
 MembersGetInfoError_validator = bv.Union(MembersGetInfoError)
 
-class MembersGetInfoItem(bb.Union):
+class MembersGetInfoItemBase(bb.Union):
     """
-    Describes a result obtained for a single user whose id was specified in the
-    parameter of :meth:`dropbox.dropbox_client.Dropbox.team_members_get_info`.
-
     This class acts as a tagged union. Only one of the ``is_*`` methods will
     return true. To get the associated value of a tag (if one exists), use the
     corresponding ``get_*`` method.
 
-    :ivar str team.MembersGetInfoItem.id_not_found: An ID that was provided as a
-        parameter to :route:`members/get_info`, and did not match a
-        corresponding user. This might be a team_member_id, an email, or an
-        external ID, depending on how the method was called.
-    :ivar TeamMemberInfo MembersGetInfoItem.member_info: Info about a team
-        member.
+    :ivar str team.MembersGetInfoItemBase.id_not_found: An ID that was provided
+        as a parameter to :route:`members/get_info` or
+        :route:`members/get_info:2`, and did not match a corresponding user.
+        This might be a team_member_id, an email, or an external ID, depending
+        on how the method was called.
     """
 
     _catch_all = None
@@ -7483,9 +7859,51 @@ class MembersGetInfoItem(bb.Union):
         value ``val``.
 
         :param str val:
-        :rtype: MembersGetInfoItem
+        :rtype: MembersGetInfoItemBase
         """
         return cls('id_not_found', val)
+
+    def is_id_not_found(self):
+        """
+        Check if the union tag is ``id_not_found``.
+
+        :rtype: bool
+        """
+        return self._tag == 'id_not_found'
+
+    def get_id_not_found(self):
+        """
+        An ID that was provided as a parameter to
+        :meth:`dropbox.dropbox_client.Dropbox.team_members_get_info` or
+        :meth:`dropbox.dropbox_client.Dropbox.team_members_get_info`, and did
+        not match a corresponding user. This might be a team_member_id, an
+        email, or an external ID, depending on how the method was called.
+
+        Only call this if :meth:`is_id_not_found` is true.
+
+        :rtype: str
+        """
+        if not self.is_id_not_found():
+            raise AttributeError("tag 'id_not_found' not set")
+        return self._value
+
+    def _process_custom_annotations(self, annotation_type, field_path, processor):
+        super(MembersGetInfoItemBase, self)._process_custom_annotations(annotation_type, field_path, processor)
+
+MembersGetInfoItemBase_validator = bv.Union(MembersGetInfoItemBase)
+
+class MembersGetInfoItem(MembersGetInfoItemBase):
+    """
+    Describes a result obtained for a single user whose id was specified in the
+    parameter of :meth:`dropbox.dropbox_client.Dropbox.team_members_get_info`.
+
+    This class acts as a tagged union. Only one of the ``is_*`` methods will
+    return true. To get the associated value of a tag (if one exists), use the
+    corresponding ``get_*`` method.
+
+    :ivar TeamMemberInfo MembersGetInfoItem.member_info: Info about a team
+        member.
+    """
 
     @classmethod
     def member_info(cls, val):
@@ -7498,14 +7916,6 @@ class MembersGetInfoItem(bb.Union):
         """
         return cls('member_info', val)
 
-    def is_id_not_found(self):
-        """
-        Check if the union tag is ``id_not_found``.
-
-        :rtype: bool
-        """
-        return self._tag == 'id_not_found'
-
     def is_member_info(self):
         """
         Check if the union tag is ``member_info``.
@@ -7513,21 +7923,6 @@ class MembersGetInfoItem(bb.Union):
         :rtype: bool
         """
         return self._tag == 'member_info'
-
-    def get_id_not_found(self):
-        """
-        An ID that was provided as a parameter to
-        :meth:`dropbox.dropbox_client.Dropbox.team_members_get_info`, and did
-        not match a corresponding user. This might be a team_member_id, an
-        email, or an external ID, depending on how the method was called.
-
-        Only call this if :meth:`is_id_not_found` is true.
-
-        :rtype: str
-        """
-        if not self.is_id_not_found():
-            raise AttributeError("tag 'id_not_found' not set")
-        return self._value
 
     def get_member_info(self):
         """
@@ -7545,6 +7940,117 @@ class MembersGetInfoItem(bb.Union):
         super(MembersGetInfoItem, self)._process_custom_annotations(annotation_type, field_path, processor)
 
 MembersGetInfoItem_validator = bv.Union(MembersGetInfoItem)
+
+class MembersGetInfoItemV2(MembersGetInfoItemBase):
+    """
+    Describes a result obtained for a single user whose id was specified in the
+    parameter of :meth:`dropbox.dropbox_client.Dropbox.team_members_get_info`.
+
+    This class acts as a tagged union. Only one of the ``is_*`` methods will
+    return true. To get the associated value of a tag (if one exists), use the
+    corresponding ``get_*`` method.
+
+    :ivar TeamMemberInfoV2 MembersGetInfoItemV2.member_info: Info about a team
+        member.
+    """
+
+    _catch_all = 'other'
+    # Attribute is overwritten below the class definition
+    other = None
+
+    @classmethod
+    def member_info(cls, val):
+        """
+        Create an instance of this class set to the ``member_info`` tag with
+        value ``val``.
+
+        :param TeamMemberInfoV2 val:
+        :rtype: MembersGetInfoItemV2
+        """
+        return cls('member_info', val)
+
+    def is_member_info(self):
+        """
+        Check if the union tag is ``member_info``.
+
+        :rtype: bool
+        """
+        return self._tag == 'member_info'
+
+    def is_other(self):
+        """
+        Check if the union tag is ``other``.
+
+        :rtype: bool
+        """
+        return self._tag == 'other'
+
+    def get_member_info(self):
+        """
+        Info about a team member.
+
+        Only call this if :meth:`is_member_info` is true.
+
+        :rtype: TeamMemberInfoV2
+        """
+        if not self.is_member_info():
+            raise AttributeError("tag 'member_info' not set")
+        return self._value
+
+    def _process_custom_annotations(self, annotation_type, field_path, processor):
+        super(MembersGetInfoItemV2, self)._process_custom_annotations(annotation_type, field_path, processor)
+
+MembersGetInfoItemV2_validator = bv.Union(MembersGetInfoItemV2)
+
+class MembersGetInfoV2Arg(bb.Struct):
+    """
+    :ivar team.MembersGetInfoV2Arg.members: List of team members.
+    """
+
+    __slots__ = [
+        '_members_value',
+    ]
+
+    _has_required_fields = True
+
+    def __init__(self,
+                 members=None):
+        self._members_value = bb.NOT_SET
+        if members is not None:
+            self.members = members
+
+    # Instance attribute type: list of [UserSelectorArg] (validator is set below)
+    members = bb.Attribute("members")
+
+    def _process_custom_annotations(self, annotation_type, field_path, processor):
+        super(MembersGetInfoV2Arg, self)._process_custom_annotations(annotation_type, field_path, processor)
+
+MembersGetInfoV2Arg_validator = bv.Struct(MembersGetInfoV2Arg)
+
+class MembersGetInfoV2Result(bb.Struct):
+    """
+    :ivar team.MembersGetInfoV2Result.members_info: List of team members info.
+    """
+
+    __slots__ = [
+        '_members_info_value',
+    ]
+
+    _has_required_fields = True
+
+    def __init__(self,
+                 members_info=None):
+        self._members_info_value = bb.NOT_SET
+        if members_info is not None:
+            self.members_info = members_info
+
+    # Instance attribute type: list of [MembersGetInfoItemV2] (validator is set below)
+    members_info = bb.Attribute("members_info")
+
+    def _process_custom_annotations(self, annotation_type, field_path, processor):
+        super(MembersGetInfoV2Result, self)._process_custom_annotations(annotation_type, field_path, processor)
+
+MembersGetInfoV2Result_validator = bv.Struct(MembersGetInfoV2Result)
 
 class MembersInfo(bb.Struct):
     """
@@ -7750,6 +8256,54 @@ class MembersListResult(bb.Struct):
         super(MembersListResult, self)._process_custom_annotations(annotation_type, field_path, processor)
 
 MembersListResult_validator = bv.Struct(MembersListResult)
+
+class MembersListV2Result(bb.Struct):
+    """
+    :ivar team.MembersListV2Result.members: List of team members.
+    :ivar team.MembersListV2Result.cursor: Pass the cursor into
+        :meth:`dropbox.dropbox_client.Dropbox.team_members_list_continue` to
+        obtain the additional members.
+    :ivar team.MembersListV2Result.has_more: Is true if there are additional
+        team members that have not been returned yet. An additional call to
+        :meth:`dropbox.dropbox_client.Dropbox.team_members_list_continue` can
+        retrieve them.
+    """
+
+    __slots__ = [
+        '_members_value',
+        '_cursor_value',
+        '_has_more_value',
+    ]
+
+    _has_required_fields = True
+
+    def __init__(self,
+                 members=None,
+                 cursor=None,
+                 has_more=None):
+        self._members_value = bb.NOT_SET
+        self._cursor_value = bb.NOT_SET
+        self._has_more_value = bb.NOT_SET
+        if members is not None:
+            self.members = members
+        if cursor is not None:
+            self.cursor = cursor
+        if has_more is not None:
+            self.has_more = has_more
+
+    # Instance attribute type: list of [TeamMemberInfoV2] (validator is set below)
+    members = bb.Attribute("members")
+
+    # Instance attribute type: str (validator is set below)
+    cursor = bb.Attribute("cursor")
+
+    # Instance attribute type: bool (validator is set below)
+    has_more = bb.Attribute("has_more")
+
+    def _process_custom_annotations(self, annotation_type, field_path, processor):
+        super(MembersListV2Result, self)._process_custom_annotations(annotation_type, field_path, processor)
+
+MembersListV2Result_validator = bv.Struct(MembersListV2Result)
 
 class MembersRecoverArg(bb.Struct):
     """
@@ -8211,6 +8765,157 @@ class MembersSendWelcomeError(MemberSelectorError):
         super(MembersSendWelcomeError, self)._process_custom_annotations(annotation_type, field_path, processor)
 
 MembersSendWelcomeError_validator = bv.Union(MembersSendWelcomeError)
+
+class MembersSetPermissions2Arg(bb.Struct):
+    """
+    Exactly one of team_member_id, email, or external_id must be provided to
+    identify the user account.
+
+    :ivar team.MembersSetPermissions2Arg.user: Identity of user whose role will
+        be set.
+    :ivar team.MembersSetPermissions2Arg.new_roles: The new roles for the
+        member. Send empty list to make user member only. For now, only up to
+        one role is allowed.
+    """
+
+    __slots__ = [
+        '_user_value',
+        '_new_roles_value',
+    ]
+
+    _has_required_fields = True
+
+    def __init__(self,
+                 user=None,
+                 new_roles=None):
+        self._user_value = bb.NOT_SET
+        self._new_roles_value = bb.NOT_SET
+        if user is not None:
+            self.user = user
+        if new_roles is not None:
+            self.new_roles = new_roles
+
+    # Instance attribute type: UserSelectorArg (validator is set below)
+    user = bb.Attribute("user", user_defined=True)
+
+    # Instance attribute type: list of [str] (validator is set below)
+    new_roles = bb.Attribute("new_roles", nullable=True)
+
+    def _process_custom_annotations(self, annotation_type, field_path, processor):
+        super(MembersSetPermissions2Arg, self)._process_custom_annotations(annotation_type, field_path, processor)
+
+MembersSetPermissions2Arg_validator = bv.Struct(MembersSetPermissions2Arg)
+
+class MembersSetPermissions2Error(UserSelectorError):
+    """
+    This class acts as a tagged union. Only one of the ``is_*`` methods will
+    return true. To get the associated value of a tag (if one exists), use the
+    corresponding ``get_*`` method.
+
+    :ivar team.MembersSetPermissions2Error.last_admin: Cannot remove the admin
+        setting of the last admin.
+    :ivar team.MembersSetPermissions2Error.user_not_in_team: The user is not a
+        member of the team.
+    :ivar team.MembersSetPermissions2Error.cannot_set_permissions: Cannot
+        remove/grant permissions. This can happen if the team member is
+        suspended.
+    :ivar team.MembersSetPermissions2Error.role_not_found: No matching role
+        found. At least one of the provided new_roles does not exist on this
+        team.
+    """
+
+    _catch_all = 'other'
+    # Attribute is overwritten below the class definition
+    last_admin = None
+    # Attribute is overwritten below the class definition
+    user_not_in_team = None
+    # Attribute is overwritten below the class definition
+    cannot_set_permissions = None
+    # Attribute is overwritten below the class definition
+    role_not_found = None
+    # Attribute is overwritten below the class definition
+    other = None
+
+    def is_last_admin(self):
+        """
+        Check if the union tag is ``last_admin``.
+
+        :rtype: bool
+        """
+        return self._tag == 'last_admin'
+
+    def is_user_not_in_team(self):
+        """
+        Check if the union tag is ``user_not_in_team``.
+
+        :rtype: bool
+        """
+        return self._tag == 'user_not_in_team'
+
+    def is_cannot_set_permissions(self):
+        """
+        Check if the union tag is ``cannot_set_permissions``.
+
+        :rtype: bool
+        """
+        return self._tag == 'cannot_set_permissions'
+
+    def is_role_not_found(self):
+        """
+        Check if the union tag is ``role_not_found``.
+
+        :rtype: bool
+        """
+        return self._tag == 'role_not_found'
+
+    def is_other(self):
+        """
+        Check if the union tag is ``other``.
+
+        :rtype: bool
+        """
+        return self._tag == 'other'
+
+    def _process_custom_annotations(self, annotation_type, field_path, processor):
+        super(MembersSetPermissions2Error, self)._process_custom_annotations(annotation_type, field_path, processor)
+
+MembersSetPermissions2Error_validator = bv.Union(MembersSetPermissions2Error)
+
+class MembersSetPermissions2Result(bb.Struct):
+    """
+    :ivar team.MembersSetPermissions2Result.team_member_id: The member ID of the
+        user to which the change was applied.
+    :ivar team.MembersSetPermissions2Result.roles: The roles after the change.
+        Empty in case the user become a non-admin.
+    """
+
+    __slots__ = [
+        '_team_member_id_value',
+        '_roles_value',
+    ]
+
+    _has_required_fields = True
+
+    def __init__(self,
+                 team_member_id=None,
+                 roles=None):
+        self._team_member_id_value = bb.NOT_SET
+        self._roles_value = bb.NOT_SET
+        if team_member_id is not None:
+            self.team_member_id = team_member_id
+        if roles is not None:
+            self.roles = roles
+
+    # Instance attribute type: str (validator is set below)
+    team_member_id = bb.Attribute("team_member_id")
+
+    # Instance attribute type: list of [TeamMemberRole] (validator is set below)
+    roles = bb.Attribute("roles", nullable=True)
+
+    def _process_custom_annotations(self, annotation_type, field_path, processor):
+        super(MembersSetPermissions2Result, self)._process_custom_annotations(annotation_type, field_path, processor)
+
+MembersSetPermissions2Result_validator = bv.Struct(MembersSetPermissions2Result)
 
 class MembersSetPermissionsArg(bb.Struct):
     """
@@ -9277,7 +9982,7 @@ class ResendSecondaryEmailResult(bb.Union):
     Result of trying to resend verification email to a secondary email address.
     'success' is the only value indicating that a verification email was
     successfully sent. The other values explain the type of error that occurred,
-    and include the email for which the error occured.
+    and include the email for which the error occurred.
 
     This class acts as a tagged union. Only one of the ``is_*`` methods will
     return true. To get the associated value of a tag (if one exists), use the
@@ -10018,6 +10723,551 @@ class SetCustomQuotaError(CustomQuotaError):
         super(SetCustomQuotaError, self)._process_custom_annotations(annotation_type, field_path, processor)
 
 SetCustomQuotaError_validator = bv.Union(SetCustomQuotaError)
+
+class SharingAllowlistAddArgs(bb.Struct):
+    """
+    Structure representing Approve List entries. Domain and emails are
+    supported. At least one entry of any supported type is required.
+
+    :ivar team.SharingAllowlistAddArgs.domains: List of domains represented by
+        valid string representation (RFC-1034/5).
+    :ivar team.SharingAllowlistAddArgs.emails: List of emails represented by
+        valid string representation (RFC-5322/822).
+    """
+
+    __slots__ = [
+        '_domains_value',
+        '_emails_value',
+    ]
+
+    _has_required_fields = False
+
+    def __init__(self,
+                 domains=None,
+                 emails=None):
+        self._domains_value = bb.NOT_SET
+        self._emails_value = bb.NOT_SET
+        if domains is not None:
+            self.domains = domains
+        if emails is not None:
+            self.emails = emails
+
+    # Instance attribute type: list of [str] (validator is set below)
+    domains = bb.Attribute("domains", nullable=True)
+
+    # Instance attribute type: list of [str] (validator is set below)
+    emails = bb.Attribute("emails", nullable=True)
+
+    def _process_custom_annotations(self, annotation_type, field_path, processor):
+        super(SharingAllowlistAddArgs, self)._process_custom_annotations(annotation_type, field_path, processor)
+
+SharingAllowlistAddArgs_validator = bv.Struct(SharingAllowlistAddArgs)
+
+class SharingAllowlistAddError(bb.Union):
+    """
+    This class acts as a tagged union. Only one of the ``is_*`` methods will
+    return true. To get the associated value of a tag (if one exists), use the
+    corresponding ``get_*`` method.
+
+    :ivar str team.SharingAllowlistAddError.malformed_entry: One of provided
+        values is not valid.
+    :ivar team.SharingAllowlistAddError.no_entries_provided: Neither single
+        domain nor email provided.
+    :ivar team.SharingAllowlistAddError.too_many_entries_provided: Too many
+        entries provided within one call.
+    :ivar team.SharingAllowlistAddError.team_limit_reached: Team entries limit
+        reached.
+    :ivar team.SharingAllowlistAddError.unknown_error: Unknown error.
+    :ivar str team.SharingAllowlistAddError.entries_already_exist: Entries
+        already exists.
+    """
+
+    _catch_all = 'other'
+    # Attribute is overwritten below the class definition
+    no_entries_provided = None
+    # Attribute is overwritten below the class definition
+    too_many_entries_provided = None
+    # Attribute is overwritten below the class definition
+    team_limit_reached = None
+    # Attribute is overwritten below the class definition
+    unknown_error = None
+    # Attribute is overwritten below the class definition
+    other = None
+
+    @classmethod
+    def malformed_entry(cls, val):
+        """
+        Create an instance of this class set to the ``malformed_entry`` tag with
+        value ``val``.
+
+        :param str val:
+        :rtype: SharingAllowlistAddError
+        """
+        return cls('malformed_entry', val)
+
+    @classmethod
+    def entries_already_exist(cls, val):
+        """
+        Create an instance of this class set to the ``entries_already_exist``
+        tag with value ``val``.
+
+        :param str val:
+        :rtype: SharingAllowlistAddError
+        """
+        return cls('entries_already_exist', val)
+
+    def is_malformed_entry(self):
+        """
+        Check if the union tag is ``malformed_entry``.
+
+        :rtype: bool
+        """
+        return self._tag == 'malformed_entry'
+
+    def is_no_entries_provided(self):
+        """
+        Check if the union tag is ``no_entries_provided``.
+
+        :rtype: bool
+        """
+        return self._tag == 'no_entries_provided'
+
+    def is_too_many_entries_provided(self):
+        """
+        Check if the union tag is ``too_many_entries_provided``.
+
+        :rtype: bool
+        """
+        return self._tag == 'too_many_entries_provided'
+
+    def is_team_limit_reached(self):
+        """
+        Check if the union tag is ``team_limit_reached``.
+
+        :rtype: bool
+        """
+        return self._tag == 'team_limit_reached'
+
+    def is_unknown_error(self):
+        """
+        Check if the union tag is ``unknown_error``.
+
+        :rtype: bool
+        """
+        return self._tag == 'unknown_error'
+
+    def is_entries_already_exist(self):
+        """
+        Check if the union tag is ``entries_already_exist``.
+
+        :rtype: bool
+        """
+        return self._tag == 'entries_already_exist'
+
+    def is_other(self):
+        """
+        Check if the union tag is ``other``.
+
+        :rtype: bool
+        """
+        return self._tag == 'other'
+
+    def get_malformed_entry(self):
+        """
+        One of provided values is not valid.
+
+        Only call this if :meth:`is_malformed_entry` is true.
+
+        :rtype: str
+        """
+        if not self.is_malformed_entry():
+            raise AttributeError("tag 'malformed_entry' not set")
+        return self._value
+
+    def get_entries_already_exist(self):
+        """
+        Entries already exists.
+
+        Only call this if :meth:`is_entries_already_exist` is true.
+
+        :rtype: str
+        """
+        if not self.is_entries_already_exist():
+            raise AttributeError("tag 'entries_already_exist' not set")
+        return self._value
+
+    def _process_custom_annotations(self, annotation_type, field_path, processor):
+        super(SharingAllowlistAddError, self)._process_custom_annotations(annotation_type, field_path, processor)
+
+SharingAllowlistAddError_validator = bv.Union(SharingAllowlistAddError)
+
+class SharingAllowlistAddResponse(bb.Struct):
+    """
+    This struct is empty. The comment here is intentionally emitted to avoid
+    indentation issues with Stone.
+    """
+
+    __slots__ = [
+    ]
+
+    _has_required_fields = False
+
+    def __init__(self):
+        pass
+
+    def _process_custom_annotations(self, annotation_type, field_path, processor):
+        super(SharingAllowlistAddResponse, self)._process_custom_annotations(annotation_type, field_path, processor)
+
+SharingAllowlistAddResponse_validator = bv.Struct(SharingAllowlistAddResponse)
+
+class SharingAllowlistListArg(bb.Struct):
+    """
+    :ivar team.SharingAllowlistListArg.limit: The number of entries to fetch at
+        one time.
+    """
+
+    __slots__ = [
+        '_limit_value',
+    ]
+
+    _has_required_fields = False
+
+    def __init__(self,
+                 limit=None):
+        self._limit_value = bb.NOT_SET
+        if limit is not None:
+            self.limit = limit
+
+    # Instance attribute type: int (validator is set below)
+    limit = bb.Attribute("limit")
+
+    def _process_custom_annotations(self, annotation_type, field_path, processor):
+        super(SharingAllowlistListArg, self)._process_custom_annotations(annotation_type, field_path, processor)
+
+SharingAllowlistListArg_validator = bv.Struct(SharingAllowlistListArg)
+
+class SharingAllowlistListContinueArg(bb.Struct):
+    """
+    :ivar team.SharingAllowlistListContinueArg.cursor: The cursor returned from
+        a previous call to
+        :meth:`dropbox.dropbox_client.Dropbox.team_sharing_allowlist_list` or
+        :meth:`dropbox.dropbox_client.Dropbox.team_sharing_allowlist_list_continue`.
+    """
+
+    __slots__ = [
+        '_cursor_value',
+    ]
+
+    _has_required_fields = True
+
+    def __init__(self,
+                 cursor=None):
+        self._cursor_value = bb.NOT_SET
+        if cursor is not None:
+            self.cursor = cursor
+
+    # Instance attribute type: str (validator is set below)
+    cursor = bb.Attribute("cursor")
+
+    def _process_custom_annotations(self, annotation_type, field_path, processor):
+        super(SharingAllowlistListContinueArg, self)._process_custom_annotations(annotation_type, field_path, processor)
+
+SharingAllowlistListContinueArg_validator = bv.Struct(SharingAllowlistListContinueArg)
+
+class SharingAllowlistListContinueError(bb.Union):
+    """
+    This class acts as a tagged union. Only one of the ``is_*`` methods will
+    return true. To get the associated value of a tag (if one exists), use the
+    corresponding ``get_*`` method.
+
+    :ivar team.SharingAllowlistListContinueError.invalid_cursor: Provided cursor
+        is not valid.
+    """
+
+    _catch_all = 'other'
+    # Attribute is overwritten below the class definition
+    invalid_cursor = None
+    # Attribute is overwritten below the class definition
+    other = None
+
+    def is_invalid_cursor(self):
+        """
+        Check if the union tag is ``invalid_cursor``.
+
+        :rtype: bool
+        """
+        return self._tag == 'invalid_cursor'
+
+    def is_other(self):
+        """
+        Check if the union tag is ``other``.
+
+        :rtype: bool
+        """
+        return self._tag == 'other'
+
+    def _process_custom_annotations(self, annotation_type, field_path, processor):
+        super(SharingAllowlistListContinueError, self)._process_custom_annotations(annotation_type, field_path, processor)
+
+SharingAllowlistListContinueError_validator = bv.Union(SharingAllowlistListContinueError)
+
+class SharingAllowlistListError(bb.Struct):
+    """
+    This struct is empty. The comment here is intentionally emitted to avoid
+    indentation issues with Stone.
+    """
+
+    __slots__ = [
+    ]
+
+    _has_required_fields = False
+
+    def __init__(self):
+        pass
+
+    def _process_custom_annotations(self, annotation_type, field_path, processor):
+        super(SharingAllowlistListError, self)._process_custom_annotations(annotation_type, field_path, processor)
+
+SharingAllowlistListError_validator = bv.Struct(SharingAllowlistListError)
+
+class SharingAllowlistListResponse(bb.Struct):
+    """
+    :ivar team.SharingAllowlistListResponse.domains: List of domains represented
+        by valid string representation (RFC-1034/5).
+    :ivar team.SharingAllowlistListResponse.emails: List of emails represented
+        by valid string representation (RFC-5322/822).
+    :ivar team.SharingAllowlistListResponse.cursor: If this is nonempty, there
+        are more entries that can be fetched with
+        :meth:`dropbox.dropbox_client.Dropbox.team_sharing_allowlist_list_continue`.
+    :ivar team.SharingAllowlistListResponse.has_more: if true indicates that
+        more entries can be fetched with
+        :meth:`dropbox.dropbox_client.Dropbox.team_sharing_allowlist_list_continue`.
+    """
+
+    __slots__ = [
+        '_domains_value',
+        '_emails_value',
+        '_cursor_value',
+        '_has_more_value',
+    ]
+
+    _has_required_fields = True
+
+    def __init__(self,
+                 domains=None,
+                 emails=None,
+                 cursor=None,
+                 has_more=None):
+        self._domains_value = bb.NOT_SET
+        self._emails_value = bb.NOT_SET
+        self._cursor_value = bb.NOT_SET
+        self._has_more_value = bb.NOT_SET
+        if domains is not None:
+            self.domains = domains
+        if emails is not None:
+            self.emails = emails
+        if cursor is not None:
+            self.cursor = cursor
+        if has_more is not None:
+            self.has_more = has_more
+
+    # Instance attribute type: list of [str] (validator is set below)
+    domains = bb.Attribute("domains")
+
+    # Instance attribute type: list of [str] (validator is set below)
+    emails = bb.Attribute("emails")
+
+    # Instance attribute type: str (validator is set below)
+    cursor = bb.Attribute("cursor")
+
+    # Instance attribute type: bool (validator is set below)
+    has_more = bb.Attribute("has_more")
+
+    def _process_custom_annotations(self, annotation_type, field_path, processor):
+        super(SharingAllowlistListResponse, self)._process_custom_annotations(annotation_type, field_path, processor)
+
+SharingAllowlistListResponse_validator = bv.Struct(SharingAllowlistListResponse)
+
+class SharingAllowlistRemoveArgs(bb.Struct):
+    """
+    :ivar team.SharingAllowlistRemoveArgs.domains: List of domains represented
+        by valid string representation (RFC-1034/5).
+    :ivar team.SharingAllowlistRemoveArgs.emails: List of emails represented by
+        valid string representation (RFC-5322/822).
+    """
+
+    __slots__ = [
+        '_domains_value',
+        '_emails_value',
+    ]
+
+    _has_required_fields = False
+
+    def __init__(self,
+                 domains=None,
+                 emails=None):
+        self._domains_value = bb.NOT_SET
+        self._emails_value = bb.NOT_SET
+        if domains is not None:
+            self.domains = domains
+        if emails is not None:
+            self.emails = emails
+
+    # Instance attribute type: list of [str] (validator is set below)
+    domains = bb.Attribute("domains", nullable=True)
+
+    # Instance attribute type: list of [str] (validator is set below)
+    emails = bb.Attribute("emails", nullable=True)
+
+    def _process_custom_annotations(self, annotation_type, field_path, processor):
+        super(SharingAllowlistRemoveArgs, self)._process_custom_annotations(annotation_type, field_path, processor)
+
+SharingAllowlistRemoveArgs_validator = bv.Struct(SharingAllowlistRemoveArgs)
+
+class SharingAllowlistRemoveError(bb.Union):
+    """
+    This class acts as a tagged union. Only one of the ``is_*`` methods will
+    return true. To get the associated value of a tag (if one exists), use the
+    corresponding ``get_*`` method.
+
+    :ivar str team.SharingAllowlistRemoveError.malformed_entry: One of provided
+        values is not valid.
+    :ivar str team.SharingAllowlistRemoveError.entries_do_not_exist: One or more
+        provided values do not exist.
+    :ivar team.SharingAllowlistRemoveError.no_entries_provided: Neither single
+        domain nor email provided.
+    :ivar team.SharingAllowlistRemoveError.too_many_entries_provided: Too many
+        entries provided within one call.
+    :ivar team.SharingAllowlistRemoveError.unknown_error: Unknown error.
+    """
+
+    _catch_all = 'other'
+    # Attribute is overwritten below the class definition
+    no_entries_provided = None
+    # Attribute is overwritten below the class definition
+    too_many_entries_provided = None
+    # Attribute is overwritten below the class definition
+    unknown_error = None
+    # Attribute is overwritten below the class definition
+    other = None
+
+    @classmethod
+    def malformed_entry(cls, val):
+        """
+        Create an instance of this class set to the ``malformed_entry`` tag with
+        value ``val``.
+
+        :param str val:
+        :rtype: SharingAllowlistRemoveError
+        """
+        return cls('malformed_entry', val)
+
+    @classmethod
+    def entries_do_not_exist(cls, val):
+        """
+        Create an instance of this class set to the ``entries_do_not_exist`` tag
+        with value ``val``.
+
+        :param str val:
+        :rtype: SharingAllowlistRemoveError
+        """
+        return cls('entries_do_not_exist', val)
+
+    def is_malformed_entry(self):
+        """
+        Check if the union tag is ``malformed_entry``.
+
+        :rtype: bool
+        """
+        return self._tag == 'malformed_entry'
+
+    def is_entries_do_not_exist(self):
+        """
+        Check if the union tag is ``entries_do_not_exist``.
+
+        :rtype: bool
+        """
+        return self._tag == 'entries_do_not_exist'
+
+    def is_no_entries_provided(self):
+        """
+        Check if the union tag is ``no_entries_provided``.
+
+        :rtype: bool
+        """
+        return self._tag == 'no_entries_provided'
+
+    def is_too_many_entries_provided(self):
+        """
+        Check if the union tag is ``too_many_entries_provided``.
+
+        :rtype: bool
+        """
+        return self._tag == 'too_many_entries_provided'
+
+    def is_unknown_error(self):
+        """
+        Check if the union tag is ``unknown_error``.
+
+        :rtype: bool
+        """
+        return self._tag == 'unknown_error'
+
+    def is_other(self):
+        """
+        Check if the union tag is ``other``.
+
+        :rtype: bool
+        """
+        return self._tag == 'other'
+
+    def get_malformed_entry(self):
+        """
+        One of provided values is not valid.
+
+        Only call this if :meth:`is_malformed_entry` is true.
+
+        :rtype: str
+        """
+        if not self.is_malformed_entry():
+            raise AttributeError("tag 'malformed_entry' not set")
+        return self._value
+
+    def get_entries_do_not_exist(self):
+        """
+        One or more provided values do not exist.
+
+        Only call this if :meth:`is_entries_do_not_exist` is true.
+
+        :rtype: str
+        """
+        if not self.is_entries_do_not_exist():
+            raise AttributeError("tag 'entries_do_not_exist' not set")
+        return self._value
+
+    def _process_custom_annotations(self, annotation_type, field_path, processor):
+        super(SharingAllowlistRemoveError, self)._process_custom_annotations(annotation_type, field_path, processor)
+
+SharingAllowlistRemoveError_validator = bv.Union(SharingAllowlistRemoveError)
+
+class SharingAllowlistRemoveResponse(bb.Struct):
+    """
+    This struct is empty. The comment here is intentionally emitted to avoid
+    indentation issues with Stone.
+    """
+
+    __slots__ = [
+    ]
+
+    _has_required_fields = False
+
+    def __init__(self):
+        pass
+
+    def _process_custom_annotations(self, annotation_type, field_path, processor):
+        super(SharingAllowlistRemoveResponse, self)._process_custom_annotations(annotation_type, field_path, processor)
+
+SharingAllowlistRemoveResponse_validator = bv.Struct(SharingAllowlistRemoveResponse)
 
 class StorageBucket(bb.Struct):
     """
@@ -11216,6 +12466,72 @@ class TeamMemberInfo(bb.Struct):
 
 TeamMemberInfo_validator = bv.Struct(TeamMemberInfo)
 
+class TeamMemberInfoV2(bb.Struct):
+    """
+    Information about a team member.
+
+    :ivar team.TeamMemberInfoV2.profile: Profile of a user as a member of a
+        team.
+    :ivar team.TeamMemberInfoV2.roles: The user's roles in the team.
+    """
+
+    __slots__ = [
+        '_profile_value',
+        '_roles_value',
+    ]
+
+    _has_required_fields = True
+
+    def __init__(self,
+                 profile=None,
+                 roles=None):
+        self._profile_value = bb.NOT_SET
+        self._roles_value = bb.NOT_SET
+        if profile is not None:
+            self.profile = profile
+        if roles is not None:
+            self.roles = roles
+
+    # Instance attribute type: TeamMemberProfile (validator is set below)
+    profile = bb.Attribute("profile", user_defined=True)
+
+    # Instance attribute type: list of [TeamMemberRole] (validator is set below)
+    roles = bb.Attribute("roles", nullable=True)
+
+    def _process_custom_annotations(self, annotation_type, field_path, processor):
+        super(TeamMemberInfoV2, self)._process_custom_annotations(annotation_type, field_path, processor)
+
+TeamMemberInfoV2_validator = bv.Struct(TeamMemberInfoV2)
+
+class TeamMemberInfoV2Result(bb.Struct):
+    """
+    Information about a team member, after the change, like at
+    :meth:`dropbox.dropbox_client.Dropbox.team_members_set_profile`.
+
+    :ivar team.TeamMemberInfoV2Result.member_info: Member info, after the
+        change.
+    """
+
+    __slots__ = [
+        '_member_info_value',
+    ]
+
+    _has_required_fields = True
+
+    def __init__(self,
+                 member_info=None):
+        self._member_info_value = bb.NOT_SET
+        if member_info is not None:
+            self.member_info = member_info
+
+    # Instance attribute type: TeamMemberInfoV2 (validator is set below)
+    member_info = bb.Attribute("member_info", user_defined=True)
+
+    def _process_custom_annotations(self, annotation_type, field_path, processor):
+        super(TeamMemberInfoV2Result, self)._process_custom_annotations(annotation_type, field_path, processor)
+
+TeamMemberInfoV2Result_validator = bv.Struct(TeamMemberInfoV2Result)
+
 class TeamMemberProfile(MemberProfile):
     """
     Profile of a user as a member of a team.
@@ -11283,6 +12599,54 @@ class TeamMemberProfile(MemberProfile):
         super(TeamMemberProfile, self)._process_custom_annotations(annotation_type, field_path, processor)
 
 TeamMemberProfile_validator = bv.Struct(TeamMemberProfile)
+
+class TeamMemberRole(bb.Struct):
+    """
+    A role which can be attached to a team member. This replaces AdminTier; each
+    AdminTier corresponds to a new TeamMemberRole with a matching name.
+
+    :ivar team.TeamMemberRole.role_id: A string containing encoded role ID. For
+        roles defined by Dropbox, this is the same across all teams.
+    :ivar team.TeamMemberRole.name: The role display name.
+    :ivar team.TeamMemberRole.description: Role description. Describes which
+        permissions come with this role.
+    """
+
+    __slots__ = [
+        '_role_id_value',
+        '_name_value',
+        '_description_value',
+    ]
+
+    _has_required_fields = True
+
+    def __init__(self,
+                 role_id=None,
+                 name=None,
+                 description=None):
+        self._role_id_value = bb.NOT_SET
+        self._name_value = bb.NOT_SET
+        self._description_value = bb.NOT_SET
+        if role_id is not None:
+            self.role_id = role_id
+        if name is not None:
+            self.name = name
+        if description is not None:
+            self.description = description
+
+    # Instance attribute type: str (validator is set below)
+    role_id = bb.Attribute("role_id")
+
+    # Instance attribute type: str (validator is set below)
+    name = bb.Attribute("name")
+
+    # Instance attribute type: str (validator is set below)
+    description = bb.Attribute("description")
+
+    def _process_custom_annotations(self, annotation_type, field_path, processor):
+        super(TeamMemberRole, self)._process_custom_annotations(annotation_type, field_path, processor)
+
+TeamMemberRole_validator = bv.Struct(TeamMemberRole)
 
 class TeamMemberStatus(bb.Union):
     """
@@ -11801,7 +13165,7 @@ class UserAddResult(bb.Union):
     Result of trying to add secondary emails to a user. 'success' is the only
     value indicating that a user was successfully retrieved for adding secondary
     emails. The other values explain the type of error that occurred, and
-    include the user for which the error occured.
+    include the user for which the error occurred.
 
     This class acts as a tagged union. Only one of the ``is_*`` methods will
     return true. To get the associated value of a tag (if one exists), use the
@@ -12061,7 +13425,7 @@ class UserDeleteResult(bb.Union):
     Result of trying to delete a user's secondary emails. 'success' is the only
     value indicating that a user was successfully retrieved for deleting
     secondary emails. The other values explain the type of error that occurred,
-    and include the user for which the error occured.
+    and include the user for which the error occurred.
 
     This class acts as a tagged union. Only one of the ``is_*`` methods will
     return true. To get the associated value of a tag (if one exists), use the
@@ -12188,7 +13552,7 @@ class UserResendResult(bb.Union):
     Result of trying to resend verification emails to a user. 'success' is the
     only value indicating that a user was successfully retrieved for sending
     verification emails. The other values explain the type of error that
-    occurred, and include the user for which the error occured.
+    occurred, and include the user for which the error occurred.
 
     This class acts as a tagged union. Only one of the ``is_*`` methods will
     return true. To get the associated value of a tag (if one exists), use the
@@ -12564,7 +13928,7 @@ class UsersSelectorArg(bb.Union):
 UsersSelectorArg_validator = bv.Union(UsersSelectorArg)
 
 GroupsGetInfoResult_validator = bv.List(GroupsGetInfoItem_validator)
-LegalHoldId_validator = bv.String(pattern=u'^pid_dbhid:.+')
+LegalHoldId_validator = bv.String(pattern='^pid_dbhid:.+')
 LegalHoldPolicyDescription_validator = bv.String(max_length=501)
 LegalHoldPolicyName_validator = bv.String(max_length=140)
 LegalHoldsGetPolicyResult_validator = LegalHoldPolicy_validator
@@ -12576,9 +13940,10 @@ LegalHoldsPolicyUpdateResult = LegalHoldPolicy
 ListHeldRevisionCursor_validator = bv.String(min_length=1)
 MembersGetInfoResult_validator = bv.List(MembersGetInfoItem_validator)
 NumberPerDay_validator = bv.List(bv.Nullable(bv.UInt64()))
-Path_validator = bv.String(pattern=u'(/(.|[\\r\\n])*)?')
+Path_validator = bv.String(pattern='(/(.|[\\r\\n])*)?')
 SecondaryEmail_validator = secondary_emails.SecondaryEmail_validator
 SecondaryEmail = secondary_emails.SecondaryEmail
+TeamMemberRoleId_validator = bv.String(max_length=128, pattern='pid_dbtmr:.*')
 UserQuota_validator = bv.UInt32(min_value=15)
 DeviceSession.session_id.validator = bv.String()
 DeviceSession.ip_address.validator = bv.Nullable(bv.String())
@@ -13743,6 +15108,7 @@ LegalHoldsPolicyUpdateArg._all_fields_ = [
     ('members', LegalHoldsPolicyUpdateArg.members.validator),
 ]
 
+LegalHoldsPolicyUpdateError._transient_error_validator = bv.Void()
 LegalHoldsPolicyUpdateError._inactive_legal_hold_validator = bv.Void()
 LegalHoldsPolicyUpdateError._legal_hold_performing_another_operation_validator = bv.Void()
 LegalHoldsPolicyUpdateError._invalid_members_validator = bv.Void()
@@ -13751,6 +15117,7 @@ LegalHoldsPolicyUpdateError._empty_members_list_validator = bv.Void()
 LegalHoldsPolicyUpdateError._name_must_be_unique_validator = bv.Void()
 LegalHoldsPolicyUpdateError._legal_hold_policy_not_found_validator = bv.Void()
 LegalHoldsPolicyUpdateError._tagmap = {
+    'transient_error': LegalHoldsPolicyUpdateError._transient_error_validator,
     'inactive_legal_hold': LegalHoldsPolicyUpdateError._inactive_legal_hold_validator,
     'legal_hold_performing_another_operation': LegalHoldsPolicyUpdateError._legal_hold_performing_another_operation_validator,
     'invalid_members': LegalHoldsPolicyUpdateError._invalid_members_validator,
@@ -13761,6 +15128,7 @@ LegalHoldsPolicyUpdateError._tagmap = {
 }
 LegalHoldsPolicyUpdateError._tagmap.update(LegalHoldsError._tagmap)
 
+LegalHoldsPolicyUpdateError.transient_error = LegalHoldsPolicyUpdateError('transient_error')
 LegalHoldsPolicyUpdateError.inactive_legal_hold = LegalHoldsPolicyUpdateError('inactive_legal_hold')
 LegalHoldsPolicyUpdateError.legal_hold_performing_another_operation = LegalHoldsPolicyUpdateError('legal_hold_performing_another_operation')
 LegalHoldsPolicyUpdateError.invalid_members = LegalHoldsPolicyUpdateError('invalid_members')
@@ -13977,59 +15345,78 @@ MemberAccess._all_fields_ = [
     ('access_type', MemberAccess.access_type.validator),
 ]
 
-MemberAddArg.member_email.validator = common.EmailAddress_validator
-MemberAddArg.member_given_name.validator = bv.Nullable(common.OptionalNamePart_validator)
-MemberAddArg.member_surname.validator = bv.Nullable(common.OptionalNamePart_validator)
-MemberAddArg.member_external_id.validator = bv.Nullable(team_common.MemberExternalId_validator)
-MemberAddArg.member_persistent_id.validator = bv.Nullable(bv.String())
-MemberAddArg.send_welcome_email.validator = bv.Boolean()
-MemberAddArg.role.validator = AdminTier_validator
-MemberAddArg.is_directory_restricted.validator = bv.Nullable(bv.Boolean())
-MemberAddArg._all_field_names_ = set([
+MemberAddArgBase.member_email.validator = common.EmailAddress_validator
+MemberAddArgBase.member_given_name.validator = bv.Nullable(common.OptionalNamePart_validator)
+MemberAddArgBase.member_surname.validator = bv.Nullable(common.OptionalNamePart_validator)
+MemberAddArgBase.member_external_id.validator = bv.Nullable(team_common.MemberExternalId_validator)
+MemberAddArgBase.member_persistent_id.validator = bv.Nullable(bv.String())
+MemberAddArgBase.send_welcome_email.validator = bv.Boolean()
+MemberAddArgBase.is_directory_restricted.validator = bv.Nullable(bv.Boolean())
+MemberAddArgBase._all_field_names_ = set([
     'member_email',
     'member_given_name',
     'member_surname',
     'member_external_id',
     'member_persistent_id',
     'send_welcome_email',
-    'role',
     'is_directory_restricted',
 ])
-MemberAddArg._all_fields_ = [
-    ('member_email', MemberAddArg.member_email.validator),
-    ('member_given_name', MemberAddArg.member_given_name.validator),
-    ('member_surname', MemberAddArg.member_surname.validator),
-    ('member_external_id', MemberAddArg.member_external_id.validator),
-    ('member_persistent_id', MemberAddArg.member_persistent_id.validator),
-    ('send_welcome_email', MemberAddArg.send_welcome_email.validator),
-    ('role', MemberAddArg.role.validator),
-    ('is_directory_restricted', MemberAddArg.is_directory_restricted.validator),
+MemberAddArgBase._all_fields_ = [
+    ('member_email', MemberAddArgBase.member_email.validator),
+    ('member_given_name', MemberAddArgBase.member_given_name.validator),
+    ('member_surname', MemberAddArgBase.member_surname.validator),
+    ('member_external_id', MemberAddArgBase.member_external_id.validator),
+    ('member_persistent_id', MemberAddArgBase.member_persistent_id.validator),
+    ('send_welcome_email', MemberAddArgBase.send_welcome_email.validator),
+    ('is_directory_restricted', MemberAddArgBase.is_directory_restricted.validator),
 ]
 
+MemberAddArg.role.validator = AdminTier_validator
+MemberAddArg._all_field_names_ = MemberAddArgBase._all_field_names_.union(set(['role']))
+MemberAddArg._all_fields_ = MemberAddArgBase._all_fields_ + [('role', MemberAddArg.role.validator)]
+
+MemberAddResultBase._team_license_limit_validator = common.EmailAddress_validator
+MemberAddResultBase._free_team_member_limit_reached_validator = common.EmailAddress_validator
+MemberAddResultBase._user_already_on_team_validator = common.EmailAddress_validator
+MemberAddResultBase._user_on_another_team_validator = common.EmailAddress_validator
+MemberAddResultBase._user_already_paired_validator = common.EmailAddress_validator
+MemberAddResultBase._user_migration_failed_validator = common.EmailAddress_validator
+MemberAddResultBase._duplicate_external_member_id_validator = common.EmailAddress_validator
+MemberAddResultBase._duplicate_member_persistent_id_validator = common.EmailAddress_validator
+MemberAddResultBase._persistent_id_disabled_validator = common.EmailAddress_validator
+MemberAddResultBase._user_creation_failed_validator = common.EmailAddress_validator
+MemberAddResultBase._tagmap = {
+    'team_license_limit': MemberAddResultBase._team_license_limit_validator,
+    'free_team_member_limit_reached': MemberAddResultBase._free_team_member_limit_reached_validator,
+    'user_already_on_team': MemberAddResultBase._user_already_on_team_validator,
+    'user_on_another_team': MemberAddResultBase._user_on_another_team_validator,
+    'user_already_paired': MemberAddResultBase._user_already_paired_validator,
+    'user_migration_failed': MemberAddResultBase._user_migration_failed_validator,
+    'duplicate_external_member_id': MemberAddResultBase._duplicate_external_member_id_validator,
+    'duplicate_member_persistent_id': MemberAddResultBase._duplicate_member_persistent_id_validator,
+    'persistent_id_disabled': MemberAddResultBase._persistent_id_disabled_validator,
+    'user_creation_failed': MemberAddResultBase._user_creation_failed_validator,
+}
+
 MemberAddResult._success_validator = TeamMemberInfo_validator
-MemberAddResult._team_license_limit_validator = common.EmailAddress_validator
-MemberAddResult._free_team_member_limit_reached_validator = common.EmailAddress_validator
-MemberAddResult._user_already_on_team_validator = common.EmailAddress_validator
-MemberAddResult._user_on_another_team_validator = common.EmailAddress_validator
-MemberAddResult._user_already_paired_validator = common.EmailAddress_validator
-MemberAddResult._user_migration_failed_validator = common.EmailAddress_validator
-MemberAddResult._duplicate_external_member_id_validator = common.EmailAddress_validator
-MemberAddResult._duplicate_member_persistent_id_validator = common.EmailAddress_validator
-MemberAddResult._persistent_id_disabled_validator = common.EmailAddress_validator
-MemberAddResult._user_creation_failed_validator = common.EmailAddress_validator
 MemberAddResult._tagmap = {
     'success': MemberAddResult._success_validator,
-    'team_license_limit': MemberAddResult._team_license_limit_validator,
-    'free_team_member_limit_reached': MemberAddResult._free_team_member_limit_reached_validator,
-    'user_already_on_team': MemberAddResult._user_already_on_team_validator,
-    'user_on_another_team': MemberAddResult._user_on_another_team_validator,
-    'user_already_paired': MemberAddResult._user_already_paired_validator,
-    'user_migration_failed': MemberAddResult._user_migration_failed_validator,
-    'duplicate_external_member_id': MemberAddResult._duplicate_external_member_id_validator,
-    'duplicate_member_persistent_id': MemberAddResult._duplicate_member_persistent_id_validator,
-    'persistent_id_disabled': MemberAddResult._persistent_id_disabled_validator,
-    'user_creation_failed': MemberAddResult._user_creation_failed_validator,
 }
+MemberAddResult._tagmap.update(MemberAddResultBase._tagmap)
+
+MemberAddV2Arg.role_ids.validator = bv.Nullable(bv.List(TeamMemberRoleId_validator, max_items=1))
+MemberAddV2Arg._all_field_names_ = MemberAddArgBase._all_field_names_.union(set(['role_ids']))
+MemberAddV2Arg._all_fields_ = MemberAddArgBase._all_fields_ + [('role_ids', MemberAddV2Arg.role_ids.validator)]
+
+MemberAddV2Result._success_validator = TeamMemberInfoV2_validator
+MemberAddV2Result._other_validator = bv.Void()
+MemberAddV2Result._tagmap = {
+    'success': MemberAddV2Result._success_validator,
+    'other': MemberAddV2Result._other_validator,
+}
+MemberAddV2Result._tagmap.update(MemberAddResultBase._tagmap)
+
+MemberAddV2Result.other = MemberAddV2Result('other')
 
 MemberDevices.team_member_id.validator = bv.String()
 MemberDevices.web_sessions.validator = bv.Nullable(bv.List(ActiveWebSession_validator))
@@ -14124,16 +15511,13 @@ MemberSelectorError._tagmap.update(UserSelectorError._tagmap)
 
 MemberSelectorError.user_not_in_team = MemberSelectorError('user_not_in_team')
 
+MembersAddArgBase.force_async.validator = bv.Boolean()
+MembersAddArgBase._all_field_names_ = set(['force_async'])
+MembersAddArgBase._all_fields_ = [('force_async', MembersAddArgBase.force_async.validator)]
+
 MembersAddArg.new_members.validator = bv.List(MemberAddArg_validator)
-MembersAddArg.force_async.validator = bv.Boolean()
-MembersAddArg._all_field_names_ = set([
-    'new_members',
-    'force_async',
-])
-MembersAddArg._all_fields_ = [
-    ('new_members', MembersAddArg.new_members.validator),
-    ('force_async', MembersAddArg.force_async.validator),
-]
+MembersAddArg._all_field_names_ = MembersAddArgBase._all_field_names_.union(set(['new_members']))
+MembersAddArg._all_fields_ = MembersAddArgBase._all_fields_ + [('new_members', MembersAddArg.new_members.validator)]
 
 MembersAddJobStatus._complete_validator = bv.List(MemberAddResult_validator)
 MembersAddJobStatus._failed_validator = bv.String()
@@ -14143,11 +15527,37 @@ MembersAddJobStatus._tagmap = {
 }
 MembersAddJobStatus._tagmap.update(async_.PollResultBase._tagmap)
 
+MembersAddJobStatusV2Result._complete_validator = bv.List(MemberAddV2Result_validator)
+MembersAddJobStatusV2Result._failed_validator = bv.String()
+MembersAddJobStatusV2Result._other_validator = bv.Void()
+MembersAddJobStatusV2Result._tagmap = {
+    'complete': MembersAddJobStatusV2Result._complete_validator,
+    'failed': MembersAddJobStatusV2Result._failed_validator,
+    'other': MembersAddJobStatusV2Result._other_validator,
+}
+MembersAddJobStatusV2Result._tagmap.update(async_.PollResultBase._tagmap)
+
+MembersAddJobStatusV2Result.other = MembersAddJobStatusV2Result('other')
+
 MembersAddLaunch._complete_validator = bv.List(MemberAddResult_validator)
 MembersAddLaunch._tagmap = {
     'complete': MembersAddLaunch._complete_validator,
 }
 MembersAddLaunch._tagmap.update(async_.LaunchResultBase._tagmap)
+
+MembersAddLaunchV2Result._complete_validator = bv.List(MemberAddV2Result_validator)
+MembersAddLaunchV2Result._other_validator = bv.Void()
+MembersAddLaunchV2Result._tagmap = {
+    'complete': MembersAddLaunchV2Result._complete_validator,
+    'other': MembersAddLaunchV2Result._other_validator,
+}
+MembersAddLaunchV2Result._tagmap.update(async_.LaunchResultBase._tagmap)
+
+MembersAddLaunchV2Result.other = MembersAddLaunchV2Result('other')
+
+MembersAddV2Arg.new_members.validator = bv.List(MemberAddV2Arg_validator)
+MembersAddV2Arg._all_field_names_ = MembersAddArgBase._all_field_names_.union(set(['new_members']))
+MembersAddV2Arg._all_fields_ = MembersAddArgBase._all_fields_ + [('new_members', MembersAddV2Arg.new_members.validator)]
 
 MembersDeactivateBaseArg.user.validator = UserSelectorArg_validator
 MembersDeactivateBaseArg._all_field_names_ = set(['user'])
@@ -14194,6 +15604,10 @@ MembersDeleteProfilePhotoError._tagmap.update(MemberSelectorError._tagmap)
 MembersDeleteProfilePhotoError.set_profile_disallowed = MembersDeleteProfilePhotoError('set_profile_disallowed')
 MembersDeleteProfilePhotoError.other = MembersDeleteProfilePhotoError('other')
 
+MembersGetAvailableTeamMemberRolesResult.roles.validator = bv.List(TeamMemberRole_validator)
+MembersGetAvailableTeamMemberRolesResult._all_field_names_ = set(['roles'])
+MembersGetAvailableTeamMemberRolesResult._all_fields_ = [('roles', MembersGetAvailableTeamMemberRolesResult.roles.validator)]
+
 MembersGetInfoArgs.members.validator = bv.List(UserSelectorArg_validator)
 MembersGetInfoArgs._all_field_names_ = set(['members'])
 MembersGetInfoArgs._all_fields_ = [('members', MembersGetInfoArgs.members.validator)]
@@ -14205,12 +15619,34 @@ MembersGetInfoError._tagmap = {
 
 MembersGetInfoError.other = MembersGetInfoError('other')
 
-MembersGetInfoItem._id_not_found_validator = bv.String()
+MembersGetInfoItemBase._id_not_found_validator = bv.String()
+MembersGetInfoItemBase._tagmap = {
+    'id_not_found': MembersGetInfoItemBase._id_not_found_validator,
+}
+
 MembersGetInfoItem._member_info_validator = TeamMemberInfo_validator
 MembersGetInfoItem._tagmap = {
-    'id_not_found': MembersGetInfoItem._id_not_found_validator,
     'member_info': MembersGetInfoItem._member_info_validator,
 }
+MembersGetInfoItem._tagmap.update(MembersGetInfoItemBase._tagmap)
+
+MembersGetInfoItemV2._member_info_validator = TeamMemberInfoV2_validator
+MembersGetInfoItemV2._other_validator = bv.Void()
+MembersGetInfoItemV2._tagmap = {
+    'member_info': MembersGetInfoItemV2._member_info_validator,
+    'other': MembersGetInfoItemV2._other_validator,
+}
+MembersGetInfoItemV2._tagmap.update(MembersGetInfoItemBase._tagmap)
+
+MembersGetInfoItemV2.other = MembersGetInfoItemV2('other')
+
+MembersGetInfoV2Arg.members.validator = bv.List(UserSelectorArg_validator)
+MembersGetInfoV2Arg._all_field_names_ = set(['members'])
+MembersGetInfoV2Arg._all_fields_ = [('members', MembersGetInfoV2Arg.members.validator)]
+
+MembersGetInfoV2Result.members_info.validator = bv.List(MembersGetInfoItemV2_validator)
+MembersGetInfoV2Result._all_field_names_ = set(['members_info'])
+MembersGetInfoV2Result._all_fields_ = [('members_info', MembersGetInfoV2Result.members_info.validator)]
 
 MembersInfo.team_member_ids.validator = bv.List(team_common.TeamMemberId_validator)
 MembersInfo.permanently_deleted_users.validator = bv.UInt64()
@@ -14267,6 +15703,20 @@ MembersListResult._all_fields_ = [
     ('members', MembersListResult.members.validator),
     ('cursor', MembersListResult.cursor.validator),
     ('has_more', MembersListResult.has_more.validator),
+]
+
+MembersListV2Result.members.validator = bv.List(TeamMemberInfoV2_validator)
+MembersListV2Result.cursor.validator = bv.String()
+MembersListV2Result.has_more.validator = bv.Boolean()
+MembersListV2Result._all_field_names_ = set([
+    'members',
+    'cursor',
+    'has_more',
+])
+MembersListV2Result._all_fields_ = [
+    ('members', MembersListV2Result.members.validator),
+    ('cursor', MembersListV2Result.cursor.validator),
+    ('has_more', MembersListV2Result.has_more.validator),
 ]
 
 MembersRecoverArg.user.validator = UserSelectorArg_validator
@@ -14384,6 +15834,48 @@ MembersSendWelcomeError._tagmap = {
 MembersSendWelcomeError._tagmap.update(MemberSelectorError._tagmap)
 
 MembersSendWelcomeError.other = MembersSendWelcomeError('other')
+
+MembersSetPermissions2Arg.user.validator = UserSelectorArg_validator
+MembersSetPermissions2Arg.new_roles.validator = bv.Nullable(bv.List(TeamMemberRoleId_validator, max_items=1))
+MembersSetPermissions2Arg._all_field_names_ = set([
+    'user',
+    'new_roles',
+])
+MembersSetPermissions2Arg._all_fields_ = [
+    ('user', MembersSetPermissions2Arg.user.validator),
+    ('new_roles', MembersSetPermissions2Arg.new_roles.validator),
+]
+
+MembersSetPermissions2Error._last_admin_validator = bv.Void()
+MembersSetPermissions2Error._user_not_in_team_validator = bv.Void()
+MembersSetPermissions2Error._cannot_set_permissions_validator = bv.Void()
+MembersSetPermissions2Error._role_not_found_validator = bv.Void()
+MembersSetPermissions2Error._other_validator = bv.Void()
+MembersSetPermissions2Error._tagmap = {
+    'last_admin': MembersSetPermissions2Error._last_admin_validator,
+    'user_not_in_team': MembersSetPermissions2Error._user_not_in_team_validator,
+    'cannot_set_permissions': MembersSetPermissions2Error._cannot_set_permissions_validator,
+    'role_not_found': MembersSetPermissions2Error._role_not_found_validator,
+    'other': MembersSetPermissions2Error._other_validator,
+}
+MembersSetPermissions2Error._tagmap.update(UserSelectorError._tagmap)
+
+MembersSetPermissions2Error.last_admin = MembersSetPermissions2Error('last_admin')
+MembersSetPermissions2Error.user_not_in_team = MembersSetPermissions2Error('user_not_in_team')
+MembersSetPermissions2Error.cannot_set_permissions = MembersSetPermissions2Error('cannot_set_permissions')
+MembersSetPermissions2Error.role_not_found = MembersSetPermissions2Error('role_not_found')
+MembersSetPermissions2Error.other = MembersSetPermissions2Error('other')
+
+MembersSetPermissions2Result.team_member_id.validator = team_common.TeamMemberId_validator
+MembersSetPermissions2Result.roles.validator = bv.Nullable(bv.List(TeamMemberRole_validator))
+MembersSetPermissions2Result._all_field_names_ = set([
+    'team_member_id',
+    'roles',
+])
+MembersSetPermissions2Result._all_fields_ = [
+    ('team_member_id', MembersSetPermissions2Result.team_member_id.validator),
+    ('roles', MembersSetPermissions2Result.roles.validator),
+]
 
 MembersSetPermissionsArg.user.validator = UserSelectorArg_validator
 MembersSetPermissionsArg.new_role.validator = AdminTier_validator
@@ -14799,6 +16291,115 @@ SetCustomQuotaError._tagmap.update(CustomQuotaError._tagmap)
 
 SetCustomQuotaError.some_users_are_excluded = SetCustomQuotaError('some_users_are_excluded')
 
+SharingAllowlistAddArgs.domains.validator = bv.Nullable(bv.List(bv.String()))
+SharingAllowlistAddArgs.emails.validator = bv.Nullable(bv.List(bv.String()))
+SharingAllowlistAddArgs._all_field_names_ = set([
+    'domains',
+    'emails',
+])
+SharingAllowlistAddArgs._all_fields_ = [
+    ('domains', SharingAllowlistAddArgs.domains.validator),
+    ('emails', SharingAllowlistAddArgs.emails.validator),
+]
+
+SharingAllowlistAddError._malformed_entry_validator = bv.String()
+SharingAllowlistAddError._no_entries_provided_validator = bv.Void()
+SharingAllowlistAddError._too_many_entries_provided_validator = bv.Void()
+SharingAllowlistAddError._team_limit_reached_validator = bv.Void()
+SharingAllowlistAddError._unknown_error_validator = bv.Void()
+SharingAllowlistAddError._entries_already_exist_validator = bv.String()
+SharingAllowlistAddError._other_validator = bv.Void()
+SharingAllowlistAddError._tagmap = {
+    'malformed_entry': SharingAllowlistAddError._malformed_entry_validator,
+    'no_entries_provided': SharingAllowlistAddError._no_entries_provided_validator,
+    'too_many_entries_provided': SharingAllowlistAddError._too_many_entries_provided_validator,
+    'team_limit_reached': SharingAllowlistAddError._team_limit_reached_validator,
+    'unknown_error': SharingAllowlistAddError._unknown_error_validator,
+    'entries_already_exist': SharingAllowlistAddError._entries_already_exist_validator,
+    'other': SharingAllowlistAddError._other_validator,
+}
+
+SharingAllowlistAddError.no_entries_provided = SharingAllowlistAddError('no_entries_provided')
+SharingAllowlistAddError.too_many_entries_provided = SharingAllowlistAddError('too_many_entries_provided')
+SharingAllowlistAddError.team_limit_reached = SharingAllowlistAddError('team_limit_reached')
+SharingAllowlistAddError.unknown_error = SharingAllowlistAddError('unknown_error')
+SharingAllowlistAddError.other = SharingAllowlistAddError('other')
+
+SharingAllowlistAddResponse._all_field_names_ = set([])
+SharingAllowlistAddResponse._all_fields_ = []
+
+SharingAllowlistListArg.limit.validator = bv.UInt32(min_value=1, max_value=1000)
+SharingAllowlistListArg._all_field_names_ = set(['limit'])
+SharingAllowlistListArg._all_fields_ = [('limit', SharingAllowlistListArg.limit.validator)]
+
+SharingAllowlistListContinueArg.cursor.validator = bv.String()
+SharingAllowlistListContinueArg._all_field_names_ = set(['cursor'])
+SharingAllowlistListContinueArg._all_fields_ = [('cursor', SharingAllowlistListContinueArg.cursor.validator)]
+
+SharingAllowlistListContinueError._invalid_cursor_validator = bv.Void()
+SharingAllowlistListContinueError._other_validator = bv.Void()
+SharingAllowlistListContinueError._tagmap = {
+    'invalid_cursor': SharingAllowlistListContinueError._invalid_cursor_validator,
+    'other': SharingAllowlistListContinueError._other_validator,
+}
+
+SharingAllowlistListContinueError.invalid_cursor = SharingAllowlistListContinueError('invalid_cursor')
+SharingAllowlistListContinueError.other = SharingAllowlistListContinueError('other')
+
+SharingAllowlistListError._all_field_names_ = set([])
+SharingAllowlistListError._all_fields_ = []
+
+SharingAllowlistListResponse.domains.validator = bv.List(bv.String())
+SharingAllowlistListResponse.emails.validator = bv.List(bv.String())
+SharingAllowlistListResponse.cursor.validator = bv.String()
+SharingAllowlistListResponse.has_more.validator = bv.Boolean()
+SharingAllowlistListResponse._all_field_names_ = set([
+    'domains',
+    'emails',
+    'cursor',
+    'has_more',
+])
+SharingAllowlistListResponse._all_fields_ = [
+    ('domains', SharingAllowlistListResponse.domains.validator),
+    ('emails', SharingAllowlistListResponse.emails.validator),
+    ('cursor', SharingAllowlistListResponse.cursor.validator),
+    ('has_more', SharingAllowlistListResponse.has_more.validator),
+]
+
+SharingAllowlistRemoveArgs.domains.validator = bv.Nullable(bv.List(bv.String()))
+SharingAllowlistRemoveArgs.emails.validator = bv.Nullable(bv.List(bv.String()))
+SharingAllowlistRemoveArgs._all_field_names_ = set([
+    'domains',
+    'emails',
+])
+SharingAllowlistRemoveArgs._all_fields_ = [
+    ('domains', SharingAllowlistRemoveArgs.domains.validator),
+    ('emails', SharingAllowlistRemoveArgs.emails.validator),
+]
+
+SharingAllowlistRemoveError._malformed_entry_validator = bv.String()
+SharingAllowlistRemoveError._entries_do_not_exist_validator = bv.String()
+SharingAllowlistRemoveError._no_entries_provided_validator = bv.Void()
+SharingAllowlistRemoveError._too_many_entries_provided_validator = bv.Void()
+SharingAllowlistRemoveError._unknown_error_validator = bv.Void()
+SharingAllowlistRemoveError._other_validator = bv.Void()
+SharingAllowlistRemoveError._tagmap = {
+    'malformed_entry': SharingAllowlistRemoveError._malformed_entry_validator,
+    'entries_do_not_exist': SharingAllowlistRemoveError._entries_do_not_exist_validator,
+    'no_entries_provided': SharingAllowlistRemoveError._no_entries_provided_validator,
+    'too_many_entries_provided': SharingAllowlistRemoveError._too_many_entries_provided_validator,
+    'unknown_error': SharingAllowlistRemoveError._unknown_error_validator,
+    'other': SharingAllowlistRemoveError._other_validator,
+}
+
+SharingAllowlistRemoveError.no_entries_provided = SharingAllowlistRemoveError('no_entries_provided')
+SharingAllowlistRemoveError.too_many_entries_provided = SharingAllowlistRemoveError('too_many_entries_provided')
+SharingAllowlistRemoveError.unknown_error = SharingAllowlistRemoveError('unknown_error')
+SharingAllowlistRemoveError.other = SharingAllowlistRemoveError('other')
+
+SharingAllowlistRemoveResponse._all_field_names_ = set([])
+SharingAllowlistRemoveResponse._all_fields_ = []
+
 StorageBucket.bucket.validator = bv.String()
 StorageBucket.users.validator = bv.UInt64()
 StorageBucket._all_field_names_ = set([
@@ -15064,6 +16665,21 @@ TeamMemberInfo._all_fields_ = [
     ('role', TeamMemberInfo.role.validator),
 ]
 
+TeamMemberInfoV2.profile.validator = TeamMemberProfile_validator
+TeamMemberInfoV2.roles.validator = bv.Nullable(bv.List(TeamMemberRole_validator))
+TeamMemberInfoV2._all_field_names_ = set([
+    'profile',
+    'roles',
+])
+TeamMemberInfoV2._all_fields_ = [
+    ('profile', TeamMemberInfoV2.profile.validator),
+    ('roles', TeamMemberInfoV2.roles.validator),
+]
+
+TeamMemberInfoV2Result.member_info.validator = TeamMemberInfoV2_validator
+TeamMemberInfoV2Result._all_field_names_ = set(['member_info'])
+TeamMemberInfoV2Result._all_fields_ = [('member_info', TeamMemberInfoV2Result.member_info.validator)]
+
 TeamMemberProfile.groups.validator = bv.List(team_common.GroupId_validator)
 TeamMemberProfile.member_folder_id.validator = common.NamespaceId_validator
 TeamMemberProfile._all_field_names_ = MemberProfile._all_field_names_.union(set([
@@ -15073,6 +16689,20 @@ TeamMemberProfile._all_field_names_ = MemberProfile._all_field_names_.union(set(
 TeamMemberProfile._all_fields_ = MemberProfile._all_fields_ + [
     ('groups', TeamMemberProfile.groups.validator),
     ('member_folder_id', TeamMemberProfile.member_folder_id.validator),
+]
+
+TeamMemberRole.role_id.validator = TeamMemberRoleId_validator
+TeamMemberRole.name.validator = bv.String(max_length=32)
+TeamMemberRole.description.validator = bv.String(max_length=256)
+TeamMemberRole._all_field_names_ = set([
+    'role_id',
+    'name',
+    'description',
+])
+TeamMemberRole._all_fields_ = [
+    ('role_id', TeamMemberRole.role_id.validator),
+    ('name', TeamMemberRole.name.validator),
+    ('description', TeamMemberRole.description.validator),
 ]
 
 TeamMemberStatus._active_validator = bv.Void()
@@ -15322,9 +16952,9 @@ ListMembersDevicesArg.include_mobile_clients.default = True
 ListTeamDevicesArg.include_web_sessions.default = True
 ListTeamDevicesArg.include_desktop_clients.default = True
 ListTeamDevicesArg.include_mobile_clients.default = True
-MemberAddArg.send_welcome_email.default = True
+MemberAddArgBase.send_welcome_email.default = True
 MemberAddArg.role.default = AdminTier.member_only
-MembersAddArg.force_async.default = False
+MembersAddArgBase.force_async.default = False
 MembersDeactivateArg.wipe_data.default = True
 MembersListArg.limit.default = 1000
 MembersListArg.include_removed.default = False
@@ -15332,6 +16962,9 @@ MembersRemoveArg.keep_account.default = False
 MembersRemoveArg.retain_team_shares.default = False
 RevokeDesktopClientArg.delete_on_unlink.default = False
 RevokeLinkedApiAppArg.keep_app_folder.default = True
+SharingAllowlistListArg.limit.default = 1000
+SharingAllowlistListResponse.cursor.default = ''
+SharingAllowlistListResponse.has_more.default = False
 TeamFolderArchiveArg.force_async_off.default = False
 TeamFolderListArg.limit.default = 1000
 TeamNamespacesListArg.limit.default = 1000
@@ -15342,8 +16975,9 @@ devices_list_member_devices = bb.Route(
     ListMemberDevicesArg_validator,
     ListMemberDevicesResult_validator,
     ListMemberDevicesError_validator,
-    {'host': u'api',
-     'style': u'rpc'},
+    {'auth': 'team',
+     'host': 'api',
+     'style': 'rpc'},
 )
 devices_list_members_devices = bb.Route(
     'devices/list_members_devices',
@@ -15352,8 +16986,9 @@ devices_list_members_devices = bb.Route(
     ListMembersDevicesArg_validator,
     ListMembersDevicesResult_validator,
     ListMembersDevicesError_validator,
-    {'host': u'api',
-     'style': u'rpc'},
+    {'auth': 'team',
+     'host': 'api',
+     'style': 'rpc'},
 )
 devices_list_team_devices = bb.Route(
     'devices/list_team_devices',
@@ -15362,8 +16997,9 @@ devices_list_team_devices = bb.Route(
     ListTeamDevicesArg_validator,
     ListTeamDevicesResult_validator,
     ListTeamDevicesError_validator,
-    {'host': u'api',
-     'style': u'rpc'},
+    {'auth': 'team',
+     'host': 'api',
+     'style': 'rpc'},
 )
 devices_revoke_device_session = bb.Route(
     'devices/revoke_device_session',
@@ -15372,8 +17008,9 @@ devices_revoke_device_session = bb.Route(
     RevokeDeviceSessionArg_validator,
     bv.Void(),
     RevokeDeviceSessionError_validator,
-    {'host': u'api',
-     'style': u'rpc'},
+    {'auth': 'team',
+     'host': 'api',
+     'style': 'rpc'},
 )
 devices_revoke_device_session_batch = bb.Route(
     'devices/revoke_device_session_batch',
@@ -15382,8 +17019,9 @@ devices_revoke_device_session_batch = bb.Route(
     RevokeDeviceSessionBatchArg_validator,
     RevokeDeviceSessionBatchResult_validator,
     RevokeDeviceSessionBatchError_validator,
-    {'host': u'api',
-     'style': u'rpc'},
+    {'auth': 'team',
+     'host': 'api',
+     'style': 'rpc'},
 )
 features_get_values = bb.Route(
     'features/get_values',
@@ -15392,8 +17030,9 @@ features_get_values = bb.Route(
     FeaturesGetValuesBatchArg_validator,
     FeaturesGetValuesBatchResult_validator,
     FeaturesGetValuesBatchError_validator,
-    {'host': u'api',
-     'style': u'rpc'},
+    {'auth': 'team',
+     'host': 'api',
+     'style': 'rpc'},
 )
 get_info = bb.Route(
     'get_info',
@@ -15402,8 +17041,9 @@ get_info = bb.Route(
     bv.Void(),
     TeamGetInfoResult_validator,
     bv.Void(),
-    {'host': u'api',
-     'style': u'rpc'},
+    {'auth': 'team',
+     'host': 'api',
+     'style': 'rpc'},
 )
 groups_create = bb.Route(
     'groups/create',
@@ -15412,8 +17052,9 @@ groups_create = bb.Route(
     GroupCreateArg_validator,
     GroupFullInfo_validator,
     GroupCreateError_validator,
-    {'host': u'api',
-     'style': u'rpc'},
+    {'auth': 'team',
+     'host': 'api',
+     'style': 'rpc'},
 )
 groups_delete = bb.Route(
     'groups/delete',
@@ -15422,8 +17063,9 @@ groups_delete = bb.Route(
     GroupSelector_validator,
     async_.LaunchEmptyResult_validator,
     GroupDeleteError_validator,
-    {'host': u'api',
-     'style': u'rpc'},
+    {'auth': 'team',
+     'host': 'api',
+     'style': 'rpc'},
 )
 groups_get_info = bb.Route(
     'groups/get_info',
@@ -15432,8 +17074,9 @@ groups_get_info = bb.Route(
     GroupsSelector_validator,
     GroupsGetInfoResult_validator,
     GroupsGetInfoError_validator,
-    {'host': u'api',
-     'style': u'rpc'},
+    {'auth': 'team',
+     'host': 'api',
+     'style': 'rpc'},
 )
 groups_job_status_get = bb.Route(
     'groups/job_status/get',
@@ -15442,8 +17085,9 @@ groups_job_status_get = bb.Route(
     async_.PollArg_validator,
     async_.PollEmptyResult_validator,
     GroupsPollError_validator,
-    {'host': u'api',
-     'style': u'rpc'},
+    {'auth': 'team',
+     'host': 'api',
+     'style': 'rpc'},
 )
 groups_list = bb.Route(
     'groups/list',
@@ -15452,8 +17096,9 @@ groups_list = bb.Route(
     GroupsListArg_validator,
     GroupsListResult_validator,
     bv.Void(),
-    {'host': u'api',
-     'style': u'rpc'},
+    {'auth': 'team',
+     'host': 'api',
+     'style': 'rpc'},
 )
 groups_list_continue = bb.Route(
     'groups/list/continue',
@@ -15462,8 +17107,9 @@ groups_list_continue = bb.Route(
     GroupsListContinueArg_validator,
     GroupsListResult_validator,
     GroupsListContinueError_validator,
-    {'host': u'api',
-     'style': u'rpc'},
+    {'auth': 'team',
+     'host': 'api',
+     'style': 'rpc'},
 )
 groups_members_add = bb.Route(
     'groups/members/add',
@@ -15472,8 +17118,9 @@ groups_members_add = bb.Route(
     GroupMembersAddArg_validator,
     GroupMembersChangeResult_validator,
     GroupMembersAddError_validator,
-    {'host': u'api',
-     'style': u'rpc'},
+    {'auth': 'team',
+     'host': 'api',
+     'style': 'rpc'},
 )
 groups_members_list = bb.Route(
     'groups/members/list',
@@ -15482,8 +17129,9 @@ groups_members_list = bb.Route(
     GroupsMembersListArg_validator,
     GroupsMembersListResult_validator,
     GroupSelectorError_validator,
-    {'host': u'api',
-     'style': u'rpc'},
+    {'auth': 'team',
+     'host': 'api',
+     'style': 'rpc'},
 )
 groups_members_list_continue = bb.Route(
     'groups/members/list/continue',
@@ -15492,8 +17140,9 @@ groups_members_list_continue = bb.Route(
     GroupsMembersListContinueArg_validator,
     GroupsMembersListResult_validator,
     GroupsMembersListContinueError_validator,
-    {'host': u'api',
-     'style': u'rpc'},
+    {'auth': 'team',
+     'host': 'api',
+     'style': 'rpc'},
 )
 groups_members_remove = bb.Route(
     'groups/members/remove',
@@ -15502,8 +17151,9 @@ groups_members_remove = bb.Route(
     GroupMembersRemoveArg_validator,
     GroupMembersChangeResult_validator,
     GroupMembersRemoveError_validator,
-    {'host': u'api',
-     'style': u'rpc'},
+    {'auth': 'team',
+     'host': 'api',
+     'style': 'rpc'},
 )
 groups_members_set_access_type = bb.Route(
     'groups/members/set_access_type',
@@ -15512,8 +17162,9 @@ groups_members_set_access_type = bb.Route(
     GroupMembersSetAccessTypeArg_validator,
     GroupsGetInfoResult_validator,
     GroupMemberSetAccessTypeError_validator,
-    {'host': u'api',
-     'style': u'rpc'},
+    {'auth': 'team',
+     'host': 'api',
+     'style': 'rpc'},
 )
 groups_update = bb.Route(
     'groups/update',
@@ -15522,8 +17173,9 @@ groups_update = bb.Route(
     GroupUpdateArgs_validator,
     GroupFullInfo_validator,
     GroupUpdateError_validator,
-    {'host': u'api',
-     'style': u'rpc'},
+    {'auth': 'team',
+     'host': 'api',
+     'style': 'rpc'},
 )
 legal_holds_create_policy = bb.Route(
     'legal_holds/create_policy',
@@ -15532,8 +17184,9 @@ legal_holds_create_policy = bb.Route(
     LegalHoldsPolicyCreateArg_validator,
     LegalHoldsPolicyCreateResult_validator,
     LegalHoldsPolicyCreateError_validator,
-    {'host': u'api',
-     'style': u'rpc'},
+    {'auth': 'team',
+     'host': 'api',
+     'style': 'rpc'},
 )
 legal_holds_get_policy = bb.Route(
     'legal_holds/get_policy',
@@ -15542,8 +17195,9 @@ legal_holds_get_policy = bb.Route(
     LegalHoldsGetPolicyArg_validator,
     LegalHoldsGetPolicyResult_validator,
     LegalHoldsGetPolicyError_validator,
-    {'host': u'api',
-     'style': u'rpc'},
+    {'auth': 'team',
+     'host': 'api',
+     'style': 'rpc'},
 )
 legal_holds_list_held_revisions = bb.Route(
     'legal_holds/list_held_revisions',
@@ -15552,8 +17206,9 @@ legal_holds_list_held_revisions = bb.Route(
     LegalHoldsListHeldRevisionsArg_validator,
     LegalHoldsListHeldRevisionResult_validator,
     LegalHoldsListHeldRevisionsError_validator,
-    {'host': u'api',
-     'style': u'rpc'},
+    {'auth': 'team',
+     'host': 'api',
+     'style': 'rpc'},
 )
 legal_holds_list_held_revisions_continue = bb.Route(
     'legal_holds/list_held_revisions_continue',
@@ -15562,8 +17217,9 @@ legal_holds_list_held_revisions_continue = bb.Route(
     LegalHoldsListHeldRevisionsContinueArg_validator,
     LegalHoldsListHeldRevisionResult_validator,
     LegalHoldsListHeldRevisionsError_validator,
-    {'host': u'api',
-     'style': u'rpc'},
+    {'auth': 'team',
+     'host': 'api',
+     'style': 'rpc'},
 )
 legal_holds_list_policies = bb.Route(
     'legal_holds/list_policies',
@@ -15572,8 +17228,9 @@ legal_holds_list_policies = bb.Route(
     LegalHoldsListPoliciesArg_validator,
     LegalHoldsListPoliciesResult_validator,
     LegalHoldsListPoliciesError_validator,
-    {'host': u'api',
-     'style': u'rpc'},
+    {'auth': 'team',
+     'host': 'api',
+     'style': 'rpc'},
 )
 legal_holds_release_policy = bb.Route(
     'legal_holds/release_policy',
@@ -15582,8 +17239,9 @@ legal_holds_release_policy = bb.Route(
     LegalHoldsPolicyReleaseArg_validator,
     bv.Void(),
     LegalHoldsPolicyReleaseError_validator,
-    {'host': u'api',
-     'style': u'rpc'},
+    {'auth': 'team',
+     'host': 'api',
+     'style': 'rpc'},
 )
 legal_holds_update_policy = bb.Route(
     'legal_holds/update_policy',
@@ -15592,8 +17250,9 @@ legal_holds_update_policy = bb.Route(
     LegalHoldsPolicyUpdateArg_validator,
     LegalHoldsPolicyUpdateResult_validator,
     LegalHoldsPolicyUpdateError_validator,
-    {'host': u'api',
-     'style': u'rpc'},
+    {'auth': 'team',
+     'host': 'api',
+     'style': 'rpc'},
 )
 linked_apps_list_member_linked_apps = bb.Route(
     'linked_apps/list_member_linked_apps',
@@ -15602,8 +17261,9 @@ linked_apps_list_member_linked_apps = bb.Route(
     ListMemberAppsArg_validator,
     ListMemberAppsResult_validator,
     ListMemberAppsError_validator,
-    {'host': u'api',
-     'style': u'rpc'},
+    {'auth': 'team',
+     'host': 'api',
+     'style': 'rpc'},
 )
 linked_apps_list_members_linked_apps = bb.Route(
     'linked_apps/list_members_linked_apps',
@@ -15612,8 +17272,9 @@ linked_apps_list_members_linked_apps = bb.Route(
     ListMembersAppsArg_validator,
     ListMembersAppsResult_validator,
     ListMembersAppsError_validator,
-    {'host': u'api',
-     'style': u'rpc'},
+    {'auth': 'team',
+     'host': 'api',
+     'style': 'rpc'},
 )
 linked_apps_list_team_linked_apps = bb.Route(
     'linked_apps/list_team_linked_apps',
@@ -15622,8 +17283,9 @@ linked_apps_list_team_linked_apps = bb.Route(
     ListTeamAppsArg_validator,
     ListTeamAppsResult_validator,
     ListTeamAppsError_validator,
-    {'host': u'api',
-     'style': u'rpc'},
+    {'auth': 'team',
+     'host': 'api',
+     'style': 'rpc'},
 )
 linked_apps_revoke_linked_app = bb.Route(
     'linked_apps/revoke_linked_app',
@@ -15632,8 +17294,9 @@ linked_apps_revoke_linked_app = bb.Route(
     RevokeLinkedApiAppArg_validator,
     bv.Void(),
     RevokeLinkedAppError_validator,
-    {'host': u'api',
-     'style': u'rpc'},
+    {'auth': 'team',
+     'host': 'api',
+     'style': 'rpc'},
 )
 linked_apps_revoke_linked_app_batch = bb.Route(
     'linked_apps/revoke_linked_app_batch',
@@ -15642,8 +17305,9 @@ linked_apps_revoke_linked_app_batch = bb.Route(
     RevokeLinkedApiAppBatchArg_validator,
     RevokeLinkedAppBatchResult_validator,
     RevokeLinkedAppBatchError_validator,
-    {'host': u'api',
-     'style': u'rpc'},
+    {'auth': 'team',
+     'host': 'api',
+     'style': 'rpc'},
 )
 member_space_limits_excluded_users_add = bb.Route(
     'member_space_limits/excluded_users/add',
@@ -15652,8 +17316,9 @@ member_space_limits_excluded_users_add = bb.Route(
     ExcludedUsersUpdateArg_validator,
     ExcludedUsersUpdateResult_validator,
     ExcludedUsersUpdateError_validator,
-    {'host': u'api',
-     'style': u'rpc'},
+    {'auth': 'team',
+     'host': 'api',
+     'style': 'rpc'},
 )
 member_space_limits_excluded_users_list = bb.Route(
     'member_space_limits/excluded_users/list',
@@ -15662,8 +17327,9 @@ member_space_limits_excluded_users_list = bb.Route(
     ExcludedUsersListArg_validator,
     ExcludedUsersListResult_validator,
     ExcludedUsersListError_validator,
-    {'host': u'api',
-     'style': u'rpc'},
+    {'auth': 'team',
+     'host': 'api',
+     'style': 'rpc'},
 )
 member_space_limits_excluded_users_list_continue = bb.Route(
     'member_space_limits/excluded_users/list/continue',
@@ -15672,8 +17338,9 @@ member_space_limits_excluded_users_list_continue = bb.Route(
     ExcludedUsersListContinueArg_validator,
     ExcludedUsersListResult_validator,
     ExcludedUsersListContinueError_validator,
-    {'host': u'api',
-     'style': u'rpc'},
+    {'auth': 'team',
+     'host': 'api',
+     'style': 'rpc'},
 )
 member_space_limits_excluded_users_remove = bb.Route(
     'member_space_limits/excluded_users/remove',
@@ -15682,8 +17349,9 @@ member_space_limits_excluded_users_remove = bb.Route(
     ExcludedUsersUpdateArg_validator,
     ExcludedUsersUpdateResult_validator,
     ExcludedUsersUpdateError_validator,
-    {'host': u'api',
-     'style': u'rpc'},
+    {'auth': 'team',
+     'host': 'api',
+     'style': 'rpc'},
 )
 member_space_limits_get_custom_quota = bb.Route(
     'member_space_limits/get_custom_quota',
@@ -15692,8 +17360,9 @@ member_space_limits_get_custom_quota = bb.Route(
     CustomQuotaUsersArg_validator,
     bv.List(CustomQuotaResult_validator),
     CustomQuotaError_validator,
-    {'host': u'api',
-     'style': u'rpc'},
+    {'auth': 'team',
+     'host': 'api',
+     'style': 'rpc'},
 )
 member_space_limits_remove_custom_quota = bb.Route(
     'member_space_limits/remove_custom_quota',
@@ -15702,8 +17371,9 @@ member_space_limits_remove_custom_quota = bb.Route(
     CustomQuotaUsersArg_validator,
     bv.List(RemoveCustomQuotaResult_validator),
     CustomQuotaError_validator,
-    {'host': u'api',
-     'style': u'rpc'},
+    {'auth': 'team',
+     'host': 'api',
+     'style': 'rpc'},
 )
 member_space_limits_set_custom_quota = bb.Route(
     'member_space_limits/set_custom_quota',
@@ -15712,8 +17382,20 @@ member_space_limits_set_custom_quota = bb.Route(
     SetCustomQuotaArg_validator,
     bv.List(CustomQuotaResult_validator),
     SetCustomQuotaError_validator,
-    {'host': u'api',
-     'style': u'rpc'},
+    {'auth': 'team',
+     'host': 'api',
+     'style': 'rpc'},
+)
+members_add_v2 = bb.Route(
+    'members/add',
+    2,
+    False,
+    MembersAddV2Arg_validator,
+    MembersAddLaunchV2Result_validator,
+    bv.Void(),
+    {'auth': 'team',
+     'host': 'api',
+     'style': 'rpc'},
 )
 members_add = bb.Route(
     'members/add',
@@ -15722,8 +17404,20 @@ members_add = bb.Route(
     MembersAddArg_validator,
     MembersAddLaunch_validator,
     bv.Void(),
-    {'host': u'api',
-     'style': u'rpc'},
+    {'auth': 'team',
+     'host': 'api',
+     'style': 'rpc'},
+)
+members_add_job_status_get_v2 = bb.Route(
+    'members/add/job_status/get',
+    2,
+    False,
+    async_.PollArg_validator,
+    MembersAddJobStatusV2Result_validator,
+    async_.PollError_validator,
+    {'auth': 'team',
+     'host': 'api',
+     'style': 'rpc'},
 )
 members_add_job_status_get = bb.Route(
     'members/add/job_status/get',
@@ -15732,8 +17426,20 @@ members_add_job_status_get = bb.Route(
     async_.PollArg_validator,
     MembersAddJobStatus_validator,
     async_.PollError_validator,
-    {'host': u'api',
-     'style': u'rpc'},
+    {'auth': 'team',
+     'host': 'api',
+     'style': 'rpc'},
+)
+members_delete_profile_photo_v2 = bb.Route(
+    'members/delete_profile_photo',
+    2,
+    False,
+    MembersDeleteProfilePhotoArg_validator,
+    TeamMemberInfoV2Result_validator,
+    MembersDeleteProfilePhotoError_validator,
+    {'auth': 'team',
+     'host': 'api',
+     'style': 'rpc'},
 )
 members_delete_profile_photo = bb.Route(
     'members/delete_profile_photo',
@@ -15742,8 +17448,31 @@ members_delete_profile_photo = bb.Route(
     MembersDeleteProfilePhotoArg_validator,
     TeamMemberInfo_validator,
     MembersDeleteProfilePhotoError_validator,
-    {'host': u'api',
-     'style': u'rpc'},
+    {'auth': 'team',
+     'host': 'api',
+     'style': 'rpc'},
+)
+members_get_available_team_member_roles = bb.Route(
+    'members/get_available_team_member_roles',
+    1,
+    False,
+    bv.Void(),
+    MembersGetAvailableTeamMemberRolesResult_validator,
+    bv.Void(),
+    {'auth': 'team',
+     'host': 'api',
+     'style': 'rpc'},
+)
+members_get_info_v2 = bb.Route(
+    'members/get_info',
+    2,
+    False,
+    MembersGetInfoV2Arg_validator,
+    MembersGetInfoV2Result_validator,
+    MembersGetInfoError_validator,
+    {'auth': 'team',
+     'host': 'api',
+     'style': 'rpc'},
 )
 members_get_info = bb.Route(
     'members/get_info',
@@ -15752,8 +17481,20 @@ members_get_info = bb.Route(
     MembersGetInfoArgs_validator,
     MembersGetInfoResult_validator,
     MembersGetInfoError_validator,
-    {'host': u'api',
-     'style': u'rpc'},
+    {'auth': 'team',
+     'host': 'api',
+     'style': 'rpc'},
+)
+members_list_v2 = bb.Route(
+    'members/list',
+    2,
+    False,
+    MembersListArg_validator,
+    MembersListV2Result_validator,
+    MembersListError_validator,
+    {'auth': 'team',
+     'host': 'api',
+     'style': 'rpc'},
 )
 members_list = bb.Route(
     'members/list',
@@ -15762,8 +17503,20 @@ members_list = bb.Route(
     MembersListArg_validator,
     MembersListResult_validator,
     MembersListError_validator,
-    {'host': u'api',
-     'style': u'rpc'},
+    {'auth': 'team',
+     'host': 'api',
+     'style': 'rpc'},
+)
+members_list_continue_v2 = bb.Route(
+    'members/list/continue',
+    2,
+    False,
+    MembersListContinueArg_validator,
+    MembersListV2Result_validator,
+    MembersListContinueError_validator,
+    {'auth': 'team',
+     'host': 'api',
+     'style': 'rpc'},
 )
 members_list_continue = bb.Route(
     'members/list/continue',
@@ -15772,8 +17525,9 @@ members_list_continue = bb.Route(
     MembersListContinueArg_validator,
     MembersListResult_validator,
     MembersListContinueError_validator,
-    {'host': u'api',
-     'style': u'rpc'},
+    {'auth': 'team',
+     'host': 'api',
+     'style': 'rpc'},
 )
 members_move_former_member_files = bb.Route(
     'members/move_former_member_files',
@@ -15782,8 +17536,9 @@ members_move_former_member_files = bb.Route(
     MembersDataTransferArg_validator,
     async_.LaunchEmptyResult_validator,
     MembersTransferFormerMembersFilesError_validator,
-    {'host': u'api',
-     'style': u'rpc'},
+    {'auth': 'team',
+     'host': 'api',
+     'style': 'rpc'},
 )
 members_move_former_member_files_job_status_check = bb.Route(
     'members/move_former_member_files/job_status/check',
@@ -15792,8 +17547,9 @@ members_move_former_member_files_job_status_check = bb.Route(
     async_.PollArg_validator,
     async_.PollEmptyResult_validator,
     async_.PollError_validator,
-    {'host': u'api',
-     'style': u'rpc'},
+    {'auth': 'team',
+     'host': 'api',
+     'style': 'rpc'},
 )
 members_recover = bb.Route(
     'members/recover',
@@ -15802,8 +17558,9 @@ members_recover = bb.Route(
     MembersRecoverArg_validator,
     bv.Void(),
     MembersRecoverError_validator,
-    {'host': u'api',
-     'style': u'rpc'},
+    {'auth': 'team',
+     'host': 'api',
+     'style': 'rpc'},
 )
 members_remove = bb.Route(
     'members/remove',
@@ -15812,8 +17569,9 @@ members_remove = bb.Route(
     MembersRemoveArg_validator,
     async_.LaunchEmptyResult_validator,
     MembersRemoveError_validator,
-    {'host': u'api',
-     'style': u'rpc'},
+    {'auth': 'team',
+     'host': 'api',
+     'style': 'rpc'},
 )
 members_remove_job_status_get = bb.Route(
     'members/remove/job_status/get',
@@ -15822,8 +17580,9 @@ members_remove_job_status_get = bb.Route(
     async_.PollArg_validator,
     async_.PollEmptyResult_validator,
     async_.PollError_validator,
-    {'host': u'api',
-     'style': u'rpc'},
+    {'auth': 'team',
+     'host': 'api',
+     'style': 'rpc'},
 )
 members_secondary_emails_add = bb.Route(
     'members/secondary_emails/add',
@@ -15832,8 +17591,9 @@ members_secondary_emails_add = bb.Route(
     AddSecondaryEmailsArg_validator,
     AddSecondaryEmailsResult_validator,
     AddSecondaryEmailsError_validator,
-    {'host': u'api',
-     'style': u'rpc'},
+    {'auth': 'team',
+     'host': 'api',
+     'style': 'rpc'},
 )
 members_secondary_emails_delete = bb.Route(
     'members/secondary_emails/delete',
@@ -15842,8 +17602,9 @@ members_secondary_emails_delete = bb.Route(
     DeleteSecondaryEmailsArg_validator,
     DeleteSecondaryEmailsResult_validator,
     bv.Void(),
-    {'host': u'api',
-     'style': u'rpc'},
+    {'auth': 'team',
+     'host': 'api',
+     'style': 'rpc'},
 )
 members_secondary_emails_resend_verification_emails = bb.Route(
     'members/secondary_emails/resend_verification_emails',
@@ -15852,8 +17613,9 @@ members_secondary_emails_resend_verification_emails = bb.Route(
     ResendVerificationEmailArg_validator,
     ResendVerificationEmailResult_validator,
     bv.Void(),
-    {'host': u'api',
-     'style': u'rpc'},
+    {'auth': 'team',
+     'host': 'api',
+     'style': 'rpc'},
 )
 members_send_welcome_email = bb.Route(
     'members/send_welcome_email',
@@ -15862,8 +17624,20 @@ members_send_welcome_email = bb.Route(
     UserSelectorArg_validator,
     bv.Void(),
     MembersSendWelcomeError_validator,
-    {'host': u'api',
-     'style': u'rpc'},
+    {'auth': 'team',
+     'host': 'api',
+     'style': 'rpc'},
+)
+members_set_admin_permissions_v2 = bb.Route(
+    'members/set_admin_permissions',
+    2,
+    False,
+    MembersSetPermissions2Arg_validator,
+    MembersSetPermissions2Result_validator,
+    MembersSetPermissions2Error_validator,
+    {'auth': 'team',
+     'host': 'api',
+     'style': 'rpc'},
 )
 members_set_admin_permissions = bb.Route(
     'members/set_admin_permissions',
@@ -15872,8 +17646,20 @@ members_set_admin_permissions = bb.Route(
     MembersSetPermissionsArg_validator,
     MembersSetPermissionsResult_validator,
     MembersSetPermissionsError_validator,
-    {'host': u'api',
-     'style': u'rpc'},
+    {'auth': 'team',
+     'host': 'api',
+     'style': 'rpc'},
+)
+members_set_profile_v2 = bb.Route(
+    'members/set_profile',
+    2,
+    False,
+    MembersSetProfileArg_validator,
+    TeamMemberInfoV2Result_validator,
+    MembersSetProfileError_validator,
+    {'auth': 'team',
+     'host': 'api',
+     'style': 'rpc'},
 )
 members_set_profile = bb.Route(
     'members/set_profile',
@@ -15882,8 +17668,20 @@ members_set_profile = bb.Route(
     MembersSetProfileArg_validator,
     TeamMemberInfo_validator,
     MembersSetProfileError_validator,
-    {'host': u'api',
-     'style': u'rpc'},
+    {'auth': 'team',
+     'host': 'api',
+     'style': 'rpc'},
+)
+members_set_profile_photo_v2 = bb.Route(
+    'members/set_profile_photo',
+    2,
+    False,
+    MembersSetProfilePhotoArg_validator,
+    TeamMemberInfoV2Result_validator,
+    MembersSetProfilePhotoError_validator,
+    {'auth': 'team',
+     'host': 'api',
+     'style': 'rpc'},
 )
 members_set_profile_photo = bb.Route(
     'members/set_profile_photo',
@@ -15892,8 +17690,9 @@ members_set_profile_photo = bb.Route(
     MembersSetProfilePhotoArg_validator,
     TeamMemberInfo_validator,
     MembersSetProfilePhotoError_validator,
-    {'host': u'api',
-     'style': u'rpc'},
+    {'auth': 'team',
+     'host': 'api',
+     'style': 'rpc'},
 )
 members_suspend = bb.Route(
     'members/suspend',
@@ -15902,8 +17701,9 @@ members_suspend = bb.Route(
     MembersDeactivateArg_validator,
     bv.Void(),
     MembersSuspendError_validator,
-    {'host': u'api',
-     'style': u'rpc'},
+    {'auth': 'team',
+     'host': 'api',
+     'style': 'rpc'},
 )
 members_unsuspend = bb.Route(
     'members/unsuspend',
@@ -15912,8 +17712,9 @@ members_unsuspend = bb.Route(
     MembersUnsuspendArg_validator,
     bv.Void(),
     MembersUnsuspendError_validator,
-    {'host': u'api',
-     'style': u'rpc'},
+    {'auth': 'team',
+     'host': 'api',
+     'style': 'rpc'},
 )
 namespaces_list = bb.Route(
     'namespaces/list',
@@ -15922,8 +17723,9 @@ namespaces_list = bb.Route(
     TeamNamespacesListArg_validator,
     TeamNamespacesListResult_validator,
     TeamNamespacesListError_validator,
-    {'host': u'api',
-     'style': u'rpc'},
+    {'auth': 'team',
+     'host': 'api',
+     'style': 'rpc'},
 )
 namespaces_list_continue = bb.Route(
     'namespaces/list/continue',
@@ -15932,8 +17734,9 @@ namespaces_list_continue = bb.Route(
     TeamNamespacesListContinueArg_validator,
     TeamNamespacesListResult_validator,
     TeamNamespacesListContinueError_validator,
-    {'host': u'api',
-     'style': u'rpc'},
+    {'auth': 'team',
+     'host': 'api',
+     'style': 'rpc'},
 )
 properties_template_add = bb.Route(
     'properties/template/add',
@@ -15942,8 +17745,9 @@ properties_template_add = bb.Route(
     file_properties.AddTemplateArg_validator,
     file_properties.AddTemplateResult_validator,
     file_properties.ModifyTemplateError_validator,
-    {'host': u'api',
-     'style': u'rpc'},
+    {'auth': 'team',
+     'host': 'api',
+     'style': 'rpc'},
 )
 properties_template_get = bb.Route(
     'properties/template/get',
@@ -15952,8 +17756,9 @@ properties_template_get = bb.Route(
     file_properties.GetTemplateArg_validator,
     file_properties.GetTemplateResult_validator,
     file_properties.TemplateError_validator,
-    {'host': u'api',
-     'style': u'rpc'},
+    {'auth': 'team',
+     'host': 'api',
+     'style': 'rpc'},
 )
 properties_template_list = bb.Route(
     'properties/template/list',
@@ -15962,8 +17767,9 @@ properties_template_list = bb.Route(
     bv.Void(),
     file_properties.ListTemplateResult_validator,
     file_properties.TemplateError_validator,
-    {'host': u'api',
-     'style': u'rpc'},
+    {'auth': 'team',
+     'host': 'api',
+     'style': 'rpc'},
 )
 properties_template_update = bb.Route(
     'properties/template/update',
@@ -15972,8 +17778,9 @@ properties_template_update = bb.Route(
     file_properties.UpdateTemplateArg_validator,
     file_properties.UpdateTemplateResult_validator,
     file_properties.ModifyTemplateError_validator,
-    {'host': u'api',
-     'style': u'rpc'},
+    {'auth': 'team',
+     'host': 'api',
+     'style': 'rpc'},
 )
 reports_get_activity = bb.Route(
     'reports/get_activity',
@@ -15982,8 +17789,9 @@ reports_get_activity = bb.Route(
     DateRange_validator,
     GetActivityReport_validator,
     DateRangeError_validator,
-    {'host': u'api',
-     'style': u'rpc'},
+    {'auth': 'team',
+     'host': 'api',
+     'style': 'rpc'},
 )
 reports_get_devices = bb.Route(
     'reports/get_devices',
@@ -15992,8 +17800,9 @@ reports_get_devices = bb.Route(
     DateRange_validator,
     GetDevicesReport_validator,
     DateRangeError_validator,
-    {'host': u'api',
-     'style': u'rpc'},
+    {'auth': 'team',
+     'host': 'api',
+     'style': 'rpc'},
 )
 reports_get_membership = bb.Route(
     'reports/get_membership',
@@ -16002,8 +17811,9 @@ reports_get_membership = bb.Route(
     DateRange_validator,
     GetMembershipReport_validator,
     DateRangeError_validator,
-    {'host': u'api',
-     'style': u'rpc'},
+    {'auth': 'team',
+     'host': 'api',
+     'style': 'rpc'},
 )
 reports_get_storage = bb.Route(
     'reports/get_storage',
@@ -16012,8 +17822,53 @@ reports_get_storage = bb.Route(
     DateRange_validator,
     GetStorageReport_validator,
     DateRangeError_validator,
-    {'host': u'api',
-     'style': u'rpc'},
+    {'auth': 'team',
+     'host': 'api',
+     'style': 'rpc'},
+)
+sharing_allowlist_add = bb.Route(
+    'sharing_allowlist/add',
+    1,
+    False,
+    SharingAllowlistAddArgs_validator,
+    SharingAllowlistAddResponse_validator,
+    SharingAllowlistAddError_validator,
+    {'auth': 'team',
+     'host': 'api',
+     'style': 'rpc'},
+)
+sharing_allowlist_list = bb.Route(
+    'sharing_allowlist/list',
+    1,
+    False,
+    SharingAllowlistListArg_validator,
+    SharingAllowlistListResponse_validator,
+    SharingAllowlistListError_validator,
+    {'auth': 'team',
+     'host': 'api',
+     'style': 'rpc'},
+)
+sharing_allowlist_list_continue = bb.Route(
+    'sharing_allowlist/list/continue',
+    1,
+    False,
+    SharingAllowlistListContinueArg_validator,
+    SharingAllowlistListResponse_validator,
+    SharingAllowlistListContinueError_validator,
+    {'auth': 'team',
+     'host': 'api',
+     'style': 'rpc'},
+)
+sharing_allowlist_remove = bb.Route(
+    'sharing_allowlist/remove',
+    1,
+    False,
+    SharingAllowlistRemoveArgs_validator,
+    SharingAllowlistRemoveResponse_validator,
+    SharingAllowlistRemoveError_validator,
+    {'auth': 'team',
+     'host': 'api',
+     'style': 'rpc'},
 )
 team_folder_activate = bb.Route(
     'team_folder/activate',
@@ -16022,8 +17877,9 @@ team_folder_activate = bb.Route(
     TeamFolderIdArg_validator,
     TeamFolderMetadata_validator,
     TeamFolderActivateError_validator,
-    {'host': u'api',
-     'style': u'rpc'},
+    {'auth': 'team',
+     'host': 'api',
+     'style': 'rpc'},
 )
 team_folder_archive = bb.Route(
     'team_folder/archive',
@@ -16032,8 +17888,9 @@ team_folder_archive = bb.Route(
     TeamFolderArchiveArg_validator,
     TeamFolderArchiveLaunch_validator,
     TeamFolderArchiveError_validator,
-    {'host': u'api',
-     'style': u'rpc'},
+    {'auth': 'team',
+     'host': 'api',
+     'style': 'rpc'},
 )
 team_folder_archive_check = bb.Route(
     'team_folder/archive/check',
@@ -16042,8 +17899,9 @@ team_folder_archive_check = bb.Route(
     async_.PollArg_validator,
     TeamFolderArchiveJobStatus_validator,
     async_.PollError_validator,
-    {'host': u'api',
-     'style': u'rpc'},
+    {'auth': 'team',
+     'host': 'api',
+     'style': 'rpc'},
 )
 team_folder_create = bb.Route(
     'team_folder/create',
@@ -16052,8 +17910,9 @@ team_folder_create = bb.Route(
     TeamFolderCreateArg_validator,
     TeamFolderMetadata_validator,
     TeamFolderCreateError_validator,
-    {'host': u'api',
-     'style': u'rpc'},
+    {'auth': 'team',
+     'host': 'api',
+     'style': 'rpc'},
 )
 team_folder_get_info = bb.Route(
     'team_folder/get_info',
@@ -16062,8 +17921,9 @@ team_folder_get_info = bb.Route(
     TeamFolderIdListArg_validator,
     bv.List(TeamFolderGetInfoItem_validator),
     bv.Void(),
-    {'host': u'api',
-     'style': u'rpc'},
+    {'auth': 'team',
+     'host': 'api',
+     'style': 'rpc'},
 )
 team_folder_list = bb.Route(
     'team_folder/list',
@@ -16072,8 +17932,9 @@ team_folder_list = bb.Route(
     TeamFolderListArg_validator,
     TeamFolderListResult_validator,
     TeamFolderListError_validator,
-    {'host': u'api',
-     'style': u'rpc'},
+    {'auth': 'team',
+     'host': 'api',
+     'style': 'rpc'},
 )
 team_folder_list_continue = bb.Route(
     'team_folder/list/continue',
@@ -16082,8 +17943,9 @@ team_folder_list_continue = bb.Route(
     TeamFolderListContinueArg_validator,
     TeamFolderListResult_validator,
     TeamFolderListContinueError_validator,
-    {'host': u'api',
-     'style': u'rpc'},
+    {'auth': 'team',
+     'host': 'api',
+     'style': 'rpc'},
 )
 team_folder_permanently_delete = bb.Route(
     'team_folder/permanently_delete',
@@ -16092,8 +17954,9 @@ team_folder_permanently_delete = bb.Route(
     TeamFolderIdArg_validator,
     bv.Void(),
     TeamFolderPermanentlyDeleteError_validator,
-    {'host': u'api',
-     'style': u'rpc'},
+    {'auth': 'team',
+     'host': 'api',
+     'style': 'rpc'},
 )
 team_folder_rename = bb.Route(
     'team_folder/rename',
@@ -16102,8 +17965,9 @@ team_folder_rename = bb.Route(
     TeamFolderRenameArg_validator,
     TeamFolderMetadata_validator,
     TeamFolderRenameError_validator,
-    {'host': u'api',
-     'style': u'rpc'},
+    {'auth': 'team',
+     'host': 'api',
+     'style': 'rpc'},
 )
 team_folder_update_sync_settings = bb.Route(
     'team_folder/update_sync_settings',
@@ -16112,8 +17976,9 @@ team_folder_update_sync_settings = bb.Route(
     TeamFolderUpdateSyncSettingsArg_validator,
     TeamFolderMetadata_validator,
     TeamFolderUpdateSyncSettingsError_validator,
-    {'host': u'api',
-     'style': u'rpc'},
+    {'auth': 'team',
+     'host': 'api',
+     'style': 'rpc'},
 )
 token_get_authenticated_admin = bb.Route(
     'token/get_authenticated_admin',
@@ -16122,8 +17987,9 @@ token_get_authenticated_admin = bb.Route(
     bv.Void(),
     TokenGetAuthenticatedAdminResult_validator,
     TokenGetAuthenticatedAdminError_validator,
-    {'host': u'api',
-     'style': u'rpc'},
+    {'auth': 'team',
+     'host': 'api',
+     'style': 'rpc'},
 )
 
 ROUTES = {
@@ -16165,11 +18031,18 @@ ROUTES = {
     'member_space_limits/get_custom_quota': member_space_limits_get_custom_quota,
     'member_space_limits/remove_custom_quota': member_space_limits_remove_custom_quota,
     'member_space_limits/set_custom_quota': member_space_limits_set_custom_quota,
+    'members/add:2': members_add_v2,
     'members/add': members_add,
+    'members/add/job_status/get:2': members_add_job_status_get_v2,
     'members/add/job_status/get': members_add_job_status_get,
+    'members/delete_profile_photo:2': members_delete_profile_photo_v2,
     'members/delete_profile_photo': members_delete_profile_photo,
+    'members/get_available_team_member_roles': members_get_available_team_member_roles,
+    'members/get_info:2': members_get_info_v2,
     'members/get_info': members_get_info,
+    'members/list:2': members_list_v2,
     'members/list': members_list,
+    'members/list/continue:2': members_list_continue_v2,
     'members/list/continue': members_list_continue,
     'members/move_former_member_files': members_move_former_member_files,
     'members/move_former_member_files/job_status/check': members_move_former_member_files_job_status_check,
@@ -16180,8 +18053,11 @@ ROUTES = {
     'members/secondary_emails/delete': members_secondary_emails_delete,
     'members/secondary_emails/resend_verification_emails': members_secondary_emails_resend_verification_emails,
     'members/send_welcome_email': members_send_welcome_email,
+    'members/set_admin_permissions:2': members_set_admin_permissions_v2,
     'members/set_admin_permissions': members_set_admin_permissions,
+    'members/set_profile:2': members_set_profile_v2,
     'members/set_profile': members_set_profile,
+    'members/set_profile_photo:2': members_set_profile_photo_v2,
     'members/set_profile_photo': members_set_profile_photo,
     'members/suspend': members_suspend,
     'members/unsuspend': members_unsuspend,
@@ -16195,6 +18071,10 @@ ROUTES = {
     'reports/get_devices': reports_get_devices,
     'reports/get_membership': reports_get_membership,
     'reports/get_storage': reports_get_storage,
+    'sharing_allowlist/add': sharing_allowlist_add,
+    'sharing_allowlist/list': sharing_allowlist_list,
+    'sharing_allowlist/list/continue': sharing_allowlist_list_continue,
+    'sharing_allowlist/remove': sharing_allowlist_remove,
     'team_folder/activate': team_folder_activate,
     'team_folder/archive': team_folder_archive,
     'team_folder/archive/check': team_folder_archive_check,

@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import mock
+import pickle
 
 import pytest
 
@@ -22,6 +23,7 @@ ADMIN_ID = 'dummy_admin_id'
 TEAM_MEMBER_ID = 'dummy_team_member_id'
 SCOPE_LIST = ['files.metadata.read', 'files.metadata.write']
 EXPIRATION = datetime.utcnow() + timedelta(seconds=EXPIRES_IN)
+CA_CERTS = "/dummy/path/ca.crt"
 
 EXPIRATION_BUFFER = timedelta(minutes=5)
 
@@ -84,6 +86,10 @@ class TestOAuth:
                                 else:
                                     assert 'code_challenge_method' not in authorization_url
                                     assert 'code_challenge' not in authorization_url
+
+    def test_authorization_with_ca_certs(self):
+        DropboxOAuth2Flow(APP_KEY, APP_SECRET, 'http://localhost/dummy', 'dummy_session',
+                          'dbx-auth-csrf-token', ca_certs=CA_CERTS)
 
     def test_authorization_url_legacy_default(self):
         flow_obj = DropboxOAuth2Flow(APP_KEY, APP_SECRET, 'http://localhost/dummy',
@@ -212,7 +218,7 @@ class TestOAuth:
         assert auth_result.account_id == ACCOUNT_ID
         assert auth_result.scope == " ".join(SCOPE_LIST)
 
-        auth_flow_offline_with_scopes.requests_session.post.assert_called_once()
+        assert auth_flow_offline_with_scopes.requests_session.post.call_count == 1
         token_call_args = auth_flow_offline_with_scopes.requests_session.post.call_args_list
         assert len(token_call_args) == 1
         first_call_args = token_call_args[0]
@@ -228,6 +234,14 @@ class TestClient:
     @pytest.fixture(scope='function')
     def session_instance(self, mocker):
         session_obj = create_session()
+        post_response = mock.MagicMock(status_code=200)
+        post_response.json.return_value = {"access_token": ACCESS_TOKEN, "expires_in": EXPIRES_IN}
+        mocker.patch.object(session_obj, 'post', return_value=post_response)
+        return session_obj
+
+    @pytest.fixture(scope='function')
+    def session_instance_with_ca_certs(self, mocker):
+        session_obj = create_session(ca_certs=CA_CERTS)
         post_response = mock.MagicMock(status_code=200)
         post_response.json.return_value = {"access_token": ACCESS_TOKEN, "expires_in": EXPIRES_IN}
         mocker.patch.object(session_obj, 'post', return_value=post_response)
@@ -290,6 +304,9 @@ class TestClient:
                 app_secret=APP_SECRET,
                 session=session_instance)
 
+    def test_Dropbox_with_only_app_key_and_secret(self, session_instance):
+        Dropbox(app_key=APP_KEY, app_secret=APP_SECRET)
+
     def test_check_refresh_with_legacy_token(self, session_instance):
         dbx = Dropbox(oauth2_access_token=ACCESS_TOKEN, session=session_instance)
         dbx.check_and_refresh_access_token()
@@ -330,7 +347,7 @@ class TestClient:
                       app_secret=APP_SECRET,
                       session=session_instance)
         dbx.check_and_refresh_access_token()
-        session_instance.post.assert_called_once()
+        assert session_instance.post.call_count == 1
 
     def test_check_refresh_with_only_refresh(self, session_instance):
         # Test Offline Case w/ only refresh
@@ -339,7 +356,19 @@ class TestClient:
                       app_secret=APP_SECRET,
                       session=session_instance)
         dbx.check_and_refresh_access_token()
-        session_instance.post.assert_called_once()
+        assert session_instance.post.call_count == 1
+
+    def test_refresh_token_with_no_expiration(self, session_instance):
+        # Test refresh token is refreshed when not given expiration
+        dbx = Dropbox(oauth2_access_token=ACCESS_TOKEN,
+                      oauth2_refresh_token=REFRESH_TOKEN,
+                      oauth2_access_token_expiration=None,
+                      app_key=APP_KEY,
+                      app_secret=APP_SECRET,
+                      session=session_instance)
+        dbx.check_and_refresh_access_token()
+        assert session_instance.post.call_count == 1
+        assert dbx._oauth2_access_token_expiration
 
     def test_check_refresh_with_invalid_grant(self, invalid_grant_session_instance):
         dbx = Dropbox(oauth2_refresh_token=REFRESH_TOKEN,
@@ -348,8 +377,12 @@ class TestClient:
                       session=invalid_grant_session_instance)
         with pytest.raises(AuthError) as e:
             dbx.check_and_refresh_access_token()
-            invalid_grant_session_instance.post.assert_called_once()
+            assert invalid_grant_session_instance.post.call_count == 1
             assert e.error.is_invalid_access_token()
+
+    def test_check_Dropbox_with_ca_certs(self, session_instance_with_ca_certs):
+        Dropbox(oauth2_access_token=ACCESS_TOKEN, oauth2_access_token_expiration=EXPIRATION,
+                session=session_instance_with_ca_certs)
 
     def test_team_client_refresh(self, session_instance):
         dbx = DropboxTeam(oauth2_refresh_token=REFRESH_TOKEN,
@@ -357,7 +390,7 @@ class TestClient:
                       app_secret=APP_SECRET,
                       session=session_instance)
         dbx.check_and_refresh_access_token()
-        session_instance.post.assert_called_once()
+        assert session_instance.post.call_count == 1
 
     def test_team_client_as_admin(self, session_instance):
         dbx = DropboxTeam(oauth2_refresh_token=REFRESH_TOKEN,
@@ -372,3 +405,10 @@ class TestClient:
                       app_secret=APP_SECRET,
                       session=session_instance)
         dbx.as_user(TEAM_MEMBER_ID)
+
+
+class TestSession:
+    def test_pickle_session(self):
+        session_obj = create_session()
+        pickled_session = pickle.dumps(session_obj)
+        pickle.loads(pickled_session)

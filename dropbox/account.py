@@ -248,8 +248,9 @@ set_profile_photo = bb.Route(
     SetProfilePhotoArg_validator,
     SetProfilePhotoResult_validator,
     SetProfilePhotoError_validator,
-    {'host': u'api',
-     'style': u'rpc'},
+    {'auth': 'user',
+     'host': 'api',
+     'style': 'rpc'},
 )
 
 ROUTES = {

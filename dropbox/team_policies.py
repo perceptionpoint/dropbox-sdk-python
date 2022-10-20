@@ -175,6 +175,67 @@ class EmmState(bb.Union):
 
 EmmState_validator = bv.Union(EmmState)
 
+class ExternalDriveBackupPolicyState(bb.Union):
+    """
+    This class acts as a tagged union. Only one of the ``is_*`` methods will
+    return true. To get the associated value of a tag (if one exists), use the
+    corresponding ``get_*`` method.
+
+    :ivar team_policies.ExternalDriveBackupPolicyState.disabled: External Drive
+        Backup feature is disabled.
+    :ivar team_policies.ExternalDriveBackupPolicyState.enabled: External Drive
+        Backup feature is enabled.
+    :ivar team_policies.ExternalDriveBackupPolicyState.default: External Drive
+        Backup default value based on team tier.
+    """
+
+    _catch_all = 'other'
+    # Attribute is overwritten below the class definition
+    disabled = None
+    # Attribute is overwritten below the class definition
+    enabled = None
+    # Attribute is overwritten below the class definition
+    default = None
+    # Attribute is overwritten below the class definition
+    other = None
+
+    def is_disabled(self):
+        """
+        Check if the union tag is ``disabled``.
+
+        :rtype: bool
+        """
+        return self._tag == 'disabled'
+
+    def is_enabled(self):
+        """
+        Check if the union tag is ``enabled``.
+
+        :rtype: bool
+        """
+        return self._tag == 'enabled'
+
+    def is_default(self):
+        """
+        Check if the union tag is ``default``.
+
+        :rtype: bool
+        """
+        return self._tag == 'default'
+
+    def is_other(self):
+        """
+        Check if the union tag is ``other``.
+
+        :rtype: bool
+        """
+        return self._tag == 'other'
+
+    def _process_custom_annotations(self, annotation_type, field_path, processor):
+        super(ExternalDriveBackupPolicyState, self)._process_custom_annotations(annotation_type, field_path, processor)
+
+ExternalDriveBackupPolicyState_validator = bv.Union(ExternalDriveBackupPolicyState)
+
 class FileLockingPolicyState(bb.Union):
     """
     This class acts as a tagged union. Only one of the ``is_*`` methods will
@@ -223,6 +284,67 @@ class FileLockingPolicyState(bb.Union):
         super(FileLockingPolicyState, self)._process_custom_annotations(annotation_type, field_path, processor)
 
 FileLockingPolicyState_validator = bv.Union(FileLockingPolicyState)
+
+class FileProviderMigrationPolicyState(bb.Union):
+    """
+    This class acts as a tagged union. Only one of the ``is_*`` methods will
+    return true. To get the associated value of a tag (if one exists), use the
+    corresponding ``get_*`` method.
+
+    :ivar team_policies.FileProviderMigrationPolicyState.disabled: Team admin
+        has opted out of File Provider Migration for team members.
+    :ivar team_policies.FileProviderMigrationPolicyState.enabled: Team admin has
+        not opted out of File Provider Migration for team members.
+    :ivar team_policies.FileProviderMigrationPolicyState.default: Team admin has
+        default value based on team tier.
+    """
+
+    _catch_all = 'other'
+    # Attribute is overwritten below the class definition
+    disabled = None
+    # Attribute is overwritten below the class definition
+    enabled = None
+    # Attribute is overwritten below the class definition
+    default = None
+    # Attribute is overwritten below the class definition
+    other = None
+
+    def is_disabled(self):
+        """
+        Check if the union tag is ``disabled``.
+
+        :rtype: bool
+        """
+        return self._tag == 'disabled'
+
+    def is_enabled(self):
+        """
+        Check if the union tag is ``enabled``.
+
+        :rtype: bool
+        """
+        return self._tag == 'enabled'
+
+    def is_default(self):
+        """
+        Check if the union tag is ``default``.
+
+        :rtype: bool
+        """
+        return self._tag == 'default'
+
+    def is_other(self):
+        """
+        Check if the union tag is ``other``.
+
+        :rtype: bool
+        """
+        return self._tag == 'other'
+
+    def _process_custom_annotations(self, annotation_type, field_path, processor):
+        super(FileProviderMigrationPolicyState, self)._process_custom_annotations(annotation_type, field_path, processor)
+
+FileProviderMigrationPolicyState_validator = bv.Union(FileProviderMigrationPolicyState)
 
 class GroupCreation(bb.Union):
     """
@@ -795,6 +917,9 @@ class SharedLinkCreatePolicy(bb.Union):
     :ivar team_policies.SharedLinkCreatePolicy.team_only: Only members of the
         same team can access all shared links. Login will be required to access
         all shared links.
+    :ivar team_policies.SharedLinkCreatePolicy.default_no_one: Only people
+        invited can access newly created links. Login will be required to access
+        the shared links unless overridden.
     """
 
     _catch_all = 'other'
@@ -804,6 +929,8 @@ class SharedLinkCreatePolicy(bb.Union):
     default_team_only = None
     # Attribute is overwritten below the class definition
     team_only = None
+    # Attribute is overwritten below the class definition
+    default_no_one = None
     # Attribute is overwritten below the class definition
     other = None
 
@@ -830,6 +957,14 @@ class SharedLinkCreatePolicy(bb.Union):
         :rtype: bool
         """
         return self._tag == 'team_only'
+
+    def is_default_no_one(self):
+        """
+        Check if the union tag is ``default_no_one``.
+
+        :rtype: bool
+        """
+        return self._tag == 'default_no_one'
 
     def is_other(self):
         """
@@ -1270,12 +1405,15 @@ class TeamSharingPolicies(bb.Struct):
         shared folders team members can join.
     :ivar team_policies.TeamSharingPolicies.shared_link_create_policy: Who can
         view shared links owned by team members.
+    :ivar team_policies.TeamSharingPolicies.group_creation_policy: Who can
+        create groups.
     """
 
     __slots__ = [
         '_shared_folder_member_policy_value',
         '_shared_folder_join_policy_value',
         '_shared_link_create_policy_value',
+        '_group_creation_policy_value',
     ]
 
     _has_required_fields = True
@@ -1283,16 +1421,20 @@ class TeamSharingPolicies(bb.Struct):
     def __init__(self,
                  shared_folder_member_policy=None,
                  shared_folder_join_policy=None,
-                 shared_link_create_policy=None):
+                 shared_link_create_policy=None,
+                 group_creation_policy=None):
         self._shared_folder_member_policy_value = bb.NOT_SET
         self._shared_folder_join_policy_value = bb.NOT_SET
         self._shared_link_create_policy_value = bb.NOT_SET
+        self._group_creation_policy_value = bb.NOT_SET
         if shared_folder_member_policy is not None:
             self.shared_folder_member_policy = shared_folder_member_policy
         if shared_folder_join_policy is not None:
             self.shared_folder_join_policy = shared_folder_join_policy
         if shared_link_create_policy is not None:
             self.shared_link_create_policy = shared_link_create_policy
+        if group_creation_policy is not None:
+            self.group_creation_policy = group_creation_policy
 
     # Instance attribute type: SharedFolderMemberPolicy (validator is set below)
     shared_folder_member_policy = bb.Attribute("shared_folder_member_policy", user_defined=True)
@@ -1302,6 +1444,9 @@ class TeamSharingPolicies(bb.Struct):
 
     # Instance attribute type: SharedLinkCreatePolicy (validator is set below)
     shared_link_create_policy = bb.Attribute("shared_link_create_policy", user_defined=True)
+
+    # Instance attribute type: GroupCreation (validator is set below)
+    group_creation_policy = bb.Attribute("group_creation_policy", user_defined=True)
 
     def _process_custom_annotations(self, annotation_type, field_path, processor):
         super(TeamSharingPolicies, self)._process_custom_annotations(annotation_type, field_path, processor)
@@ -1463,6 +1608,22 @@ EmmState.optional = EmmState('optional')
 EmmState.required = EmmState('required')
 EmmState.other = EmmState('other')
 
+ExternalDriveBackupPolicyState._disabled_validator = bv.Void()
+ExternalDriveBackupPolicyState._enabled_validator = bv.Void()
+ExternalDriveBackupPolicyState._default_validator = bv.Void()
+ExternalDriveBackupPolicyState._other_validator = bv.Void()
+ExternalDriveBackupPolicyState._tagmap = {
+    'disabled': ExternalDriveBackupPolicyState._disabled_validator,
+    'enabled': ExternalDriveBackupPolicyState._enabled_validator,
+    'default': ExternalDriveBackupPolicyState._default_validator,
+    'other': ExternalDriveBackupPolicyState._other_validator,
+}
+
+ExternalDriveBackupPolicyState.disabled = ExternalDriveBackupPolicyState('disabled')
+ExternalDriveBackupPolicyState.enabled = ExternalDriveBackupPolicyState('enabled')
+ExternalDriveBackupPolicyState.default = ExternalDriveBackupPolicyState('default')
+ExternalDriveBackupPolicyState.other = ExternalDriveBackupPolicyState('other')
+
 FileLockingPolicyState._disabled_validator = bv.Void()
 FileLockingPolicyState._enabled_validator = bv.Void()
 FileLockingPolicyState._other_validator = bv.Void()
@@ -1475,6 +1636,22 @@ FileLockingPolicyState._tagmap = {
 FileLockingPolicyState.disabled = FileLockingPolicyState('disabled')
 FileLockingPolicyState.enabled = FileLockingPolicyState('enabled')
 FileLockingPolicyState.other = FileLockingPolicyState('other')
+
+FileProviderMigrationPolicyState._disabled_validator = bv.Void()
+FileProviderMigrationPolicyState._enabled_validator = bv.Void()
+FileProviderMigrationPolicyState._default_validator = bv.Void()
+FileProviderMigrationPolicyState._other_validator = bv.Void()
+FileProviderMigrationPolicyState._tagmap = {
+    'disabled': FileProviderMigrationPolicyState._disabled_validator,
+    'enabled': FileProviderMigrationPolicyState._enabled_validator,
+    'default': FileProviderMigrationPolicyState._default_validator,
+    'other': FileProviderMigrationPolicyState._other_validator,
+}
+
+FileProviderMigrationPolicyState.disabled = FileProviderMigrationPolicyState('disabled')
+FileProviderMigrationPolicyState.enabled = FileProviderMigrationPolicyState('enabled')
+FileProviderMigrationPolicyState.default = FileProviderMigrationPolicyState('default')
+FileProviderMigrationPolicyState.other = FileProviderMigrationPolicyState('other')
 
 GroupCreation._admins_and_members_validator = bv.Void()
 GroupCreation._admins_only_validator = bv.Void()
@@ -1625,17 +1802,20 @@ SharedFolderMemberPolicy.other = SharedFolderMemberPolicy('other')
 SharedLinkCreatePolicy._default_public_validator = bv.Void()
 SharedLinkCreatePolicy._default_team_only_validator = bv.Void()
 SharedLinkCreatePolicy._team_only_validator = bv.Void()
+SharedLinkCreatePolicy._default_no_one_validator = bv.Void()
 SharedLinkCreatePolicy._other_validator = bv.Void()
 SharedLinkCreatePolicy._tagmap = {
     'default_public': SharedLinkCreatePolicy._default_public_validator,
     'default_team_only': SharedLinkCreatePolicy._default_team_only_validator,
     'team_only': SharedLinkCreatePolicy._team_only_validator,
+    'default_no_one': SharedLinkCreatePolicy._default_no_one_validator,
     'other': SharedLinkCreatePolicy._other_validator,
 }
 
 SharedLinkCreatePolicy.default_public = SharedLinkCreatePolicy('default_public')
 SharedLinkCreatePolicy.default_team_only = SharedLinkCreatePolicy('default_team_only')
 SharedLinkCreatePolicy.team_only = SharedLinkCreatePolicy('team_only')
+SharedLinkCreatePolicy.default_no_one = SharedLinkCreatePolicy('default_no_one')
 SharedLinkCreatePolicy.other = SharedLinkCreatePolicy('other')
 
 ShowcaseDownloadPolicy._disabled_validator = bv.Void()
@@ -1752,15 +1932,18 @@ TeamMemberPolicies._all_fields_ = [
 TeamSharingPolicies.shared_folder_member_policy.validator = SharedFolderMemberPolicy_validator
 TeamSharingPolicies.shared_folder_join_policy.validator = SharedFolderJoinPolicy_validator
 TeamSharingPolicies.shared_link_create_policy.validator = SharedLinkCreatePolicy_validator
+TeamSharingPolicies.group_creation_policy.validator = GroupCreation_validator
 TeamSharingPolicies._all_field_names_ = set([
     'shared_folder_member_policy',
     'shared_folder_join_policy',
     'shared_link_create_policy',
+    'group_creation_policy',
 ])
 TeamSharingPolicies._all_fields_ = [
     ('shared_folder_member_policy', TeamSharingPolicies.shared_folder_member_policy.validator),
     ('shared_folder_join_policy', TeamSharingPolicies.shared_folder_join_policy.validator),
     ('shared_link_create_policy', TeamSharingPolicies.shared_link_create_policy.validator),
+    ('group_creation_policy', TeamSharingPolicies.group_creation_policy.validator),
 ]
 
 TwoStepVerificationPolicy._require_tfa_enable_validator = bv.Void()

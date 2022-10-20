@@ -1085,6 +1085,8 @@ class AdminAlertCategoryEnum(bb.Union):
     # Attribute is overwritten below the class definition
     data_loss_protection = None
     # Attribute is overwritten below the class definition
+    information_governance = None
+    # Attribute is overwritten below the class definition
     malware_sharing = None
     # Attribute is overwritten below the class definition
     massive_file_operation = None
@@ -1110,6 +1112,14 @@ class AdminAlertCategoryEnum(bb.Union):
         :rtype: bool
         """
         return self._tag == 'data_loss_protection'
+
+    def is_information_governance(self):
+        """
+        Check if the union tag is ``information_governance``.
+
+        :rtype: bool
+        """
+        return self._tag == 'information_governance'
 
     def is_malware_sharing(self):
         """
@@ -1155,6 +1165,82 @@ class AdminAlertCategoryEnum(bb.Union):
         super(AdminAlertCategoryEnum, self)._process_custom_annotations(annotation_type, field_path, processor)
 
 AdminAlertCategoryEnum_validator = bv.Union(AdminAlertCategoryEnum)
+
+class AdminAlertGeneralStateEnum(bb.Union):
+    """
+    Alert state
+
+    This class acts as a tagged union. Only one of the ``is_*`` methods will
+    return true. To get the associated value of a tag (if one exists), use the
+    corresponding ``get_*`` method.
+    """
+
+    _catch_all = 'other'
+    # Attribute is overwritten below the class definition
+    active = None
+    # Attribute is overwritten below the class definition
+    dismissed = None
+    # Attribute is overwritten below the class definition
+    in_progress = None
+    # Attribute is overwritten below the class definition
+    na = None
+    # Attribute is overwritten below the class definition
+    resolved = None
+    # Attribute is overwritten below the class definition
+    other = None
+
+    def is_active(self):
+        """
+        Check if the union tag is ``active``.
+
+        :rtype: bool
+        """
+        return self._tag == 'active'
+
+    def is_dismissed(self):
+        """
+        Check if the union tag is ``dismissed``.
+
+        :rtype: bool
+        """
+        return self._tag == 'dismissed'
+
+    def is_in_progress(self):
+        """
+        Check if the union tag is ``in_progress``.
+
+        :rtype: bool
+        """
+        return self._tag == 'in_progress'
+
+    def is_na(self):
+        """
+        Check if the union tag is ``na``.
+
+        :rtype: bool
+        """
+        return self._tag == 'na'
+
+    def is_resolved(self):
+        """
+        Check if the union tag is ``resolved``.
+
+        :rtype: bool
+        """
+        return self._tag == 'resolved'
+
+    def is_other(self):
+        """
+        Check if the union tag is ``other``.
+
+        :rtype: bool
+        """
+        return self._tag == 'other'
+
+    def _process_custom_annotations(self, annotation_type, field_path, processor):
+        super(AdminAlertGeneralStateEnum, self)._process_custom_annotations(annotation_type, field_path, processor)
+
+AdminAlertGeneralStateEnum_validator = bv.Union(AdminAlertGeneralStateEnum)
 
 class AdminAlertSeverityEnum(bb.Union):
     """
@@ -1237,27 +1323,251 @@ class AdminAlertingAlertConfiguration(bb.Struct):
     Alert configurations
 
     :ivar team_log.AdminAlertingAlertConfiguration.alert_state: Alert state.
+    :ivar team_log.AdminAlertingAlertConfiguration.sensitivity_level:
+        Sensitivity level.
+    :ivar team_log.AdminAlertingAlertConfiguration.recipients_settings:
+        Recipient settings.
+    :ivar team_log.AdminAlertingAlertConfiguration.text: Text.
+    :ivar team_log.AdminAlertingAlertConfiguration.excluded_file_extensions:
+        Excluded file extensions.
     """
 
     __slots__ = [
         '_alert_state_value',
+        '_sensitivity_level_value',
+        '_recipients_settings_value',
+        '_text_value',
+        '_excluded_file_extensions_value',
     ]
 
-    _has_required_fields = True
+    _has_required_fields = False
 
     def __init__(self,
-                 alert_state=None):
+                 alert_state=None,
+                 sensitivity_level=None,
+                 recipients_settings=None,
+                 text=None,
+                 excluded_file_extensions=None):
         self._alert_state_value = bb.NOT_SET
+        self._sensitivity_level_value = bb.NOT_SET
+        self._recipients_settings_value = bb.NOT_SET
+        self._text_value = bb.NOT_SET
+        self._excluded_file_extensions_value = bb.NOT_SET
         if alert_state is not None:
             self.alert_state = alert_state
+        if sensitivity_level is not None:
+            self.sensitivity_level = sensitivity_level
+        if recipients_settings is not None:
+            self.recipients_settings = recipients_settings
+        if text is not None:
+            self.text = text
+        if excluded_file_extensions is not None:
+            self.excluded_file_extensions = excluded_file_extensions
 
     # Instance attribute type: AdminAlertingAlertStatePolicy (validator is set below)
-    alert_state = bb.Attribute("alert_state", user_defined=True)
+    alert_state = bb.Attribute("alert_state", nullable=True, user_defined=True)
+
+    # Instance attribute type: AdminAlertingAlertSensitivity (validator is set below)
+    sensitivity_level = bb.Attribute("sensitivity_level", nullable=True, user_defined=True)
+
+    # Instance attribute type: RecipientsConfiguration (validator is set below)
+    recipients_settings = bb.Attribute("recipients_settings", nullable=True, user_defined=True)
+
+    # Instance attribute type: str (validator is set below)
+    text = bb.Attribute("text", nullable=True)
+
+    # Instance attribute type: str (validator is set below)
+    excluded_file_extensions = bb.Attribute("excluded_file_extensions", nullable=True)
 
     def _process_custom_annotations(self, annotation_type, field_path, processor):
         super(AdminAlertingAlertConfiguration, self)._process_custom_annotations(annotation_type, field_path, processor)
 
 AdminAlertingAlertConfiguration_validator = bv.Struct(AdminAlertingAlertConfiguration)
+
+class AdminAlertingAlertSensitivity(bb.Union):
+    """
+    Alert sensitivity
+
+    This class acts as a tagged union. Only one of the ``is_*`` methods will
+    return true. To get the associated value of a tag (if one exists), use the
+    corresponding ``get_*`` method.
+    """
+
+    _catch_all = 'other'
+    # Attribute is overwritten below the class definition
+    high = None
+    # Attribute is overwritten below the class definition
+    highest = None
+    # Attribute is overwritten below the class definition
+    invalid = None
+    # Attribute is overwritten below the class definition
+    low = None
+    # Attribute is overwritten below the class definition
+    lowest = None
+    # Attribute is overwritten below the class definition
+    medium = None
+    # Attribute is overwritten below the class definition
+    other = None
+
+    def is_high(self):
+        """
+        Check if the union tag is ``high``.
+
+        :rtype: bool
+        """
+        return self._tag == 'high'
+
+    def is_highest(self):
+        """
+        Check if the union tag is ``highest``.
+
+        :rtype: bool
+        """
+        return self._tag == 'highest'
+
+    def is_invalid(self):
+        """
+        Check if the union tag is ``invalid``.
+
+        :rtype: bool
+        """
+        return self._tag == 'invalid'
+
+    def is_low(self):
+        """
+        Check if the union tag is ``low``.
+
+        :rtype: bool
+        """
+        return self._tag == 'low'
+
+    def is_lowest(self):
+        """
+        Check if the union tag is ``lowest``.
+
+        :rtype: bool
+        """
+        return self._tag == 'lowest'
+
+    def is_medium(self):
+        """
+        Check if the union tag is ``medium``.
+
+        :rtype: bool
+        """
+        return self._tag == 'medium'
+
+    def is_other(self):
+        """
+        Check if the union tag is ``other``.
+
+        :rtype: bool
+        """
+        return self._tag == 'other'
+
+    def _process_custom_annotations(self, annotation_type, field_path, processor):
+        super(AdminAlertingAlertSensitivity, self)._process_custom_annotations(annotation_type, field_path, processor)
+
+AdminAlertingAlertSensitivity_validator = bv.Union(AdminAlertingAlertSensitivity)
+
+class AdminAlertingAlertStateChangedDetails(bb.Struct):
+    """
+    Changed an alert state.
+
+    :ivar team_log.AdminAlertingAlertStateChangedDetails.alert_name: Alert name.
+    :ivar team_log.AdminAlertingAlertStateChangedDetails.alert_severity: Alert
+        severity.
+    :ivar team_log.AdminAlertingAlertStateChangedDetails.alert_category: Alert
+        category.
+    :ivar team_log.AdminAlertingAlertStateChangedDetails.alert_instance_id:
+        Alert ID.
+    :ivar team_log.AdminAlertingAlertStateChangedDetails.previous_value: Alert
+        state before the change.
+    :ivar team_log.AdminAlertingAlertStateChangedDetails.new_value: Alert state
+        after the change.
+    """
+
+    __slots__ = [
+        '_alert_name_value',
+        '_alert_severity_value',
+        '_alert_category_value',
+        '_alert_instance_id_value',
+        '_previous_value_value',
+        '_new_value_value',
+    ]
+
+    _has_required_fields = True
+
+    def __init__(self,
+                 alert_name=None,
+                 alert_severity=None,
+                 alert_category=None,
+                 alert_instance_id=None,
+                 previous_value=None,
+                 new_value=None):
+        self._alert_name_value = bb.NOT_SET
+        self._alert_severity_value = bb.NOT_SET
+        self._alert_category_value = bb.NOT_SET
+        self._alert_instance_id_value = bb.NOT_SET
+        self._previous_value_value = bb.NOT_SET
+        self._new_value_value = bb.NOT_SET
+        if alert_name is not None:
+            self.alert_name = alert_name
+        if alert_severity is not None:
+            self.alert_severity = alert_severity
+        if alert_category is not None:
+            self.alert_category = alert_category
+        if alert_instance_id is not None:
+            self.alert_instance_id = alert_instance_id
+        if previous_value is not None:
+            self.previous_value = previous_value
+        if new_value is not None:
+            self.new_value = new_value
+
+    # Instance attribute type: str (validator is set below)
+    alert_name = bb.Attribute("alert_name")
+
+    # Instance attribute type: AdminAlertSeverityEnum (validator is set below)
+    alert_severity = bb.Attribute("alert_severity", user_defined=True)
+
+    # Instance attribute type: AdminAlertCategoryEnum (validator is set below)
+    alert_category = bb.Attribute("alert_category", user_defined=True)
+
+    # Instance attribute type: str (validator is set below)
+    alert_instance_id = bb.Attribute("alert_instance_id")
+
+    # Instance attribute type: AdminAlertGeneralStateEnum (validator is set below)
+    previous_value = bb.Attribute("previous_value", user_defined=True)
+
+    # Instance attribute type: AdminAlertGeneralStateEnum (validator is set below)
+    new_value = bb.Attribute("new_value", user_defined=True)
+
+    def _process_custom_annotations(self, annotation_type, field_path, processor):
+        super(AdminAlertingAlertStateChangedDetails, self)._process_custom_annotations(annotation_type, field_path, processor)
+
+AdminAlertingAlertStateChangedDetails_validator = bv.Struct(AdminAlertingAlertStateChangedDetails)
+
+class AdminAlertingAlertStateChangedType(bb.Struct):
+
+    __slots__ = [
+        '_description_value',
+    ]
+
+    _has_required_fields = True
+
+    def __init__(self,
+                 description=None):
+        self._description_value = bb.NOT_SET
+        if description is not None:
+            self.description = description
+
+    # Instance attribute type: str (validator is set below)
+    description = bb.Attribute("description")
+
+    def _process_custom_annotations(self, annotation_type, field_path, processor):
+        super(AdminAlertingAlertStateChangedType, self)._process_custom_annotations(annotation_type, field_path, processor)
+
+AdminAlertingAlertStateChangedType_validator = bv.Struct(AdminAlertingAlertStateChangedType)
 
 class AdminAlertingAlertStatePolicy(bb.Union):
     """
@@ -1454,6 +1764,219 @@ class AdminAlertingTriggeredAlertType(bb.Struct):
 
 AdminAlertingTriggeredAlertType_validator = bv.Struct(AdminAlertingTriggeredAlertType)
 
+class AdminConsoleAppPermission(bb.Union):
+    """
+    This class acts as a tagged union. Only one of the ``is_*`` methods will
+    return true. To get the associated value of a tag (if one exists), use the
+    corresponding ``get_*`` method.
+    """
+
+    _catch_all = 'other'
+    # Attribute is overwritten below the class definition
+    default_for_listed_apps = None
+    # Attribute is overwritten below the class definition
+    default_for_unlisted_apps = None
+    # Attribute is overwritten below the class definition
+    other = None
+
+    def is_default_for_listed_apps(self):
+        """
+        Check if the union tag is ``default_for_listed_apps``.
+
+        :rtype: bool
+        """
+        return self._tag == 'default_for_listed_apps'
+
+    def is_default_for_unlisted_apps(self):
+        """
+        Check if the union tag is ``default_for_unlisted_apps``.
+
+        :rtype: bool
+        """
+        return self._tag == 'default_for_unlisted_apps'
+
+    def is_other(self):
+        """
+        Check if the union tag is ``other``.
+
+        :rtype: bool
+        """
+        return self._tag == 'other'
+
+    def _process_custom_annotations(self, annotation_type, field_path, processor):
+        super(AdminConsoleAppPermission, self)._process_custom_annotations(annotation_type, field_path, processor)
+
+AdminConsoleAppPermission_validator = bv.Union(AdminConsoleAppPermission)
+
+class AdminConsoleAppPolicy(bb.Union):
+    """
+    This class acts as a tagged union. Only one of the ``is_*`` methods will
+    return true. To get the associated value of a tag (if one exists), use the
+    corresponding ``get_*`` method.
+    """
+
+    _catch_all = 'other'
+    # Attribute is overwritten below the class definition
+    allow = None
+    # Attribute is overwritten below the class definition
+    block = None
+    # Attribute is overwritten below the class definition
+    default = None
+    # Attribute is overwritten below the class definition
+    other = None
+
+    def is_allow(self):
+        """
+        Check if the union tag is ``allow``.
+
+        :rtype: bool
+        """
+        return self._tag == 'allow'
+
+    def is_block(self):
+        """
+        Check if the union tag is ``block``.
+
+        :rtype: bool
+        """
+        return self._tag == 'block'
+
+    def is_default(self):
+        """
+        Check if the union tag is ``default``.
+
+        :rtype: bool
+        """
+        return self._tag == 'default'
+
+    def is_other(self):
+        """
+        Check if the union tag is ``other``.
+
+        :rtype: bool
+        """
+        return self._tag == 'other'
+
+    def _process_custom_annotations(self, annotation_type, field_path, processor):
+        super(AdminConsoleAppPolicy, self)._process_custom_annotations(annotation_type, field_path, processor)
+
+AdminConsoleAppPolicy_validator = bv.Union(AdminConsoleAppPolicy)
+
+class AdminEmailRemindersChangedDetails(bb.Struct):
+    """
+    Changed admin reminder settings for requests to join the team.
+
+    :ivar team_log.AdminEmailRemindersChangedDetails.new_value: To.
+    :ivar team_log.AdminEmailRemindersChangedDetails.previous_value: From.
+    """
+
+    __slots__ = [
+        '_new_value_value',
+        '_previous_value_value',
+    ]
+
+    _has_required_fields = True
+
+    def __init__(self,
+                 new_value=None,
+                 previous_value=None):
+        self._new_value_value = bb.NOT_SET
+        self._previous_value_value = bb.NOT_SET
+        if new_value is not None:
+            self.new_value = new_value
+        if previous_value is not None:
+            self.previous_value = previous_value
+
+    # Instance attribute type: AdminEmailRemindersPolicy (validator is set below)
+    new_value = bb.Attribute("new_value", user_defined=True)
+
+    # Instance attribute type: AdminEmailRemindersPolicy (validator is set below)
+    previous_value = bb.Attribute("previous_value", user_defined=True)
+
+    def _process_custom_annotations(self, annotation_type, field_path, processor):
+        super(AdminEmailRemindersChangedDetails, self)._process_custom_annotations(annotation_type, field_path, processor)
+
+AdminEmailRemindersChangedDetails_validator = bv.Struct(AdminEmailRemindersChangedDetails)
+
+class AdminEmailRemindersChangedType(bb.Struct):
+
+    __slots__ = [
+        '_description_value',
+    ]
+
+    _has_required_fields = True
+
+    def __init__(self,
+                 description=None):
+        self._description_value = bb.NOT_SET
+        if description is not None:
+            self.description = description
+
+    # Instance attribute type: str (validator is set below)
+    description = bb.Attribute("description")
+
+    def _process_custom_annotations(self, annotation_type, field_path, processor):
+        super(AdminEmailRemindersChangedType, self)._process_custom_annotations(annotation_type, field_path, processor)
+
+AdminEmailRemindersChangedType_validator = bv.Struct(AdminEmailRemindersChangedType)
+
+class AdminEmailRemindersPolicy(bb.Union):
+    """
+    Policy for deciding whether team admins receive reminder emails for requests
+    to join the team
+
+    This class acts as a tagged union. Only one of the ``is_*`` methods will
+    return true. To get the associated value of a tag (if one exists), use the
+    corresponding ``get_*`` method.
+    """
+
+    _catch_all = 'other'
+    # Attribute is overwritten below the class definition
+    default = None
+    # Attribute is overwritten below the class definition
+    disabled = None
+    # Attribute is overwritten below the class definition
+    enabled = None
+    # Attribute is overwritten below the class definition
+    other = None
+
+    def is_default(self):
+        """
+        Check if the union tag is ``default``.
+
+        :rtype: bool
+        """
+        return self._tag == 'default'
+
+    def is_disabled(self):
+        """
+        Check if the union tag is ``disabled``.
+
+        :rtype: bool
+        """
+        return self._tag == 'disabled'
+
+    def is_enabled(self):
+        """
+        Check if the union tag is ``enabled``.
+
+        :rtype: bool
+        """
+        return self._tag == 'enabled'
+
+    def is_other(self):
+        """
+        Check if the union tag is ``other``.
+
+        :rtype: bool
+        """
+        return self._tag == 'other'
+
+    def _process_custom_annotations(self, annotation_type, field_path, processor):
+        super(AdminEmailRemindersPolicy, self)._process_custom_annotations(annotation_type, field_path, processor)
+
+AdminEmailRemindersPolicy_validator = bv.Union(AdminEmailRemindersPolicy)
+
 class AdminRole(bb.Union):
     """
     This class acts as a tagged union. Only one of the ``is_*`` methods will
@@ -1463,9 +1986,19 @@ class AdminRole(bb.Union):
 
     _catch_all = 'other'
     # Attribute is overwritten below the class definition
+    billing_admin = None
+    # Attribute is overwritten below the class definition
+    compliance_admin = None
+    # Attribute is overwritten below the class definition
+    content_admin = None
+    # Attribute is overwritten below the class definition
     limited_admin = None
     # Attribute is overwritten below the class definition
     member_only = None
+    # Attribute is overwritten below the class definition
+    reporting_admin = None
+    # Attribute is overwritten below the class definition
+    security_admin = None
     # Attribute is overwritten below the class definition
     support_admin = None
     # Attribute is overwritten below the class definition
@@ -1474,6 +2007,30 @@ class AdminRole(bb.Union):
     user_management_admin = None
     # Attribute is overwritten below the class definition
     other = None
+
+    def is_billing_admin(self):
+        """
+        Check if the union tag is ``billing_admin``.
+
+        :rtype: bool
+        """
+        return self._tag == 'billing_admin'
+
+    def is_compliance_admin(self):
+        """
+        Check if the union tag is ``compliance_admin``.
+
+        :rtype: bool
+        """
+        return self._tag == 'compliance_admin'
+
+    def is_content_admin(self):
+        """
+        Check if the union tag is ``content_admin``.
+
+        :rtype: bool
+        """
+        return self._tag == 'content_admin'
 
     def is_limited_admin(self):
         """
@@ -1490,6 +2047,22 @@ class AdminRole(bb.Union):
         :rtype: bool
         """
         return self._tag == 'member_only'
+
+    def is_reporting_admin(self):
+        """
+        Check if the union tag is ``reporting_admin``.
+
+        :rtype: bool
+        """
+        return self._tag == 'reporting_admin'
+
+    def is_security_admin(self):
+        """
+        Check if the union tag is ``security_admin``.
+
+        :rtype: bool
+        """
+        return self._tag == 'security_admin'
 
     def is_support_admin(self):
         """
@@ -1527,6 +2100,72 @@ class AdminRole(bb.Union):
         super(AdminRole, self)._process_custom_annotations(annotation_type, field_path, processor)
 
 AdminRole_validator = bv.Union(AdminRole)
+
+class AlertRecipientsSettingType(bb.Union):
+    """
+    Alert recipients setting type
+
+    This class acts as a tagged union. Only one of the ``is_*`` methods will
+    return true. To get the associated value of a tag (if one exists), use the
+    corresponding ``get_*`` method.
+    """
+
+    _catch_all = 'other'
+    # Attribute is overwritten below the class definition
+    custom_list = None
+    # Attribute is overwritten below the class definition
+    invalid = None
+    # Attribute is overwritten below the class definition
+    none = None
+    # Attribute is overwritten below the class definition
+    team_admins = None
+    # Attribute is overwritten below the class definition
+    other = None
+
+    def is_custom_list(self):
+        """
+        Check if the union tag is ``custom_list``.
+
+        :rtype: bool
+        """
+        return self._tag == 'custom_list'
+
+    def is_invalid(self):
+        """
+        Check if the union tag is ``invalid``.
+
+        :rtype: bool
+        """
+        return self._tag == 'invalid'
+
+    def is_none(self):
+        """
+        Check if the union tag is ``none``.
+
+        :rtype: bool
+        """
+        return self._tag == 'none'
+
+    def is_team_admins(self):
+        """
+        Check if the union tag is ``team_admins``.
+
+        :rtype: bool
+        """
+        return self._tag == 'team_admins'
+
+    def is_other(self):
+        """
+        Check if the union tag is ``other``.
+
+        :rtype: bool
+        """
+        return self._tag == 'other'
+
+    def _process_custom_annotations(self, annotation_type, field_path, processor):
+        super(AlertRecipientsSettingType, self)._process_custom_annotations(annotation_type, field_path, processor)
+
+AlertRecipientsSettingType_validator = bv.Union(AlertRecipientsSettingType)
 
 class AllowDownloadDisabledDetails(bb.Struct):
     """
@@ -1635,6 +2274,56 @@ class ApiSessionLogInfo(bb.Struct):
 
 ApiSessionLogInfo_validator = bv.Struct(ApiSessionLogInfo)
 
+class AppBlockedByPermissionsDetails(bb.Struct):
+    """
+    Failed to connect app for member.
+
+    :ivar team_log.AppBlockedByPermissionsDetails.app_info: Relevant application
+        details.
+    """
+
+    __slots__ = [
+        '_app_info_value',
+    ]
+
+    _has_required_fields = True
+
+    def __init__(self,
+                 app_info=None):
+        self._app_info_value = bb.NOT_SET
+        if app_info is not None:
+            self.app_info = app_info
+
+    # Instance attribute type: AppLogInfo (validator is set below)
+    app_info = bb.Attribute("app_info", user_defined=True)
+
+    def _process_custom_annotations(self, annotation_type, field_path, processor):
+        super(AppBlockedByPermissionsDetails, self)._process_custom_annotations(annotation_type, field_path, processor)
+
+AppBlockedByPermissionsDetails_validator = bv.Struct(AppBlockedByPermissionsDetails)
+
+class AppBlockedByPermissionsType(bb.Struct):
+
+    __slots__ = [
+        '_description_value',
+    ]
+
+    _has_required_fields = True
+
+    def __init__(self,
+                 description=None):
+        self._description_value = bb.NOT_SET
+        if description is not None:
+            self.description = description
+
+    # Instance attribute type: str (validator is set below)
+    description = bb.Attribute("description")
+
+    def _process_custom_annotations(self, annotation_type, field_path, processor):
+        super(AppBlockedByPermissionsType, self)._process_custom_annotations(annotation_type, field_path, processor)
+
+AppBlockedByPermissionsType_validator = bv.Struct(AppBlockedByPermissionsType)
+
 class AppLinkTeamDetails(bb.Struct):
     """
     Linked app for team.
@@ -1737,10 +2426,8 @@ class AppLogInfo(bb.Struct):
     """
     App's logged information.
 
-    :ivar team_log.AppLogInfo.app_id: App unique ID. Might be missing due to
-        historical data gap.
-    :ivar team_log.AppLogInfo.display_name: App display name. Might be missing
-        due to historical data gap.
+    :ivar team_log.AppLogInfo.app_id: App unique ID.
+    :ivar team_log.AppLogInfo.display_name: App display name.
     """
 
     __slots__ = [
@@ -1770,6 +2457,83 @@ class AppLogInfo(bb.Struct):
         super(AppLogInfo, self)._process_custom_annotations(annotation_type, field_path, processor)
 
 AppLogInfo_validator = bv.StructTree(AppLogInfo)
+
+class AppPermissionsChangedDetails(bb.Struct):
+    """
+    Changed app permissions.
+
+    :ivar team_log.AppPermissionsChangedDetails.app_name: Name of the app.
+    :ivar team_log.AppPermissionsChangedDetails.permission: Permission that was
+        changed.
+    :ivar team_log.AppPermissionsChangedDetails.previous_value: Previous policy.
+    :ivar team_log.AppPermissionsChangedDetails.new_value: New policy.
+    """
+
+    __slots__ = [
+        '_app_name_value',
+        '_permission_value',
+        '_previous_value_value',
+        '_new_value_value',
+    ]
+
+    _has_required_fields = True
+
+    def __init__(self,
+                 previous_value=None,
+                 new_value=None,
+                 app_name=None,
+                 permission=None):
+        self._app_name_value = bb.NOT_SET
+        self._permission_value = bb.NOT_SET
+        self._previous_value_value = bb.NOT_SET
+        self._new_value_value = bb.NOT_SET
+        if app_name is not None:
+            self.app_name = app_name
+        if permission is not None:
+            self.permission = permission
+        if previous_value is not None:
+            self.previous_value = previous_value
+        if new_value is not None:
+            self.new_value = new_value
+
+    # Instance attribute type: str (validator is set below)
+    app_name = bb.Attribute("app_name", nullable=True)
+
+    # Instance attribute type: AdminConsoleAppPermission (validator is set below)
+    permission = bb.Attribute("permission", nullable=True, user_defined=True)
+
+    # Instance attribute type: AdminConsoleAppPolicy (validator is set below)
+    previous_value = bb.Attribute("previous_value", user_defined=True)
+
+    # Instance attribute type: AdminConsoleAppPolicy (validator is set below)
+    new_value = bb.Attribute("new_value", user_defined=True)
+
+    def _process_custom_annotations(self, annotation_type, field_path, processor):
+        super(AppPermissionsChangedDetails, self)._process_custom_annotations(annotation_type, field_path, processor)
+
+AppPermissionsChangedDetails_validator = bv.Struct(AppPermissionsChangedDetails)
+
+class AppPermissionsChangedType(bb.Struct):
+
+    __slots__ = [
+        '_description_value',
+    ]
+
+    _has_required_fields = True
+
+    def __init__(self,
+                 description=None):
+        self._description_value = bb.NOT_SET
+        if description is not None:
+            self.description = description
+
+    # Instance attribute type: str (validator is set below)
+    description = bb.Attribute("description")
+
+    def _process_custom_annotations(self, annotation_type, field_path, processor):
+        super(AppPermissionsChangedType, self)._process_custom_annotations(annotation_type, field_path, processor)
+
+AppPermissionsChangedType_validator = bv.Struct(AppPermissionsChangedType)
 
 class AppUnlinkTeamDetails(bb.Struct):
     """
@@ -1868,6 +2632,46 @@ class AppUnlinkUserType(bb.Struct):
         super(AppUnlinkUserType, self)._process_custom_annotations(annotation_type, field_path, processor)
 
 AppUnlinkUserType_validator = bv.Struct(AppUnlinkUserType)
+
+class ApplyNamingConventionDetails(bb.Struct):
+    """
+    Applied naming convention.
+    """
+
+    __slots__ = [
+    ]
+
+    _has_required_fields = False
+
+    def __init__(self):
+        pass
+
+    def _process_custom_annotations(self, annotation_type, field_path, processor):
+        super(ApplyNamingConventionDetails, self)._process_custom_annotations(annotation_type, field_path, processor)
+
+ApplyNamingConventionDetails_validator = bv.Struct(ApplyNamingConventionDetails)
+
+class ApplyNamingConventionType(bb.Struct):
+
+    __slots__ = [
+        '_description_value',
+    ]
+
+    _has_required_fields = True
+
+    def __init__(self,
+                 description=None):
+        self._description_value = bb.NOT_SET
+        if description is not None:
+            self.description = description
+
+    # Instance attribute type: str (validator is set below)
+    description = bb.Attribute("description")
+
+    def _process_custom_annotations(self, annotation_type, field_path, processor):
+        super(ApplyNamingConventionType, self)._process_custom_annotations(annotation_type, field_path, processor)
+
+ApplyNamingConventionType_validator = bv.Struct(ApplyNamingConventionType)
 
 class AssetLogInfo(bb.Union):
     """
@@ -2780,6 +3584,120 @@ class CameraUploadsPolicyChangedType(bb.Struct):
 
 CameraUploadsPolicyChangedType_validator = bv.Struct(CameraUploadsPolicyChangedType)
 
+class CaptureTranscriptPolicy(bb.Union):
+    """
+    Policy for deciding whether team users can transcription in Capture
+
+    This class acts as a tagged union. Only one of the ``is_*`` methods will
+    return true. To get the associated value of a tag (if one exists), use the
+    corresponding ``get_*`` method.
+    """
+
+    _catch_all = 'other'
+    # Attribute is overwritten below the class definition
+    default = None
+    # Attribute is overwritten below the class definition
+    disabled = None
+    # Attribute is overwritten below the class definition
+    enabled = None
+    # Attribute is overwritten below the class definition
+    other = None
+
+    def is_default(self):
+        """
+        Check if the union tag is ``default``.
+
+        :rtype: bool
+        """
+        return self._tag == 'default'
+
+    def is_disabled(self):
+        """
+        Check if the union tag is ``disabled``.
+
+        :rtype: bool
+        """
+        return self._tag == 'disabled'
+
+    def is_enabled(self):
+        """
+        Check if the union tag is ``enabled``.
+
+        :rtype: bool
+        """
+        return self._tag == 'enabled'
+
+    def is_other(self):
+        """
+        Check if the union tag is ``other``.
+
+        :rtype: bool
+        """
+        return self._tag == 'other'
+
+    def _process_custom_annotations(self, annotation_type, field_path, processor):
+        super(CaptureTranscriptPolicy, self)._process_custom_annotations(annotation_type, field_path, processor)
+
+CaptureTranscriptPolicy_validator = bv.Union(CaptureTranscriptPolicy)
+
+class CaptureTranscriptPolicyChangedDetails(bb.Struct):
+    """
+    Changed Capture transcription policy for team.
+
+    :ivar team_log.CaptureTranscriptPolicyChangedDetails.new_value: To.
+    :ivar team_log.CaptureTranscriptPolicyChangedDetails.previous_value: From.
+    """
+
+    __slots__ = [
+        '_new_value_value',
+        '_previous_value_value',
+    ]
+
+    _has_required_fields = True
+
+    def __init__(self,
+                 new_value=None,
+                 previous_value=None):
+        self._new_value_value = bb.NOT_SET
+        self._previous_value_value = bb.NOT_SET
+        if new_value is not None:
+            self.new_value = new_value
+        if previous_value is not None:
+            self.previous_value = previous_value
+
+    # Instance attribute type: CaptureTranscriptPolicy (validator is set below)
+    new_value = bb.Attribute("new_value", user_defined=True)
+
+    # Instance attribute type: CaptureTranscriptPolicy (validator is set below)
+    previous_value = bb.Attribute("previous_value", user_defined=True)
+
+    def _process_custom_annotations(self, annotation_type, field_path, processor):
+        super(CaptureTranscriptPolicyChangedDetails, self)._process_custom_annotations(annotation_type, field_path, processor)
+
+CaptureTranscriptPolicyChangedDetails_validator = bv.Struct(CaptureTranscriptPolicyChangedDetails)
+
+class CaptureTranscriptPolicyChangedType(bb.Struct):
+
+    __slots__ = [
+        '_description_value',
+    ]
+
+    _has_required_fields = True
+
+    def __init__(self,
+                 description=None):
+        self._description_value = bb.NOT_SET
+        if description is not None:
+            self.description = description
+
+    # Instance attribute type: str (validator is set below)
+    description = bb.Attribute("description")
+
+    def _process_custom_annotations(self, annotation_type, field_path, processor):
+        super(CaptureTranscriptPolicyChangedType, self)._process_custom_annotations(annotation_type, field_path, processor)
+
+CaptureTranscriptPolicyChangedType_validator = bv.Struct(CaptureTranscriptPolicyChangedType)
+
 class Certificate(bb.Struct):
     """
     Certificate details.
@@ -2860,6 +3778,53 @@ class Certificate(bb.Struct):
         super(Certificate, self)._process_custom_annotations(annotation_type, field_path, processor)
 
 Certificate_validator = bv.Struct(Certificate)
+
+class ChangeLinkExpirationPolicy(bb.Union):
+    """
+    Policy for deciding whether the team's default expiration days policy must
+    be enforced when an externally shared link is updated
+
+    This class acts as a tagged union. Only one of the ``is_*`` methods will
+    return true. To get the associated value of a tag (if one exists), use the
+    corresponding ``get_*`` method.
+    """
+
+    _catch_all = 'other'
+    # Attribute is overwritten below the class definition
+    allowed = None
+    # Attribute is overwritten below the class definition
+    not_allowed = None
+    # Attribute is overwritten below the class definition
+    other = None
+
+    def is_allowed(self):
+        """
+        Check if the union tag is ``allowed``.
+
+        :rtype: bool
+        """
+        return self._tag == 'allowed'
+
+    def is_not_allowed(self):
+        """
+        Check if the union tag is ``not_allowed``.
+
+        :rtype: bool
+        """
+        return self._tag == 'not_allowed'
+
+    def is_other(self):
+        """
+        Check if the union tag is ``other``.
+
+        :rtype: bool
+        """
+        return self._tag == 'other'
+
+    def _process_custom_annotations(self, annotation_type, field_path, processor):
+        super(ChangeLinkExpirationPolicy, self)._process_custom_annotations(annotation_type, field_path, processor)
+
+ChangeLinkExpirationPolicy_validator = bv.Union(ChangeLinkExpirationPolicy)
 
 class ChangedEnterpriseAdminRoleDetails(bb.Struct):
     """
@@ -3186,6 +4151,10 @@ class ClassificationPolicyEnumWrapper(bb.Union):
     # Attribute is overwritten below the class definition
     enabled = None
     # Attribute is overwritten below the class definition
+    member_and_team_folders = None
+    # Attribute is overwritten below the class definition
+    team_folders = None
+    # Attribute is overwritten below the class definition
     other = None
 
     def is_disabled(self):
@@ -3204,6 +4173,22 @@ class ClassificationPolicyEnumWrapper(bb.Union):
         """
         return self._tag == 'enabled'
 
+    def is_member_and_team_folders(self):
+        """
+        Check if the union tag is ``member_and_team_folders``.
+
+        :rtype: bool
+        """
+        return self._tag == 'member_and_team_folders'
+
+    def is_team_folders(self):
+        """
+        Check if the union tag is ``team_folders``.
+
+        :rtype: bool
+        """
+        return self._tag == 'team_folders'
+
     def is_other(self):
         """
         Check if the union tag is ``other``.
@@ -3219,7 +4204,7 @@ ClassificationPolicyEnumWrapper_validator = bv.Union(ClassificationPolicyEnumWra
 
 class ClassificationType(bb.Union):
     """
-    The type of classification (currently only PII)
+    The type of classification (currently only personal information)
 
     This class acts as a tagged union. Only one of the ``is_*`` methods will
     return true. To get the associated value of a tag (if one exists), use the
@@ -3228,9 +4213,19 @@ class ClassificationType(bb.Union):
 
     _catch_all = 'other'
     # Attribute is overwritten below the class definition
+    personal_information = None
+    # Attribute is overwritten below the class definition
     pii = None
     # Attribute is overwritten below the class definition
     other = None
+
+    def is_personal_information(self):
+        """
+        Check if the union tag is ``personal_information``.
+
+        :rtype: bool
+        """
+        return self._tag == 'personal_information'
 
     def is_pii(self):
         """
@@ -3943,6 +4938,193 @@ class DataPlacementRestrictionSatisfyPolicyType(bb.Struct):
 
 DataPlacementRestrictionSatisfyPolicyType_validator = bv.Struct(DataPlacementRestrictionSatisfyPolicyType)
 
+class DataResidencyMigrationRequestSuccessfulDetails(bb.Struct):
+    """
+    Requested data residency migration for team data.
+    """
+
+    __slots__ = [
+    ]
+
+    _has_required_fields = False
+
+    def __init__(self):
+        pass
+
+    def _process_custom_annotations(self, annotation_type, field_path, processor):
+        super(DataResidencyMigrationRequestSuccessfulDetails, self)._process_custom_annotations(annotation_type, field_path, processor)
+
+DataResidencyMigrationRequestSuccessfulDetails_validator = bv.Struct(DataResidencyMigrationRequestSuccessfulDetails)
+
+class DataResidencyMigrationRequestSuccessfulType(bb.Struct):
+
+    __slots__ = [
+        '_description_value',
+    ]
+
+    _has_required_fields = True
+
+    def __init__(self,
+                 description=None):
+        self._description_value = bb.NOT_SET
+        if description is not None:
+            self.description = description
+
+    # Instance attribute type: str (validator is set below)
+    description = bb.Attribute("description")
+
+    def _process_custom_annotations(self, annotation_type, field_path, processor):
+        super(DataResidencyMigrationRequestSuccessfulType, self)._process_custom_annotations(annotation_type, field_path, processor)
+
+DataResidencyMigrationRequestSuccessfulType_validator = bv.Struct(DataResidencyMigrationRequestSuccessfulType)
+
+class DataResidencyMigrationRequestUnsuccessfulDetails(bb.Struct):
+    """
+    Request for data residency migration for team data has failed.
+    """
+
+    __slots__ = [
+    ]
+
+    _has_required_fields = False
+
+    def __init__(self):
+        pass
+
+    def _process_custom_annotations(self, annotation_type, field_path, processor):
+        super(DataResidencyMigrationRequestUnsuccessfulDetails, self)._process_custom_annotations(annotation_type, field_path, processor)
+
+DataResidencyMigrationRequestUnsuccessfulDetails_validator = bv.Struct(DataResidencyMigrationRequestUnsuccessfulDetails)
+
+class DataResidencyMigrationRequestUnsuccessfulType(bb.Struct):
+
+    __slots__ = [
+        '_description_value',
+    ]
+
+    _has_required_fields = True
+
+    def __init__(self,
+                 description=None):
+        self._description_value = bb.NOT_SET
+        if description is not None:
+            self.description = description
+
+    # Instance attribute type: str (validator is set below)
+    description = bb.Attribute("description")
+
+    def _process_custom_annotations(self, annotation_type, field_path, processor):
+        super(DataResidencyMigrationRequestUnsuccessfulType, self)._process_custom_annotations(annotation_type, field_path, processor)
+
+DataResidencyMigrationRequestUnsuccessfulType_validator = bv.Struct(DataResidencyMigrationRequestUnsuccessfulType)
+
+class DefaultLinkExpirationDaysPolicy(bb.Union):
+    """
+    Policy for the default number of days until an externally shared link
+    expires
+
+    This class acts as a tagged union. Only one of the ``is_*`` methods will
+    return true. To get the associated value of a tag (if one exists), use the
+    corresponding ``get_*`` method.
+    """
+
+    _catch_all = 'other'
+    # Attribute is overwritten below the class definition
+    day_1 = None
+    # Attribute is overwritten below the class definition
+    day_180 = None
+    # Attribute is overwritten below the class definition
+    day_3 = None
+    # Attribute is overwritten below the class definition
+    day_30 = None
+    # Attribute is overwritten below the class definition
+    day_7 = None
+    # Attribute is overwritten below the class definition
+    day_90 = None
+    # Attribute is overwritten below the class definition
+    none = None
+    # Attribute is overwritten below the class definition
+    year_1 = None
+    # Attribute is overwritten below the class definition
+    other = None
+
+    def is_day_1(self):
+        """
+        Check if the union tag is ``day_1``.
+
+        :rtype: bool
+        """
+        return self._tag == 'day_1'
+
+    def is_day_180(self):
+        """
+        Check if the union tag is ``day_180``.
+
+        :rtype: bool
+        """
+        return self._tag == 'day_180'
+
+    def is_day_3(self):
+        """
+        Check if the union tag is ``day_3``.
+
+        :rtype: bool
+        """
+        return self._tag == 'day_3'
+
+    def is_day_30(self):
+        """
+        Check if the union tag is ``day_30``.
+
+        :rtype: bool
+        """
+        return self._tag == 'day_30'
+
+    def is_day_7(self):
+        """
+        Check if the union tag is ``day_7``.
+
+        :rtype: bool
+        """
+        return self._tag == 'day_7'
+
+    def is_day_90(self):
+        """
+        Check if the union tag is ``day_90``.
+
+        :rtype: bool
+        """
+        return self._tag == 'day_90'
+
+    def is_none(self):
+        """
+        Check if the union tag is ``none``.
+
+        :rtype: bool
+        """
+        return self._tag == 'none'
+
+    def is_year_1(self):
+        """
+        Check if the union tag is ``year_1``.
+
+        :rtype: bool
+        """
+        return self._tag == 'year_1'
+
+    def is_other(self):
+        """
+        Check if the union tag is ``other``.
+
+        :rtype: bool
+        """
+        return self._tag == 'other'
+
+    def _process_custom_annotations(self, annotation_type, field_path, processor):
+        super(DefaultLinkExpirationDaysPolicy, self)._process_custom_annotations(annotation_type, field_path, processor)
+
+DefaultLinkExpirationDaysPolicy_validator = bv.Union(DefaultLinkExpirationDaysPolicy)
+
 class DeleteTeamInviteLinkDetails(bb.Struct):
     """
     Deleted team invite link.
@@ -3998,11 +5180,11 @@ class DeviceSessionLogInfo(bb.Struct):
     Device's session logged information.
 
     :ivar team_log.DeviceSessionLogInfo.ip_address: The IP address of the last
-        activity from this session. Might be missing due to historical data gap.
+        activity from this session.
     :ivar team_log.DeviceSessionLogInfo.created: The time this session was
-        created. Might be missing due to historical data gap.
+        created.
     :ivar team_log.DeviceSessionLogInfo.updated: The time of the last activity
-        from this session. Might be missing due to historical data gap.
+        from this session.
     """
 
     __slots__ = [
@@ -4046,7 +5228,7 @@ class DesktopDeviceSessionLogInfo(DeviceSessionLogInfo):
     Information about linked Dropbox desktop client sessions
 
     :ivar team_log.DesktopDeviceSessionLogInfo.session_info: Desktop session
-        unique id. Might be missing due to historical data gap.
+        unique id.
     :ivar team_log.DesktopDeviceSessionLogInfo.host_name: Name of the hosting
         desktop.
     :ivar team_log.DesktopDeviceSessionLogInfo.client_type: The Dropbox desktop
@@ -4130,8 +5312,7 @@ class SessionLogInfo(bb.Struct):
     """
     Session's logged information.
 
-    :ivar team_log.SessionLogInfo.session_id: Session ID. Might be missing due
-        to historical data gap.
+    :ivar team_log.SessionLogInfo.session_id: Session ID.
     """
 
     __slots__ = [
@@ -4699,7 +5880,7 @@ class DeviceDeleteOnUnlinkFailDetails(bb.Struct):
     Failed to delete all files from unlinked device.
 
     :ivar team_log.DeviceDeleteOnUnlinkFailDetails.session_info: Session unique
-        id. Might be missing due to historical data gap.
+        id.
     :ivar team_log.DeviceDeleteOnUnlinkFailDetails.display_name: The device
         name. Might be missing due to historical data gap.
     :ivar team_log.DeviceDeleteOnUnlinkFailDetails.num_failures: The number of
@@ -4769,7 +5950,7 @@ class DeviceDeleteOnUnlinkSuccessDetails(bb.Struct):
     Deleted all files from unlinked device.
 
     :ivar team_log.DeviceDeleteOnUnlinkSuccessDetails.session_info: Session
-        unique id. Might be missing due to historical data gap.
+        unique id.
     :ivar team_log.DeviceDeleteOnUnlinkSuccessDetails.display_name: The device
         name. Might be missing due to historical data gap.
     """
@@ -5362,6 +6543,50 @@ class DisabledDomainInvitesType(bb.Struct):
 
 DisabledDomainInvitesType_validator = bv.Struct(DisabledDomainInvitesType)
 
+class DispositionActionType(bb.Union):
+    """
+    This class acts as a tagged union. Only one of the ``is_*`` methods will
+    return true. To get the associated value of a tag (if one exists), use the
+    corresponding ``get_*`` method.
+    """
+
+    _catch_all = 'other'
+    # Attribute is overwritten below the class definition
+    automatic_delete = None
+    # Attribute is overwritten below the class definition
+    automatic_permanently_delete = None
+    # Attribute is overwritten below the class definition
+    other = None
+
+    def is_automatic_delete(self):
+        """
+        Check if the union tag is ``automatic_delete``.
+
+        :rtype: bool
+        """
+        return self._tag == 'automatic_delete'
+
+    def is_automatic_permanently_delete(self):
+        """
+        Check if the union tag is ``automatic_permanently_delete``.
+
+        :rtype: bool
+        """
+        return self._tag == 'automatic_permanently_delete'
+
+    def is_other(self):
+        """
+        Check if the union tag is ``other``.
+
+        :rtype: bool
+        """
+        return self._tag == 'other'
+
+    def _process_custom_annotations(self, annotation_type, field_path, processor):
+        super(DispositionActionType, self)._process_custom_annotations(annotation_type, field_path, processor)
+
+DispositionActionType_validator = bv.Union(DispositionActionType)
+
 class DomainInvitesApproveRequestToJoinTeamDetails(bb.Struct):
     """
     Approved user's request to join team.
@@ -5951,6 +7176,120 @@ class DropboxPasswordsNewDeviceEnrolledType(bb.Struct):
 
 DropboxPasswordsNewDeviceEnrolledType_validator = bv.Struct(DropboxPasswordsNewDeviceEnrolledType)
 
+class DropboxPasswordsPolicy(bb.Union):
+    """
+    Policy for deciding whether team users can use Dropbox Passwords
+
+    This class acts as a tagged union. Only one of the ``is_*`` methods will
+    return true. To get the associated value of a tag (if one exists), use the
+    corresponding ``get_*`` method.
+    """
+
+    _catch_all = 'other'
+    # Attribute is overwritten below the class definition
+    default = None
+    # Attribute is overwritten below the class definition
+    disabled = None
+    # Attribute is overwritten below the class definition
+    enabled = None
+    # Attribute is overwritten below the class definition
+    other = None
+
+    def is_default(self):
+        """
+        Check if the union tag is ``default``.
+
+        :rtype: bool
+        """
+        return self._tag == 'default'
+
+    def is_disabled(self):
+        """
+        Check if the union tag is ``disabled``.
+
+        :rtype: bool
+        """
+        return self._tag == 'disabled'
+
+    def is_enabled(self):
+        """
+        Check if the union tag is ``enabled``.
+
+        :rtype: bool
+        """
+        return self._tag == 'enabled'
+
+    def is_other(self):
+        """
+        Check if the union tag is ``other``.
+
+        :rtype: bool
+        """
+        return self._tag == 'other'
+
+    def _process_custom_annotations(self, annotation_type, field_path, processor):
+        super(DropboxPasswordsPolicy, self)._process_custom_annotations(annotation_type, field_path, processor)
+
+DropboxPasswordsPolicy_validator = bv.Union(DropboxPasswordsPolicy)
+
+class DropboxPasswordsPolicyChangedDetails(bb.Struct):
+    """
+    Changed Dropbox Passwords policy for team.
+
+    :ivar team_log.DropboxPasswordsPolicyChangedDetails.new_value: To.
+    :ivar team_log.DropboxPasswordsPolicyChangedDetails.previous_value: From.
+    """
+
+    __slots__ = [
+        '_new_value_value',
+        '_previous_value_value',
+    ]
+
+    _has_required_fields = True
+
+    def __init__(self,
+                 new_value=None,
+                 previous_value=None):
+        self._new_value_value = bb.NOT_SET
+        self._previous_value_value = bb.NOT_SET
+        if new_value is not None:
+            self.new_value = new_value
+        if previous_value is not None:
+            self.previous_value = previous_value
+
+    # Instance attribute type: DropboxPasswordsPolicy (validator is set below)
+    new_value = bb.Attribute("new_value", user_defined=True)
+
+    # Instance attribute type: DropboxPasswordsPolicy (validator is set below)
+    previous_value = bb.Attribute("previous_value", user_defined=True)
+
+    def _process_custom_annotations(self, annotation_type, field_path, processor):
+        super(DropboxPasswordsPolicyChangedDetails, self)._process_custom_annotations(annotation_type, field_path, processor)
+
+DropboxPasswordsPolicyChangedDetails_validator = bv.Struct(DropboxPasswordsPolicyChangedDetails)
+
+class DropboxPasswordsPolicyChangedType(bb.Struct):
+
+    __slots__ = [
+        '_description_value',
+    ]
+
+    _has_required_fields = True
+
+    def __init__(self,
+                 description=None):
+        self._description_value = bb.NOT_SET
+        if description is not None:
+            self.description = description
+
+    # Instance attribute type: str (validator is set below)
+    description = bb.Attribute("description")
+
+    def _process_custom_annotations(self, annotation_type, field_path, processor):
+        super(DropboxPasswordsPolicyChangedType, self)._process_custom_annotations(annotation_type, field_path, processor)
+
+DropboxPasswordsPolicyChangedType_validator = bv.Struct(DropboxPasswordsPolicyChangedType)
+
 class DurationLogInfo(bb.Struct):
     """
     Represents a time duration: unit and amount
@@ -5986,6 +7325,198 @@ class DurationLogInfo(bb.Struct):
         super(DurationLogInfo, self)._process_custom_annotations(annotation_type, field_path, processor)
 
 DurationLogInfo_validator = bv.Struct(DurationLogInfo)
+
+class EmailIngestPolicy(bb.Union):
+    """
+    Policy for deciding whether a team can use Email to Dropbox feature
+
+    This class acts as a tagged union. Only one of the ``is_*`` methods will
+    return true. To get the associated value of a tag (if one exists), use the
+    corresponding ``get_*`` method.
+    """
+
+    _catch_all = 'other'
+    # Attribute is overwritten below the class definition
+    disabled = None
+    # Attribute is overwritten below the class definition
+    enabled = None
+    # Attribute is overwritten below the class definition
+    other = None
+
+    def is_disabled(self):
+        """
+        Check if the union tag is ``disabled``.
+
+        :rtype: bool
+        """
+        return self._tag == 'disabled'
+
+    def is_enabled(self):
+        """
+        Check if the union tag is ``enabled``.
+
+        :rtype: bool
+        """
+        return self._tag == 'enabled'
+
+    def is_other(self):
+        """
+        Check if the union tag is ``other``.
+
+        :rtype: bool
+        """
+        return self._tag == 'other'
+
+    def _process_custom_annotations(self, annotation_type, field_path, processor):
+        super(EmailIngestPolicy, self)._process_custom_annotations(annotation_type, field_path, processor)
+
+EmailIngestPolicy_validator = bv.Union(EmailIngestPolicy)
+
+class EmailIngestPolicyChangedDetails(bb.Struct):
+    """
+    Changed email to Dropbox policy for team.
+
+    :ivar team_log.EmailIngestPolicyChangedDetails.new_value: To.
+    :ivar team_log.EmailIngestPolicyChangedDetails.previous_value: From.
+    """
+
+    __slots__ = [
+        '_new_value_value',
+        '_previous_value_value',
+    ]
+
+    _has_required_fields = True
+
+    def __init__(self,
+                 new_value=None,
+                 previous_value=None):
+        self._new_value_value = bb.NOT_SET
+        self._previous_value_value = bb.NOT_SET
+        if new_value is not None:
+            self.new_value = new_value
+        if previous_value is not None:
+            self.previous_value = previous_value
+
+    # Instance attribute type: EmailIngestPolicy (validator is set below)
+    new_value = bb.Attribute("new_value", user_defined=True)
+
+    # Instance attribute type: EmailIngestPolicy (validator is set below)
+    previous_value = bb.Attribute("previous_value", user_defined=True)
+
+    def _process_custom_annotations(self, annotation_type, field_path, processor):
+        super(EmailIngestPolicyChangedDetails, self)._process_custom_annotations(annotation_type, field_path, processor)
+
+EmailIngestPolicyChangedDetails_validator = bv.Struct(EmailIngestPolicyChangedDetails)
+
+class EmailIngestPolicyChangedType(bb.Struct):
+
+    __slots__ = [
+        '_description_value',
+    ]
+
+    _has_required_fields = True
+
+    def __init__(self,
+                 description=None):
+        self._description_value = bb.NOT_SET
+        if description is not None:
+            self.description = description
+
+    # Instance attribute type: str (validator is set below)
+    description = bb.Attribute("description")
+
+    def _process_custom_annotations(self, annotation_type, field_path, processor):
+        super(EmailIngestPolicyChangedType, self)._process_custom_annotations(annotation_type, field_path, processor)
+
+EmailIngestPolicyChangedType_validator = bv.Struct(EmailIngestPolicyChangedType)
+
+class EmailIngestReceiveFileDetails(bb.Struct):
+    """
+    Received files via Email to Dropbox.
+
+    :ivar team_log.EmailIngestReceiveFileDetails.inbox_name: Inbox name.
+    :ivar team_log.EmailIngestReceiveFileDetails.attachment_names: Submitted
+        file names.
+    :ivar team_log.EmailIngestReceiveFileDetails.subject: Subject of the email.
+    :ivar team_log.EmailIngestReceiveFileDetails.from_name: The name as provided
+        by the submitter.
+    :ivar team_log.EmailIngestReceiveFileDetails.from_email: The email as
+        provided by the submitter.
+    """
+
+    __slots__ = [
+        '_inbox_name_value',
+        '_attachment_names_value',
+        '_subject_value',
+        '_from_name_value',
+        '_from_email_value',
+    ]
+
+    _has_required_fields = True
+
+    def __init__(self,
+                 inbox_name=None,
+                 attachment_names=None,
+                 subject=None,
+                 from_name=None,
+                 from_email=None):
+        self._inbox_name_value = bb.NOT_SET
+        self._attachment_names_value = bb.NOT_SET
+        self._subject_value = bb.NOT_SET
+        self._from_name_value = bb.NOT_SET
+        self._from_email_value = bb.NOT_SET
+        if inbox_name is not None:
+            self.inbox_name = inbox_name
+        if attachment_names is not None:
+            self.attachment_names = attachment_names
+        if subject is not None:
+            self.subject = subject
+        if from_name is not None:
+            self.from_name = from_name
+        if from_email is not None:
+            self.from_email = from_email
+
+    # Instance attribute type: str (validator is set below)
+    inbox_name = bb.Attribute("inbox_name")
+
+    # Instance attribute type: list of [str] (validator is set below)
+    attachment_names = bb.Attribute("attachment_names")
+
+    # Instance attribute type: str (validator is set below)
+    subject = bb.Attribute("subject", nullable=True)
+
+    # Instance attribute type: str (validator is set below)
+    from_name = bb.Attribute("from_name", nullable=True)
+
+    # Instance attribute type: str (validator is set below)
+    from_email = bb.Attribute("from_email", nullable=True)
+
+    def _process_custom_annotations(self, annotation_type, field_path, processor):
+        super(EmailIngestReceiveFileDetails, self)._process_custom_annotations(annotation_type, field_path, processor)
+
+EmailIngestReceiveFileDetails_validator = bv.Struct(EmailIngestReceiveFileDetails)
+
+class EmailIngestReceiveFileType(bb.Struct):
+
+    __slots__ = [
+        '_description_value',
+    ]
+
+    _has_required_fields = True
+
+    def __init__(self,
+                 description=None):
+        self._description_value = bb.NOT_SET
+        if description is not None:
+            self.description = description
+
+    # Instance attribute type: str (validator is set below)
+    description = bb.Attribute("description")
+
+    def _process_custom_annotations(self, annotation_type, field_path, processor):
+        super(EmailIngestReceiveFileType, self)._process_custom_annotations(annotation_type, field_path, processor)
+
+EmailIngestReceiveFileType_validator = bv.Struct(EmailIngestReceiveFileType)
 
 class EmmAddExceptionDetails(bb.Struct):
     """
@@ -6427,6 +7958,53 @@ class EndedEnterpriseAdminSessionType(bb.Struct):
 
 EndedEnterpriseAdminSessionType_validator = bv.Struct(EndedEnterpriseAdminSessionType)
 
+class EnforceLinkPasswordPolicy(bb.Union):
+    """
+    Policy for deciding whether password must be enforced when an externally
+    shared link is updated
+
+    This class acts as a tagged union. Only one of the ``is_*`` methods will
+    return true. To get the associated value of a tag (if one exists), use the
+    corresponding ``get_*`` method.
+    """
+
+    _catch_all = 'other'
+    # Attribute is overwritten below the class definition
+    optional = None
+    # Attribute is overwritten below the class definition
+    required = None
+    # Attribute is overwritten below the class definition
+    other = None
+
+    def is_optional(self):
+        """
+        Check if the union tag is ``optional``.
+
+        :rtype: bool
+        """
+        return self._tag == 'optional'
+
+    def is_required(self):
+        """
+        Check if the union tag is ``required``.
+
+        :rtype: bool
+        """
+        return self._tag == 'required'
+
+    def is_other(self):
+        """
+        Check if the union tag is ``other``.
+
+        :rtype: bool
+        """
+        return self._tag == 'other'
+
+    def _process_custom_annotations(self, annotation_type, field_path, processor):
+        super(EnforceLinkPasswordPolicy, self)._process_custom_annotations(annotation_type, field_path, processor)
+
+EnforceLinkPasswordPolicy_validator = bv.Union(EnforceLinkPasswordPolicy)
+
 class EnterpriseSettingsLockingDetails(bb.Struct):
     """
     Changed who can update a setting.
@@ -6817,6 +8395,17 @@ class EventDetails(bb.Union):
     other = None
 
     @classmethod
+    def admin_alerting_alert_state_changed_details(cls, val):
+        """
+        Create an instance of this class set to the
+        ``admin_alerting_alert_state_changed_details`` tag with value ``val``.
+
+        :param AdminAlertingAlertStateChangedDetails val:
+        :rtype: EventDetails
+        """
+        return cls('admin_alerting_alert_state_changed_details', val)
+
+    @classmethod
     def admin_alerting_changed_alert_config_details(cls, val):
         """
         Create an instance of this class set to the
@@ -6837,6 +8426,17 @@ class EventDetails(bb.Union):
         :rtype: EventDetails
         """
         return cls('admin_alerting_triggered_alert_details', val)
+
+    @classmethod
+    def app_blocked_by_permissions_details(cls, val):
+        """
+        Create an instance of this class set to the
+        ``app_blocked_by_permissions_details`` tag with value ``val``.
+
+        :param AppBlockedByPermissionsDetails val:
+        :rtype: EventDetails
+        """
+        return cls('app_blocked_by_permissions_details', val)
 
     @classmethod
     def app_link_team_details(cls, val):
@@ -7013,6 +8613,17 @@ class EventDetails(bb.Union):
         :rtype: EventDetails
         """
         return cls('governance_policy_add_folder_failed_details', val)
+
+    @classmethod
+    def governance_policy_content_disposed_details(cls, val):
+        """
+        Create an instance of this class set to the
+        ``governance_policy_content_disposed_details`` tag with value ``val``.
+
+        :param GovernancePolicyContentDisposedDetails val:
+        :rtype: EventDetails
+        """
+        return cls('governance_policy_content_disposed_details', val)
 
     @classmethod
     def governance_policy_create_details(cls, val):
@@ -7391,6 +9002,29 @@ class EventDetails(bb.Union):
         return cls('emm_refresh_auth_token_details', val)
 
     @classmethod
+    def external_drive_backup_eligibility_status_checked_details(cls, val):
+        """
+        Create an instance of this class set to the
+        ``external_drive_backup_eligibility_status_checked_details`` tag with
+        value ``val``.
+
+        :param ExternalDriveBackupEligibilityStatusCheckedDetails val:
+        :rtype: EventDetails
+        """
+        return cls('external_drive_backup_eligibility_status_checked_details', val)
+
+    @classmethod
+    def external_drive_backup_status_changed_details(cls, val):
+        """
+        Create an instance of this class set to the
+        ``external_drive_backup_status_changed_details`` tag with value ``val``.
+
+        :param ExternalDriveBackupStatusChangedDetails val:
+        :rtype: EventDetails
+        """
+        return cls('external_drive_backup_status_changed_details', val)
+
+    @classmethod
     def account_capture_change_availability_details(cls, val):
         """
         Create an instance of this class set to the
@@ -7560,6 +9194,17 @@ class EventDetails(bb.Union):
         :rtype: EventDetails
         """
         return cls('enabled_domain_invites_details', val)
+
+    @classmethod
+    def apply_naming_convention_details(cls, val):
+        """
+        Create an instance of this class set to the
+        ``apply_naming_convention_details`` tag with value ``val``.
+
+        :param ApplyNamingConventionDetails val:
+        :rtype: EventDetails
+        """
+        return cls('apply_naming_convention_details', val)
 
     @classmethod
     def create_folder_details(cls, val):
@@ -7771,6 +9416,50 @@ class EventDetails(bb.Union):
         return cls('folder_overview_item_unpinned_details', val)
 
     @classmethod
+    def object_label_added_details(cls, val):
+        """
+        Create an instance of this class set to the
+        ``object_label_added_details`` tag with value ``val``.
+
+        :param ObjectLabelAddedDetails val:
+        :rtype: EventDetails
+        """
+        return cls('object_label_added_details', val)
+
+    @classmethod
+    def object_label_removed_details(cls, val):
+        """
+        Create an instance of this class set to the
+        ``object_label_removed_details`` tag with value ``val``.
+
+        :param ObjectLabelRemovedDetails val:
+        :rtype: EventDetails
+        """
+        return cls('object_label_removed_details', val)
+
+    @classmethod
+    def object_label_updated_value_details(cls, val):
+        """
+        Create an instance of this class set to the
+        ``object_label_updated_value_details`` tag with value ``val``.
+
+        :param ObjectLabelUpdatedValueDetails val:
+        :rtype: EventDetails
+        """
+        return cls('object_label_updated_value_details', val)
+
+    @classmethod
+    def organize_folder_with_tidy_details(cls, val):
+        """
+        Create an instance of this class set to the
+        ``organize_folder_with_tidy_details`` tag with value ``val``.
+
+        :param OrganizeFolderWithTidyDetails val:
+        :rtype: EventDetails
+        """
+        return cls('organize_folder_with_tidy_details', val)
+
+    @classmethod
     def rewind_folder_details(cls, val):
         """
         Create an instance of this class set to the ``rewind_folder_details``
@@ -7780,6 +9469,61 @@ class EventDetails(bb.Union):
         :rtype: EventDetails
         """
         return cls('rewind_folder_details', val)
+
+    @classmethod
+    def undo_naming_convention_details(cls, val):
+        """
+        Create an instance of this class set to the
+        ``undo_naming_convention_details`` tag with value ``val``.
+
+        :param UndoNamingConventionDetails val:
+        :rtype: EventDetails
+        """
+        return cls('undo_naming_convention_details', val)
+
+    @classmethod
+    def undo_organize_folder_with_tidy_details(cls, val):
+        """
+        Create an instance of this class set to the
+        ``undo_organize_folder_with_tidy_details`` tag with value ``val``.
+
+        :param UndoOrganizeFolderWithTidyDetails val:
+        :rtype: EventDetails
+        """
+        return cls('undo_organize_folder_with_tidy_details', val)
+
+    @classmethod
+    def user_tags_added_details(cls, val):
+        """
+        Create an instance of this class set to the ``user_tags_added_details``
+        tag with value ``val``.
+
+        :param UserTagsAddedDetails val:
+        :rtype: EventDetails
+        """
+        return cls('user_tags_added_details', val)
+
+    @classmethod
+    def user_tags_removed_details(cls, val):
+        """
+        Create an instance of this class set to the
+        ``user_tags_removed_details`` tag with value ``val``.
+
+        :param UserTagsRemovedDetails val:
+        :rtype: EventDetails
+        """
+        return cls('user_tags_removed_details', val)
+
+    @classmethod
+    def email_ingest_receive_file_details(cls, val):
+        """
+        Create an instance of this class set to the
+        ``email_ingest_receive_file_details`` tag with value ``val``.
+
+        :param EmailIngestReceiveFileDetails val:
+        :rtype: EventDetails
+        """
+        return cls('email_ingest_receive_file_details', val)
 
     @classmethod
     def file_request_change_details(cls, val):
@@ -10559,6 +12303,17 @@ class EventDetails(bb.Union):
         return cls('account_capture_change_policy_details', val)
 
     @classmethod
+    def admin_email_reminders_changed_details(cls, val):
+        """
+        Create an instance of this class set to the
+        ``admin_email_reminders_changed_details`` tag with value ``val``.
+
+        :param AdminEmailRemindersChangedDetails val:
+        :rtype: EventDetails
+        """
+        return cls('admin_email_reminders_changed_details', val)
+
+    @classmethod
     def allow_download_disabled_details(cls, val):
         """
         Create an instance of this class set to the
@@ -10581,6 +12336,17 @@ class EventDetails(bb.Union):
         return cls('allow_download_enabled_details', val)
 
     @classmethod
+    def app_permissions_changed_details(cls, val):
+        """
+        Create an instance of this class set to the
+        ``app_permissions_changed_details`` tag with value ``val``.
+
+        :param AppPermissionsChangedDetails val:
+        :rtype: EventDetails
+        """
+        return cls('app_permissions_changed_details', val)
+
+    @classmethod
     def camera_uploads_policy_changed_details(cls, val):
         """
         Create an instance of this class set to the
@@ -10590,6 +12356,17 @@ class EventDetails(bb.Union):
         :rtype: EventDetails
         """
         return cls('camera_uploads_policy_changed_details', val)
+
+    @classmethod
+    def capture_transcript_policy_changed_details(cls, val):
+        """
+        Create an instance of this class set to the
+        ``capture_transcript_policy_changed_details`` tag with value ``val``.
+
+        :param CaptureTranscriptPolicyChangedDetails val:
+        :rtype: EventDetails
+        """
+        return cls('capture_transcript_policy_changed_details', val)
 
     @classmethod
     def classification_change_policy_details(cls, val):
@@ -10743,6 +12520,28 @@ class EventDetails(bb.Union):
         return cls('directory_restrictions_remove_members_details', val)
 
     @classmethod
+    def dropbox_passwords_policy_changed_details(cls, val):
+        """
+        Create an instance of this class set to the
+        ``dropbox_passwords_policy_changed_details`` tag with value ``val``.
+
+        :param DropboxPasswordsPolicyChangedDetails val:
+        :rtype: EventDetails
+        """
+        return cls('dropbox_passwords_policy_changed_details', val)
+
+    @classmethod
+    def email_ingest_policy_changed_details(cls, val):
+        """
+        Create an instance of this class set to the
+        ``email_ingest_policy_changed_details`` tag with value ``val``.
+
+        :param EmailIngestPolicyChangedDetails val:
+        :rtype: EventDetails
+        """
+        return cls('email_ingest_policy_changed_details', val)
+
+    @classmethod
     def emm_add_exception_details(cls, val):
         """
         Create an instance of this class set to the
@@ -10788,6 +12587,17 @@ class EventDetails(bb.Union):
         return cls('extended_version_history_change_policy_details', val)
 
     @classmethod
+    def external_drive_backup_policy_changed_details(cls, val):
+        """
+        Create an instance of this class set to the
+        ``external_drive_backup_policy_changed_details`` tag with value ``val``.
+
+        :param ExternalDriveBackupPolicyChangedDetails val:
+        :rtype: EventDetails
+        """
+        return cls('external_drive_backup_policy_changed_details', val)
+
+    @classmethod
     def file_comments_change_policy_details(cls, val):
         """
         Create an instance of this class set to the
@@ -10808,6 +12618,18 @@ class EventDetails(bb.Union):
         :rtype: EventDetails
         """
         return cls('file_locking_policy_changed_details', val)
+
+    @classmethod
+    def file_provider_migration_policy_changed_details(cls, val):
+        """
+        Create an instance of this class set to the
+        ``file_provider_migration_policy_changed_details`` tag with value
+        ``val``.
+
+        :param FileProviderMigrationPolicyChangedDetails val:
+        :rtype: EventDetails
+        """
+        return cls('file_provider_migration_policy_changed_details', val)
 
     @classmethod
     def file_requests_change_policy_details(cls, val):
@@ -10886,6 +12708,18 @@ class EventDetails(bb.Union):
         :rtype: EventDetails
         """
         return cls('integration_policy_changed_details', val)
+
+    @classmethod
+    def invite_acceptance_email_policy_changed_details(cls, val):
+        """
+        Create an instance of this class set to the
+        ``invite_acceptance_email_policy_changed_details`` tag with value
+        ``val``.
+
+        :param InviteAcceptanceEmailPolicyChangedDetails val:
+        :rtype: EventDetails
+        """
+        return cls('invite_acceptance_email_policy_changed_details', val)
 
     @classmethod
     def member_requests_change_policy_details(cls, val):
@@ -11141,6 +12975,42 @@ class EventDetails(bb.Union):
         :rtype: EventDetails
         """
         return cls('sharing_change_folder_join_policy_details', val)
+
+    @classmethod
+    def sharing_change_link_allow_change_expiration_policy_details(cls, val):
+        """
+        Create an instance of this class set to the
+        ``sharing_change_link_allow_change_expiration_policy_details`` tag with
+        value ``val``.
+
+        :param SharingChangeLinkAllowChangeExpirationPolicyDetails val:
+        :rtype: EventDetails
+        """
+        return cls('sharing_change_link_allow_change_expiration_policy_details', val)
+
+    @classmethod
+    def sharing_change_link_default_expiration_policy_details(cls, val):
+        """
+        Create an instance of this class set to the
+        ``sharing_change_link_default_expiration_policy_details`` tag with value
+        ``val``.
+
+        :param SharingChangeLinkDefaultExpirationPolicyDetails val:
+        :rtype: EventDetails
+        """
+        return cls('sharing_change_link_default_expiration_policy_details', val)
+
+    @classmethod
+    def sharing_change_link_enforce_password_policy_details(cls, val):
+        """
+        Create an instance of this class set to the
+        ``sharing_change_link_enforce_password_policy_details`` tag with value
+        ``val``.
+
+        :param SharingChangeLinkEnforcePasswordPolicyDetails val:
+        :rtype: EventDetails
+        """
+        return cls('sharing_change_link_enforce_password_policy_details', val)
 
     @classmethod
     def sharing_change_link_policy_details(cls, val):
@@ -11399,6 +13269,30 @@ class EventDetails(bb.Union):
         :rtype: EventDetails
         """
         return cls('web_sessions_change_idle_length_policy_details', val)
+
+    @classmethod
+    def data_residency_migration_request_successful_details(cls, val):
+        """
+        Create an instance of this class set to the
+        ``data_residency_migration_request_successful_details`` tag with value
+        ``val``.
+
+        :param DataResidencyMigrationRequestSuccessfulDetails val:
+        :rtype: EventDetails
+        """
+        return cls('data_residency_migration_request_successful_details', val)
+
+    @classmethod
+    def data_residency_migration_request_unsuccessful_details(cls, val):
+        """
+        Create an instance of this class set to the
+        ``data_residency_migration_request_unsuccessful_details`` tag with value
+        ``val``.
+
+        :param DataResidencyMigrationRequestUnsuccessfulDetails val:
+        :rtype: EventDetails
+        """
+        return cls('data_residency_migration_request_unsuccessful_details', val)
 
     @classmethod
     def team_merge_from_details(cls, val):
@@ -11887,6 +13781,14 @@ class EventDetails(bb.Union):
         """
         return cls('missing_details', val)
 
+    def is_admin_alerting_alert_state_changed_details(self):
+        """
+        Check if the union tag is ``admin_alerting_alert_state_changed_details``.
+
+        :rtype: bool
+        """
+        return self._tag == 'admin_alerting_alert_state_changed_details'
+
     def is_admin_alerting_changed_alert_config_details(self):
         """
         Check if the union tag is ``admin_alerting_changed_alert_config_details``.
@@ -11902,6 +13804,14 @@ class EventDetails(bb.Union):
         :rtype: bool
         """
         return self._tag == 'admin_alerting_triggered_alert_details'
+
+    def is_app_blocked_by_permissions_details(self):
+        """
+        Check if the union tag is ``app_blocked_by_permissions_details``.
+
+        :rtype: bool
+        """
+        return self._tag == 'app_blocked_by_permissions_details'
 
     def is_app_link_team_details(self):
         """
@@ -12030,6 +13940,14 @@ class EventDetails(bb.Union):
         :rtype: bool
         """
         return self._tag == 'governance_policy_add_folder_failed_details'
+
+    def is_governance_policy_content_disposed_details(self):
+        """
+        Check if the union tag is ``governance_policy_content_disposed_details``.
+
+        :rtype: bool
+        """
+        return self._tag == 'governance_policy_content_disposed_details'
 
     def is_governance_policy_create_details(self):
         """
@@ -12303,6 +14221,22 @@ class EventDetails(bb.Union):
         """
         return self._tag == 'emm_refresh_auth_token_details'
 
+    def is_external_drive_backup_eligibility_status_checked_details(self):
+        """
+        Check if the union tag is ``external_drive_backup_eligibility_status_checked_details``.
+
+        :rtype: bool
+        """
+        return self._tag == 'external_drive_backup_eligibility_status_checked_details'
+
+    def is_external_drive_backup_status_changed_details(self):
+        """
+        Check if the union tag is ``external_drive_backup_status_changed_details``.
+
+        :rtype: bool
+        """
+        return self._tag == 'external_drive_backup_status_changed_details'
+
     def is_account_capture_change_availability_details(self):
         """
         Check if the union tag is ``account_capture_change_availability_details``.
@@ -12422,6 +14356,14 @@ class EventDetails(bb.Union):
         :rtype: bool
         """
         return self._tag == 'enabled_domain_invites_details'
+
+    def is_apply_naming_convention_details(self):
+        """
+        Check if the union tag is ``apply_naming_convention_details``.
+
+        :rtype: bool
+        """
+        return self._tag == 'apply_naming_convention_details'
 
     def is_create_folder_details(self):
         """
@@ -12575,6 +14517,38 @@ class EventDetails(bb.Union):
         """
         return self._tag == 'folder_overview_item_unpinned_details'
 
+    def is_object_label_added_details(self):
+        """
+        Check if the union tag is ``object_label_added_details``.
+
+        :rtype: bool
+        """
+        return self._tag == 'object_label_added_details'
+
+    def is_object_label_removed_details(self):
+        """
+        Check if the union tag is ``object_label_removed_details``.
+
+        :rtype: bool
+        """
+        return self._tag == 'object_label_removed_details'
+
+    def is_object_label_updated_value_details(self):
+        """
+        Check if the union tag is ``object_label_updated_value_details``.
+
+        :rtype: bool
+        """
+        return self._tag == 'object_label_updated_value_details'
+
+    def is_organize_folder_with_tidy_details(self):
+        """
+        Check if the union tag is ``organize_folder_with_tidy_details``.
+
+        :rtype: bool
+        """
+        return self._tag == 'organize_folder_with_tidy_details'
+
     def is_rewind_folder_details(self):
         """
         Check if the union tag is ``rewind_folder_details``.
@@ -12582,6 +14556,46 @@ class EventDetails(bb.Union):
         :rtype: bool
         """
         return self._tag == 'rewind_folder_details'
+
+    def is_undo_naming_convention_details(self):
+        """
+        Check if the union tag is ``undo_naming_convention_details``.
+
+        :rtype: bool
+        """
+        return self._tag == 'undo_naming_convention_details'
+
+    def is_undo_organize_folder_with_tidy_details(self):
+        """
+        Check if the union tag is ``undo_organize_folder_with_tidy_details``.
+
+        :rtype: bool
+        """
+        return self._tag == 'undo_organize_folder_with_tidy_details'
+
+    def is_user_tags_added_details(self):
+        """
+        Check if the union tag is ``user_tags_added_details``.
+
+        :rtype: bool
+        """
+        return self._tag == 'user_tags_added_details'
+
+    def is_user_tags_removed_details(self):
+        """
+        Check if the union tag is ``user_tags_removed_details``.
+
+        :rtype: bool
+        """
+        return self._tag == 'user_tags_removed_details'
+
+    def is_email_ingest_receive_file_details(self):
+        """
+        Check if the union tag is ``email_ingest_receive_file_details``.
+
+        :rtype: bool
+        """
+        return self._tag == 'email_ingest_receive_file_details'
 
     def is_file_request_change_details(self):
         """
@@ -14591,6 +16605,14 @@ class EventDetails(bb.Union):
         """
         return self._tag == 'account_capture_change_policy_details'
 
+    def is_admin_email_reminders_changed_details(self):
+        """
+        Check if the union tag is ``admin_email_reminders_changed_details``.
+
+        :rtype: bool
+        """
+        return self._tag == 'admin_email_reminders_changed_details'
+
     def is_allow_download_disabled_details(self):
         """
         Check if the union tag is ``allow_download_disabled_details``.
@@ -14607,6 +16629,14 @@ class EventDetails(bb.Union):
         """
         return self._tag == 'allow_download_enabled_details'
 
+    def is_app_permissions_changed_details(self):
+        """
+        Check if the union tag is ``app_permissions_changed_details``.
+
+        :rtype: bool
+        """
+        return self._tag == 'app_permissions_changed_details'
+
     def is_camera_uploads_policy_changed_details(self):
         """
         Check if the union tag is ``camera_uploads_policy_changed_details``.
@@ -14614,6 +16644,14 @@ class EventDetails(bb.Union):
         :rtype: bool
         """
         return self._tag == 'camera_uploads_policy_changed_details'
+
+    def is_capture_transcript_policy_changed_details(self):
+        """
+        Check if the union tag is ``capture_transcript_policy_changed_details``.
+
+        :rtype: bool
+        """
+        return self._tag == 'capture_transcript_policy_changed_details'
 
     def is_classification_change_policy_details(self):
         """
@@ -14719,6 +16757,22 @@ class EventDetails(bb.Union):
         """
         return self._tag == 'directory_restrictions_remove_members_details'
 
+    def is_dropbox_passwords_policy_changed_details(self):
+        """
+        Check if the union tag is ``dropbox_passwords_policy_changed_details``.
+
+        :rtype: bool
+        """
+        return self._tag == 'dropbox_passwords_policy_changed_details'
+
+    def is_email_ingest_policy_changed_details(self):
+        """
+        Check if the union tag is ``email_ingest_policy_changed_details``.
+
+        :rtype: bool
+        """
+        return self._tag == 'email_ingest_policy_changed_details'
+
     def is_emm_add_exception_details(self):
         """
         Check if the union tag is ``emm_add_exception_details``.
@@ -14751,6 +16805,14 @@ class EventDetails(bb.Union):
         """
         return self._tag == 'extended_version_history_change_policy_details'
 
+    def is_external_drive_backup_policy_changed_details(self):
+        """
+        Check if the union tag is ``external_drive_backup_policy_changed_details``.
+
+        :rtype: bool
+        """
+        return self._tag == 'external_drive_backup_policy_changed_details'
+
     def is_file_comments_change_policy_details(self):
         """
         Check if the union tag is ``file_comments_change_policy_details``.
@@ -14766,6 +16828,14 @@ class EventDetails(bb.Union):
         :rtype: bool
         """
         return self._tag == 'file_locking_policy_changed_details'
+
+    def is_file_provider_migration_policy_changed_details(self):
+        """
+        Check if the union tag is ``file_provider_migration_policy_changed_details``.
+
+        :rtype: bool
+        """
+        return self._tag == 'file_provider_migration_policy_changed_details'
 
     def is_file_requests_change_policy_details(self):
         """
@@ -14822,6 +16892,14 @@ class EventDetails(bb.Union):
         :rtype: bool
         """
         return self._tag == 'integration_policy_changed_details'
+
+    def is_invite_acceptance_email_policy_changed_details(self):
+        """
+        Check if the union tag is ``invite_acceptance_email_policy_changed_details``.
+
+        :rtype: bool
+        """
+        return self._tag == 'invite_acceptance_email_policy_changed_details'
 
     def is_member_requests_change_policy_details(self):
         """
@@ -15007,6 +17085,30 @@ class EventDetails(bb.Union):
         """
         return self._tag == 'sharing_change_folder_join_policy_details'
 
+    def is_sharing_change_link_allow_change_expiration_policy_details(self):
+        """
+        Check if the union tag is ``sharing_change_link_allow_change_expiration_policy_details``.
+
+        :rtype: bool
+        """
+        return self._tag == 'sharing_change_link_allow_change_expiration_policy_details'
+
+    def is_sharing_change_link_default_expiration_policy_details(self):
+        """
+        Check if the union tag is ``sharing_change_link_default_expiration_policy_details``.
+
+        :rtype: bool
+        """
+        return self._tag == 'sharing_change_link_default_expiration_policy_details'
+
+    def is_sharing_change_link_enforce_password_policy_details(self):
+        """
+        Check if the union tag is ``sharing_change_link_enforce_password_policy_details``.
+
+        :rtype: bool
+        """
+        return self._tag == 'sharing_change_link_enforce_password_policy_details'
+
     def is_sharing_change_link_policy_details(self):
         """
         Check if the union tag is ``sharing_change_link_policy_details``.
@@ -15190,6 +17292,22 @@ class EventDetails(bb.Union):
         :rtype: bool
         """
         return self._tag == 'web_sessions_change_idle_length_policy_details'
+
+    def is_data_residency_migration_request_successful_details(self):
+        """
+        Check if the union tag is ``data_residency_migration_request_successful_details``.
+
+        :rtype: bool
+        """
+        return self._tag == 'data_residency_migration_request_successful_details'
+
+    def is_data_residency_migration_request_unsuccessful_details(self):
+        """
+        Check if the union tag is ``data_residency_migration_request_unsuccessful_details``.
+
+        :rtype: bool
+        """
+        return self._tag == 'data_residency_migration_request_unsuccessful_details'
 
     def is_team_merge_from_details(self):
         """
@@ -15543,6 +17661,16 @@ class EventDetails(bb.Union):
         """
         return self._tag == 'other'
 
+    def get_admin_alerting_alert_state_changed_details(self):
+        """
+        Only call this if :meth:`is_admin_alerting_alert_state_changed_details` is true.
+
+        :rtype: AdminAlertingAlertStateChangedDetails
+        """
+        if not self.is_admin_alerting_alert_state_changed_details():
+            raise AttributeError("tag 'admin_alerting_alert_state_changed_details' not set")
+        return self._value
+
     def get_admin_alerting_changed_alert_config_details(self):
         """
         Only call this if :meth:`is_admin_alerting_changed_alert_config_details` is true.
@@ -15561,6 +17689,16 @@ class EventDetails(bb.Union):
         """
         if not self.is_admin_alerting_triggered_alert_details():
             raise AttributeError("tag 'admin_alerting_triggered_alert_details' not set")
+        return self._value
+
+    def get_app_blocked_by_permissions_details(self):
+        """
+        Only call this if :meth:`is_app_blocked_by_permissions_details` is true.
+
+        :rtype: AppBlockedByPermissionsDetails
+        """
+        if not self.is_app_blocked_by_permissions_details():
+            raise AttributeError("tag 'app_blocked_by_permissions_details' not set")
         return self._value
 
     def get_app_link_team_details(self):
@@ -15721,6 +17859,16 @@ class EventDetails(bb.Union):
         """
         if not self.is_governance_policy_add_folder_failed_details():
             raise AttributeError("tag 'governance_policy_add_folder_failed_details' not set")
+        return self._value
+
+    def get_governance_policy_content_disposed_details(self):
+        """
+        Only call this if :meth:`is_governance_policy_content_disposed_details` is true.
+
+        :rtype: GovernancePolicyContentDisposedDetails
+        """
+        if not self.is_governance_policy_content_disposed_details():
+            raise AttributeError("tag 'governance_policy_content_disposed_details' not set")
         return self._value
 
     def get_governance_policy_create_details(self):
@@ -16063,6 +18211,26 @@ class EventDetails(bb.Union):
             raise AttributeError("tag 'emm_refresh_auth_token_details' not set")
         return self._value
 
+    def get_external_drive_backup_eligibility_status_checked_details(self):
+        """
+        Only call this if :meth:`is_external_drive_backup_eligibility_status_checked_details` is true.
+
+        :rtype: ExternalDriveBackupEligibilityStatusCheckedDetails
+        """
+        if not self.is_external_drive_backup_eligibility_status_checked_details():
+            raise AttributeError("tag 'external_drive_backup_eligibility_status_checked_details' not set")
+        return self._value
+
+    def get_external_drive_backup_status_changed_details(self):
+        """
+        Only call this if :meth:`is_external_drive_backup_status_changed_details` is true.
+
+        :rtype: ExternalDriveBackupStatusChangedDetails
+        """
+        if not self.is_external_drive_backup_status_changed_details():
+            raise AttributeError("tag 'external_drive_backup_status_changed_details' not set")
+        return self._value
+
     def get_account_capture_change_availability_details(self):
         """
         Only call this if :meth:`is_account_capture_change_availability_details` is true.
@@ -16211,6 +18379,16 @@ class EventDetails(bb.Union):
         """
         if not self.is_enabled_domain_invites_details():
             raise AttributeError("tag 'enabled_domain_invites_details' not set")
+        return self._value
+
+    def get_apply_naming_convention_details(self):
+        """
+        Only call this if :meth:`is_apply_naming_convention_details` is true.
+
+        :rtype: ApplyNamingConventionDetails
+        """
+        if not self.is_apply_naming_convention_details():
+            raise AttributeError("tag 'apply_naming_convention_details' not set")
         return self._value
 
     def get_create_folder_details(self):
@@ -16403,6 +18581,46 @@ class EventDetails(bb.Union):
             raise AttributeError("tag 'folder_overview_item_unpinned_details' not set")
         return self._value
 
+    def get_object_label_added_details(self):
+        """
+        Only call this if :meth:`is_object_label_added_details` is true.
+
+        :rtype: ObjectLabelAddedDetails
+        """
+        if not self.is_object_label_added_details():
+            raise AttributeError("tag 'object_label_added_details' not set")
+        return self._value
+
+    def get_object_label_removed_details(self):
+        """
+        Only call this if :meth:`is_object_label_removed_details` is true.
+
+        :rtype: ObjectLabelRemovedDetails
+        """
+        if not self.is_object_label_removed_details():
+            raise AttributeError("tag 'object_label_removed_details' not set")
+        return self._value
+
+    def get_object_label_updated_value_details(self):
+        """
+        Only call this if :meth:`is_object_label_updated_value_details` is true.
+
+        :rtype: ObjectLabelUpdatedValueDetails
+        """
+        if not self.is_object_label_updated_value_details():
+            raise AttributeError("tag 'object_label_updated_value_details' not set")
+        return self._value
+
+    def get_organize_folder_with_tidy_details(self):
+        """
+        Only call this if :meth:`is_organize_folder_with_tidy_details` is true.
+
+        :rtype: OrganizeFolderWithTidyDetails
+        """
+        if not self.is_organize_folder_with_tidy_details():
+            raise AttributeError("tag 'organize_folder_with_tidy_details' not set")
+        return self._value
+
     def get_rewind_folder_details(self):
         """
         Only call this if :meth:`is_rewind_folder_details` is true.
@@ -16411,6 +18629,56 @@ class EventDetails(bb.Union):
         """
         if not self.is_rewind_folder_details():
             raise AttributeError("tag 'rewind_folder_details' not set")
+        return self._value
+
+    def get_undo_naming_convention_details(self):
+        """
+        Only call this if :meth:`is_undo_naming_convention_details` is true.
+
+        :rtype: UndoNamingConventionDetails
+        """
+        if not self.is_undo_naming_convention_details():
+            raise AttributeError("tag 'undo_naming_convention_details' not set")
+        return self._value
+
+    def get_undo_organize_folder_with_tidy_details(self):
+        """
+        Only call this if :meth:`is_undo_organize_folder_with_tidy_details` is true.
+
+        :rtype: UndoOrganizeFolderWithTidyDetails
+        """
+        if not self.is_undo_organize_folder_with_tidy_details():
+            raise AttributeError("tag 'undo_organize_folder_with_tidy_details' not set")
+        return self._value
+
+    def get_user_tags_added_details(self):
+        """
+        Only call this if :meth:`is_user_tags_added_details` is true.
+
+        :rtype: UserTagsAddedDetails
+        """
+        if not self.is_user_tags_added_details():
+            raise AttributeError("tag 'user_tags_added_details' not set")
+        return self._value
+
+    def get_user_tags_removed_details(self):
+        """
+        Only call this if :meth:`is_user_tags_removed_details` is true.
+
+        :rtype: UserTagsRemovedDetails
+        """
+        if not self.is_user_tags_removed_details():
+            raise AttributeError("tag 'user_tags_removed_details' not set")
+        return self._value
+
+    def get_email_ingest_receive_file_details(self):
+        """
+        Only call this if :meth:`is_email_ingest_receive_file_details` is true.
+
+        :rtype: EmailIngestReceiveFileDetails
+        """
+        if not self.is_email_ingest_receive_file_details():
+            raise AttributeError("tag 'email_ingest_receive_file_details' not set")
         return self._value
 
     def get_file_request_change_details(self):
@@ -18923,6 +21191,16 @@ class EventDetails(bb.Union):
             raise AttributeError("tag 'account_capture_change_policy_details' not set")
         return self._value
 
+    def get_admin_email_reminders_changed_details(self):
+        """
+        Only call this if :meth:`is_admin_email_reminders_changed_details` is true.
+
+        :rtype: AdminEmailRemindersChangedDetails
+        """
+        if not self.is_admin_email_reminders_changed_details():
+            raise AttributeError("tag 'admin_email_reminders_changed_details' not set")
+        return self._value
+
     def get_allow_download_disabled_details(self):
         """
         Only call this if :meth:`is_allow_download_disabled_details` is true.
@@ -18943,6 +21221,16 @@ class EventDetails(bb.Union):
             raise AttributeError("tag 'allow_download_enabled_details' not set")
         return self._value
 
+    def get_app_permissions_changed_details(self):
+        """
+        Only call this if :meth:`is_app_permissions_changed_details` is true.
+
+        :rtype: AppPermissionsChangedDetails
+        """
+        if not self.is_app_permissions_changed_details():
+            raise AttributeError("tag 'app_permissions_changed_details' not set")
+        return self._value
+
     def get_camera_uploads_policy_changed_details(self):
         """
         Only call this if :meth:`is_camera_uploads_policy_changed_details` is true.
@@ -18951,6 +21239,16 @@ class EventDetails(bb.Union):
         """
         if not self.is_camera_uploads_policy_changed_details():
             raise AttributeError("tag 'camera_uploads_policy_changed_details' not set")
+        return self._value
+
+    def get_capture_transcript_policy_changed_details(self):
+        """
+        Only call this if :meth:`is_capture_transcript_policy_changed_details` is true.
+
+        :rtype: CaptureTranscriptPolicyChangedDetails
+        """
+        if not self.is_capture_transcript_policy_changed_details():
+            raise AttributeError("tag 'capture_transcript_policy_changed_details' not set")
         return self._value
 
     def get_classification_change_policy_details(self):
@@ -19083,6 +21381,26 @@ class EventDetails(bb.Union):
             raise AttributeError("tag 'directory_restrictions_remove_members_details' not set")
         return self._value
 
+    def get_dropbox_passwords_policy_changed_details(self):
+        """
+        Only call this if :meth:`is_dropbox_passwords_policy_changed_details` is true.
+
+        :rtype: DropboxPasswordsPolicyChangedDetails
+        """
+        if not self.is_dropbox_passwords_policy_changed_details():
+            raise AttributeError("tag 'dropbox_passwords_policy_changed_details' not set")
+        return self._value
+
+    def get_email_ingest_policy_changed_details(self):
+        """
+        Only call this if :meth:`is_email_ingest_policy_changed_details` is true.
+
+        :rtype: EmailIngestPolicyChangedDetails
+        """
+        if not self.is_email_ingest_policy_changed_details():
+            raise AttributeError("tag 'email_ingest_policy_changed_details' not set")
+        return self._value
+
     def get_emm_add_exception_details(self):
         """
         Only call this if :meth:`is_emm_add_exception_details` is true.
@@ -19123,6 +21441,16 @@ class EventDetails(bb.Union):
             raise AttributeError("tag 'extended_version_history_change_policy_details' not set")
         return self._value
 
+    def get_external_drive_backup_policy_changed_details(self):
+        """
+        Only call this if :meth:`is_external_drive_backup_policy_changed_details` is true.
+
+        :rtype: ExternalDriveBackupPolicyChangedDetails
+        """
+        if not self.is_external_drive_backup_policy_changed_details():
+            raise AttributeError("tag 'external_drive_backup_policy_changed_details' not set")
+        return self._value
+
     def get_file_comments_change_policy_details(self):
         """
         Only call this if :meth:`is_file_comments_change_policy_details` is true.
@@ -19141,6 +21469,16 @@ class EventDetails(bb.Union):
         """
         if not self.is_file_locking_policy_changed_details():
             raise AttributeError("tag 'file_locking_policy_changed_details' not set")
+        return self._value
+
+    def get_file_provider_migration_policy_changed_details(self):
+        """
+        Only call this if :meth:`is_file_provider_migration_policy_changed_details` is true.
+
+        :rtype: FileProviderMigrationPolicyChangedDetails
+        """
+        if not self.is_file_provider_migration_policy_changed_details():
+            raise AttributeError("tag 'file_provider_migration_policy_changed_details' not set")
         return self._value
 
     def get_file_requests_change_policy_details(self):
@@ -19211,6 +21549,16 @@ class EventDetails(bb.Union):
         """
         if not self.is_integration_policy_changed_details():
             raise AttributeError("tag 'integration_policy_changed_details' not set")
+        return self._value
+
+    def get_invite_acceptance_email_policy_changed_details(self):
+        """
+        Only call this if :meth:`is_invite_acceptance_email_policy_changed_details` is true.
+
+        :rtype: InviteAcceptanceEmailPolicyChangedDetails
+        """
+        if not self.is_invite_acceptance_email_policy_changed_details():
+            raise AttributeError("tag 'invite_acceptance_email_policy_changed_details' not set")
         return self._value
 
     def get_member_requests_change_policy_details(self):
@@ -19443,6 +21791,36 @@ class EventDetails(bb.Union):
             raise AttributeError("tag 'sharing_change_folder_join_policy_details' not set")
         return self._value
 
+    def get_sharing_change_link_allow_change_expiration_policy_details(self):
+        """
+        Only call this if :meth:`is_sharing_change_link_allow_change_expiration_policy_details` is true.
+
+        :rtype: SharingChangeLinkAllowChangeExpirationPolicyDetails
+        """
+        if not self.is_sharing_change_link_allow_change_expiration_policy_details():
+            raise AttributeError("tag 'sharing_change_link_allow_change_expiration_policy_details' not set")
+        return self._value
+
+    def get_sharing_change_link_default_expiration_policy_details(self):
+        """
+        Only call this if :meth:`is_sharing_change_link_default_expiration_policy_details` is true.
+
+        :rtype: SharingChangeLinkDefaultExpirationPolicyDetails
+        """
+        if not self.is_sharing_change_link_default_expiration_policy_details():
+            raise AttributeError("tag 'sharing_change_link_default_expiration_policy_details' not set")
+        return self._value
+
+    def get_sharing_change_link_enforce_password_policy_details(self):
+        """
+        Only call this if :meth:`is_sharing_change_link_enforce_password_policy_details` is true.
+
+        :rtype: SharingChangeLinkEnforcePasswordPolicyDetails
+        """
+        if not self.is_sharing_change_link_enforce_password_policy_details():
+            raise AttributeError("tag 'sharing_change_link_enforce_password_policy_details' not set")
+        return self._value
+
     def get_sharing_change_link_policy_details(self):
         """
         Only call this if :meth:`is_sharing_change_link_policy_details` is true.
@@ -19671,6 +22049,26 @@ class EventDetails(bb.Union):
         """
         if not self.is_web_sessions_change_idle_length_policy_details():
             raise AttributeError("tag 'web_sessions_change_idle_length_policy_details' not set")
+        return self._value
+
+    def get_data_residency_migration_request_successful_details(self):
+        """
+        Only call this if :meth:`is_data_residency_migration_request_successful_details` is true.
+
+        :rtype: DataResidencyMigrationRequestSuccessfulDetails
+        """
+        if not self.is_data_residency_migration_request_successful_details():
+            raise AttributeError("tag 'data_residency_migration_request_successful_details' not set")
+        return self._value
+
+    def get_data_residency_migration_request_unsuccessful_details(self):
+        """
+        Only call this if :meth:`is_data_residency_migration_request_unsuccessful_details` is true.
+
+        :rtype: DataResidencyMigrationRequestUnsuccessfulDetails
+        """
+        if not self.is_data_residency_migration_request_unsuccessful_details():
+            raise AttributeError("tag 'data_residency_migration_request_unsuccessful_details' not set")
         return self._value
 
     def get_team_merge_from_details(self):
@@ -20119,12 +22517,17 @@ class EventType(bb.Union):
     return true. To get the associated value of a tag (if one exists), use the
     corresponding ``get_*`` method.
 
+    :ivar AdminAlertingAlertStateChangedType
+        EventType.admin_alerting_alert_state_changed: (admin_alerting) Changed
+        an alert state
     :ivar AdminAlertingChangedAlertConfigType
         EventType.admin_alerting_changed_alert_config: (admin_alerting) Changed
         an alert setting
     :ivar AdminAlertingTriggeredAlertType
         EventType.admin_alerting_triggered_alert: (admin_alerting) Triggered
         security alert
+    :ivar AppBlockedByPermissionsType EventType.app_blocked_by_permissions:
+        (apps) Failed to connect app for member
     :ivar AppLinkTeamType EventType.app_link_team: (apps) Linked app for team
     :ivar AppLinkUserType EventType.app_link_user: (apps) Linked app for member
     :ivar AppUnlinkTeamType EventType.app_unlink_team: (apps) Unlinked app for
@@ -20158,6 +22561,9 @@ class EventType(bb.Union):
     :ivar GovernancePolicyAddFolderFailedType
         EventType.governance_policy_add_folder_failed: (data_governance)
         Couldn't add a folder to a policy
+    :ivar GovernancePolicyContentDisposedType
+        EventType.governance_policy_content_disposed: (data_governance) Content
+        disposed
     :ivar GovernancePolicyCreateType EventType.governance_policy_create:
         (data_governance) Activated a new policy
     :ivar GovernancePolicyDeleteType EventType.governance_policy_delete:
@@ -20238,6 +22644,12 @@ class EventType(bb.Union):
         Dropbox Passwords device
     :ivar EmmRefreshAuthTokenType EventType.emm_refresh_auth_token: (devices)
         Refreshed auth token used for setting up EMM
+    :ivar ExternalDriveBackupEligibilityStatusCheckedType
+        EventType.external_drive_backup_eligibility_status_checked: (devices)
+        Checked external drive backup eligibility status
+    :ivar ExternalDriveBackupStatusChangedType
+        EventType.external_drive_backup_status_changed: (devices) Modified
+        external drive backup
     :ivar AccountCaptureChangeAvailabilityType
         EventType.account_capture_change_availability: (domains) Granted/revoked
         option to enable account capture on team domains
@@ -20281,6 +22693,8 @@ class EventType(bb.Union):
         from list of verified team domains
     :ivar EnabledDomainInvitesType EventType.enabled_domain_invites: (domains)
         Enabled domain invites (deprecated, no longer logged)
+    :ivar ApplyNamingConventionType EventType.apply_naming_convention:
+        (file_operations) Applied naming convention
     :ivar CreateFolderType EventType.create_folder: (file_operations) Created
         folders (deprecated, no longer logged)
     :ivar FileAddType EventType.file_add: (file_operations) Added files and/or
@@ -20321,8 +22735,27 @@ class EventType(bb.Union):
     :ivar FolderOverviewItemUnpinnedType
         EventType.folder_overview_item_unpinned: (file_operations) Unpinned item
         from folder overview
+    :ivar ObjectLabelAddedType EventType.object_label_added: (file_operations)
+        Added a label
+    :ivar ObjectLabelRemovedType EventType.object_label_removed:
+        (file_operations) Removed a label
+    :ivar ObjectLabelUpdatedValueType EventType.object_label_updated_value:
+        (file_operations) Updated a label's value
+    :ivar OrganizeFolderWithTidyType EventType.organize_folder_with_tidy:
+        (file_operations) Organized a folder with multi-file organize
     :ivar RewindFolderType EventType.rewind_folder: (file_operations) Rewound a
         folder
+    :ivar UndoNamingConventionType EventType.undo_naming_convention:
+        (file_operations) Reverted naming convention
+    :ivar UndoOrganizeFolderWithTidyType
+        EventType.undo_organize_folder_with_tidy: (file_operations) Removed
+        multi-file organize
+    :ivar UserTagsAddedType EventType.user_tags_added: (file_operations) Tagged
+        a file
+    :ivar UserTagsRemovedType EventType.user_tags_removed: (file_operations)
+        Removed tags
+    :ivar EmailIngestReceiveFileType EventType.email_ingest_receive_file:
+        (file_requests) Received files via Email to Dropbox
     :ivar FileRequestChangeType EventType.file_request_change: (file_requests)
         Changed file request
     :ivar FileRequestCloseType EventType.file_request_close: (file_requests)
@@ -20899,13 +23332,21 @@ class EventType(bb.Union):
     :ivar AccountCaptureChangePolicyType
         EventType.account_capture_change_policy: (team_policies) Changed account
         capture setting on team domain
+    :ivar AdminEmailRemindersChangedType
+        EventType.admin_email_reminders_changed: (team_policies) Changed admin
+        reminder settings for requests to join the team
     :ivar AllowDownloadDisabledType EventType.allow_download_disabled:
         (team_policies) Disabled downloads (deprecated, no longer logged)
     :ivar AllowDownloadEnabledType EventType.allow_download_enabled:
         (team_policies) Enabled downloads (deprecated, no longer logged)
+    :ivar AppPermissionsChangedType EventType.app_permissions_changed:
+        (team_policies) Changed app permissions
     :ivar CameraUploadsPolicyChangedType
         EventType.camera_uploads_policy_changed: (team_policies) Changed camera
         uploads setting for team
+    :ivar CaptureTranscriptPolicyChangedType
+        EventType.capture_transcript_policy_changed: (team_policies) Changed
+        Capture transcription policy for team
     :ivar ClassificationChangePolicyType EventType.classification_change_policy:
         (team_policies) Changed classification policy for team
     :ivar ComputerBackupPolicyChangedType
@@ -20946,6 +23387,11 @@ class EventType(bb.Union):
     :ivar DirectoryRestrictionsRemoveMembersType
         EventType.directory_restrictions_remove_members: (team_policies) Removed
         members from directory restrictions list
+    :ivar DropboxPasswordsPolicyChangedType
+        EventType.dropbox_passwords_policy_changed: (team_policies) Changed
+        Dropbox Passwords policy for team
+    :ivar EmailIngestPolicyChangedType EventType.email_ingest_policy_changed:
+        (team_policies) Changed email to Dropbox policy for team
     :ivar EmmAddExceptionType EventType.emm_add_exception: (team_policies) Added
         members to EMM exception list
     :ivar EmmChangePolicyType EventType.emm_change_policy: (team_policies)
@@ -20955,10 +23401,16 @@ class EventType(bb.Union):
     :ivar ExtendedVersionHistoryChangePolicyType
         EventType.extended_version_history_change_policy: (team_policies)
         Accepted/opted out of extended version history
+    :ivar ExternalDriveBackupPolicyChangedType
+        EventType.external_drive_backup_policy_changed: (team_policies) Changed
+        external drive backup policy for team
     :ivar FileCommentsChangePolicyType EventType.file_comments_change_policy:
         (team_policies) Enabled/disabled commenting on team files
     :ivar FileLockingPolicyChangedType EventType.file_locking_policy_changed:
         (team_policies) Changed file locking policy for team
+    :ivar FileProviderMigrationPolicyChangedType
+        EventType.file_provider_migration_policy_changed: (team_policies)
+        Changed File Provider Migration policy for team
     :ivar FileRequestsChangePolicyType EventType.file_requests_change_policy:
         (team_policies) Enabled/disabled file requests
     :ivar FileRequestsEmailsEnabledType EventType.file_requests_emails_enabled:
@@ -20977,6 +23429,9 @@ class EventType(bb.Union):
         who can create groups
     :ivar IntegrationPolicyChangedType EventType.integration_policy_changed:
         (team_policies) Changed integration policy for team
+    :ivar InviteAcceptanceEmailPolicyChangedType
+        EventType.invite_acceptance_email_policy_changed: (team_policies)
+        Changed invite accept email policy for team
     :ivar MemberRequestsChangePolicyType
         EventType.member_requests_change_policy: (team_policies) Changed whether
         users can find team when not invited
@@ -21047,6 +23502,17 @@ class EventType(bb.Union):
     :ivar SharingChangeFolderJoinPolicyType
         EventType.sharing_change_folder_join_policy: (team_policies) Changed
         whether team members can join shared folders owned outside team
+    :ivar SharingChangeLinkAllowChangeExpirationPolicyType
+        EventType.sharing_change_link_allow_change_expiration_policy:
+        (team_policies) Changed the allow remove or change expiration policy for
+        the links shared outside of the team
+    :ivar SharingChangeLinkDefaultExpirationPolicyType
+        EventType.sharing_change_link_default_expiration_policy: (team_policies)
+        Changed the default expiration for the links shared outside of the team
+    :ivar SharingChangeLinkEnforcePasswordPolicyType
+        EventType.sharing_change_link_enforce_password_policy: (team_policies)
+        Changed the password requirement for the links shared outside of the
+        team
     :ivar SharingChangeLinkPolicyType EventType.sharing_change_link_policy:
         (team_policies) Changed whether members can share links outside team,
         and if links are accessible only by team members or anyone by default
@@ -21106,6 +23572,12 @@ class EventType(bb.Union):
     :ivar WebSessionsChangeIdleLengthPolicyType
         EventType.web_sessions_change_idle_length_policy: (team_policies)
         Changed how long team members can be idle while signed in to Dropbox.com
+    :ivar DataResidencyMigrationRequestSuccessfulType
+        EventType.data_residency_migration_request_successful: (team_profile)
+        Requested data residency migration for team data
+    :ivar DataResidencyMigrationRequestUnsuccessfulType
+        EventType.data_residency_migration_request_unsuccessful: (team_profile)
+        Request for data residency migration for team data has failed
     :ivar TeamMergeFromType EventType.team_merge_from: (team_profile) Merged
         another team into this team
     :ivar TeamMergeToType EventType.team_merge_to: (team_profile) Merged this
@@ -21229,6 +23701,17 @@ class EventType(bb.Union):
     other = None
 
     @classmethod
+    def admin_alerting_alert_state_changed(cls, val):
+        """
+        Create an instance of this class set to the
+        ``admin_alerting_alert_state_changed`` tag with value ``val``.
+
+        :param AdminAlertingAlertStateChangedType val:
+        :rtype: EventType
+        """
+        return cls('admin_alerting_alert_state_changed', val)
+
+    @classmethod
     def admin_alerting_changed_alert_config(cls, val):
         """
         Create an instance of this class set to the
@@ -21249,6 +23732,17 @@ class EventType(bb.Union):
         :rtype: EventType
         """
         return cls('admin_alerting_triggered_alert', val)
+
+    @classmethod
+    def app_blocked_by_permissions(cls, val):
+        """
+        Create an instance of this class set to the
+        ``app_blocked_by_permissions`` tag with value ``val``.
+
+        :param AppBlockedByPermissionsType val:
+        :rtype: EventType
+        """
+        return cls('app_blocked_by_permissions', val)
 
     @classmethod
     def app_link_team(cls, val):
@@ -21425,6 +23919,17 @@ class EventType(bb.Union):
         :rtype: EventType
         """
         return cls('governance_policy_add_folder_failed', val)
+
+    @classmethod
+    def governance_policy_content_disposed(cls, val):
+        """
+        Create an instance of this class set to the
+        ``governance_policy_content_disposed`` tag with value ``val``.
+
+        :param GovernancePolicyContentDisposedType val:
+        :rtype: EventType
+        """
+        return cls('governance_policy_content_disposed', val)
 
     @classmethod
     def governance_policy_create(cls, val):
@@ -21801,6 +24306,29 @@ class EventType(bb.Union):
         return cls('emm_refresh_auth_token', val)
 
     @classmethod
+    def external_drive_backup_eligibility_status_checked(cls, val):
+        """
+        Create an instance of this class set to the
+        ``external_drive_backup_eligibility_status_checked`` tag with value
+        ``val``.
+
+        :param ExternalDriveBackupEligibilityStatusCheckedType val:
+        :rtype: EventType
+        """
+        return cls('external_drive_backup_eligibility_status_checked', val)
+
+    @classmethod
+    def external_drive_backup_status_changed(cls, val):
+        """
+        Create an instance of this class set to the
+        ``external_drive_backup_status_changed`` tag with value ``val``.
+
+        :param ExternalDriveBackupStatusChangedType val:
+        :rtype: EventType
+        """
+        return cls('external_drive_backup_status_changed', val)
+
+    @classmethod
     def account_capture_change_availability(cls, val):
         """
         Create an instance of this class set to the
@@ -21966,6 +24494,17 @@ class EventType(bb.Union):
         :rtype: EventType
         """
         return cls('enabled_domain_invites', val)
+
+    @classmethod
+    def apply_naming_convention(cls, val):
+        """
+        Create an instance of this class set to the ``apply_naming_convention``
+        tag with value ``val``.
+
+        :param ApplyNamingConventionType val:
+        :rtype: EventType
+        """
+        return cls('apply_naming_convention', val)
 
     @classmethod
     def create_folder(cls, val):
@@ -22177,6 +24716,50 @@ class EventType(bb.Union):
         return cls('folder_overview_item_unpinned', val)
 
     @classmethod
+    def object_label_added(cls, val):
+        """
+        Create an instance of this class set to the ``object_label_added`` tag
+        with value ``val``.
+
+        :param ObjectLabelAddedType val:
+        :rtype: EventType
+        """
+        return cls('object_label_added', val)
+
+    @classmethod
+    def object_label_removed(cls, val):
+        """
+        Create an instance of this class set to the ``object_label_removed`` tag
+        with value ``val``.
+
+        :param ObjectLabelRemovedType val:
+        :rtype: EventType
+        """
+        return cls('object_label_removed', val)
+
+    @classmethod
+    def object_label_updated_value(cls, val):
+        """
+        Create an instance of this class set to the
+        ``object_label_updated_value`` tag with value ``val``.
+
+        :param ObjectLabelUpdatedValueType val:
+        :rtype: EventType
+        """
+        return cls('object_label_updated_value', val)
+
+    @classmethod
+    def organize_folder_with_tidy(cls, val):
+        """
+        Create an instance of this class set to the
+        ``organize_folder_with_tidy`` tag with value ``val``.
+
+        :param OrganizeFolderWithTidyType val:
+        :rtype: EventType
+        """
+        return cls('organize_folder_with_tidy', val)
+
+    @classmethod
     def rewind_folder(cls, val):
         """
         Create an instance of this class set to the ``rewind_folder`` tag with
@@ -22186,6 +24769,61 @@ class EventType(bb.Union):
         :rtype: EventType
         """
         return cls('rewind_folder', val)
+
+    @classmethod
+    def undo_naming_convention(cls, val):
+        """
+        Create an instance of this class set to the ``undo_naming_convention``
+        tag with value ``val``.
+
+        :param UndoNamingConventionType val:
+        :rtype: EventType
+        """
+        return cls('undo_naming_convention', val)
+
+    @classmethod
+    def undo_organize_folder_with_tidy(cls, val):
+        """
+        Create an instance of this class set to the
+        ``undo_organize_folder_with_tidy`` tag with value ``val``.
+
+        :param UndoOrganizeFolderWithTidyType val:
+        :rtype: EventType
+        """
+        return cls('undo_organize_folder_with_tidy', val)
+
+    @classmethod
+    def user_tags_added(cls, val):
+        """
+        Create an instance of this class set to the ``user_tags_added`` tag with
+        value ``val``.
+
+        :param UserTagsAddedType val:
+        :rtype: EventType
+        """
+        return cls('user_tags_added', val)
+
+    @classmethod
+    def user_tags_removed(cls, val):
+        """
+        Create an instance of this class set to the ``user_tags_removed`` tag
+        with value ``val``.
+
+        :param UserTagsRemovedType val:
+        :rtype: EventType
+        """
+        return cls('user_tags_removed', val)
+
+    @classmethod
+    def email_ingest_receive_file(cls, val):
+        """
+        Create an instance of this class set to the
+        ``email_ingest_receive_file`` tag with value ``val``.
+
+        :param EmailIngestReceiveFileType val:
+        :rtype: EventType
+        """
+        return cls('email_ingest_receive_file', val)
 
     @classmethod
     def file_request_change(cls, val):
@@ -24951,6 +27589,17 @@ class EventType(bb.Union):
         return cls('account_capture_change_policy', val)
 
     @classmethod
+    def admin_email_reminders_changed(cls, val):
+        """
+        Create an instance of this class set to the
+        ``admin_email_reminders_changed`` tag with value ``val``.
+
+        :param AdminEmailRemindersChangedType val:
+        :rtype: EventType
+        """
+        return cls('admin_email_reminders_changed', val)
+
+    @classmethod
     def allow_download_disabled(cls, val):
         """
         Create an instance of this class set to the ``allow_download_disabled``
@@ -24973,6 +27622,17 @@ class EventType(bb.Union):
         return cls('allow_download_enabled', val)
 
     @classmethod
+    def app_permissions_changed(cls, val):
+        """
+        Create an instance of this class set to the ``app_permissions_changed``
+        tag with value ``val``.
+
+        :param AppPermissionsChangedType val:
+        :rtype: EventType
+        """
+        return cls('app_permissions_changed', val)
+
+    @classmethod
     def camera_uploads_policy_changed(cls, val):
         """
         Create an instance of this class set to the
@@ -24982,6 +27642,17 @@ class EventType(bb.Union):
         :rtype: EventType
         """
         return cls('camera_uploads_policy_changed', val)
+
+    @classmethod
+    def capture_transcript_policy_changed(cls, val):
+        """
+        Create an instance of this class set to the
+        ``capture_transcript_policy_changed`` tag with value ``val``.
+
+        :param CaptureTranscriptPolicyChangedType val:
+        :rtype: EventType
+        """
+        return cls('capture_transcript_policy_changed', val)
 
     @classmethod
     def classification_change_policy(cls, val):
@@ -25127,6 +27798,28 @@ class EventType(bb.Union):
         return cls('directory_restrictions_remove_members', val)
 
     @classmethod
+    def dropbox_passwords_policy_changed(cls, val):
+        """
+        Create an instance of this class set to the
+        ``dropbox_passwords_policy_changed`` tag with value ``val``.
+
+        :param DropboxPasswordsPolicyChangedType val:
+        :rtype: EventType
+        """
+        return cls('dropbox_passwords_policy_changed', val)
+
+    @classmethod
+    def email_ingest_policy_changed(cls, val):
+        """
+        Create an instance of this class set to the
+        ``email_ingest_policy_changed`` tag with value ``val``.
+
+        :param EmailIngestPolicyChangedType val:
+        :rtype: EventType
+        """
+        return cls('email_ingest_policy_changed', val)
+
+    @classmethod
     def emm_add_exception(cls, val):
         """
         Create an instance of this class set to the ``emm_add_exception`` tag
@@ -25171,6 +27864,17 @@ class EventType(bb.Union):
         return cls('extended_version_history_change_policy', val)
 
     @classmethod
+    def external_drive_backup_policy_changed(cls, val):
+        """
+        Create an instance of this class set to the
+        ``external_drive_backup_policy_changed`` tag with value ``val``.
+
+        :param ExternalDriveBackupPolicyChangedType val:
+        :rtype: EventType
+        """
+        return cls('external_drive_backup_policy_changed', val)
+
+    @classmethod
     def file_comments_change_policy(cls, val):
         """
         Create an instance of this class set to the
@@ -25191,6 +27895,17 @@ class EventType(bb.Union):
         :rtype: EventType
         """
         return cls('file_locking_policy_changed', val)
+
+    @classmethod
+    def file_provider_migration_policy_changed(cls, val):
+        """
+        Create an instance of this class set to the
+        ``file_provider_migration_policy_changed`` tag with value ``val``.
+
+        :param FileProviderMigrationPolicyChangedType val:
+        :rtype: EventType
+        """
+        return cls('file_provider_migration_policy_changed', val)
 
     @classmethod
     def file_requests_change_policy(cls, val):
@@ -25268,6 +27983,17 @@ class EventType(bb.Union):
         :rtype: EventType
         """
         return cls('integration_policy_changed', val)
+
+    @classmethod
+    def invite_acceptance_email_policy_changed(cls, val):
+        """
+        Create an instance of this class set to the
+        ``invite_acceptance_email_policy_changed`` tag with value ``val``.
+
+        :param InviteAcceptanceEmailPolicyChangedType val:
+        :rtype: EventType
+        """
+        return cls('invite_acceptance_email_policy_changed', val)
 
     @classmethod
     def member_requests_change_policy(cls, val):
@@ -25523,6 +28249,41 @@ class EventType(bb.Union):
         return cls('sharing_change_folder_join_policy', val)
 
     @classmethod
+    def sharing_change_link_allow_change_expiration_policy(cls, val):
+        """
+        Create an instance of this class set to the
+        ``sharing_change_link_allow_change_expiration_policy`` tag with value
+        ``val``.
+
+        :param SharingChangeLinkAllowChangeExpirationPolicyType val:
+        :rtype: EventType
+        """
+        return cls('sharing_change_link_allow_change_expiration_policy', val)
+
+    @classmethod
+    def sharing_change_link_default_expiration_policy(cls, val):
+        """
+        Create an instance of this class set to the
+        ``sharing_change_link_default_expiration_policy`` tag with value
+        ``val``.
+
+        :param SharingChangeLinkDefaultExpirationPolicyType val:
+        :rtype: EventType
+        """
+        return cls('sharing_change_link_default_expiration_policy', val)
+
+    @classmethod
+    def sharing_change_link_enforce_password_policy(cls, val):
+        """
+        Create an instance of this class set to the
+        ``sharing_change_link_enforce_password_policy`` tag with value ``val``.
+
+        :param SharingChangeLinkEnforcePasswordPolicyType val:
+        :rtype: EventType
+        """
+        return cls('sharing_change_link_enforce_password_policy', val)
+
+    @classmethod
     def sharing_change_link_policy(cls, val):
         """
         Create an instance of this class set to the
@@ -25774,6 +28535,29 @@ class EventType(bb.Union):
         :rtype: EventType
         """
         return cls('web_sessions_change_idle_length_policy', val)
+
+    @classmethod
+    def data_residency_migration_request_successful(cls, val):
+        """
+        Create an instance of this class set to the
+        ``data_residency_migration_request_successful`` tag with value ``val``.
+
+        :param DataResidencyMigrationRequestSuccessfulType val:
+        :rtype: EventType
+        """
+        return cls('data_residency_migration_request_successful', val)
+
+    @classmethod
+    def data_residency_migration_request_unsuccessful(cls, val):
+        """
+        Create an instance of this class set to the
+        ``data_residency_migration_request_unsuccessful`` tag with value
+        ``val``.
+
+        :param DataResidencyMigrationRequestUnsuccessfulType val:
+        :rtype: EventType
+        """
+        return cls('data_residency_migration_request_unsuccessful', val)
 
     @classmethod
     def team_merge_from(cls, val):
@@ -26249,6 +29033,14 @@ class EventType(bb.Union):
         """
         return cls('team_merge_request_sent_shown_to_secondary_team', val)
 
+    def is_admin_alerting_alert_state_changed(self):
+        """
+        Check if the union tag is ``admin_alerting_alert_state_changed``.
+
+        :rtype: bool
+        """
+        return self._tag == 'admin_alerting_alert_state_changed'
+
     def is_admin_alerting_changed_alert_config(self):
         """
         Check if the union tag is ``admin_alerting_changed_alert_config``.
@@ -26264,6 +29056,14 @@ class EventType(bb.Union):
         :rtype: bool
         """
         return self._tag == 'admin_alerting_triggered_alert'
+
+    def is_app_blocked_by_permissions(self):
+        """
+        Check if the union tag is ``app_blocked_by_permissions``.
+
+        :rtype: bool
+        """
+        return self._tag == 'app_blocked_by_permissions'
 
     def is_app_link_team(self):
         """
@@ -26392,6 +29192,14 @@ class EventType(bb.Union):
         :rtype: bool
         """
         return self._tag == 'governance_policy_add_folder_failed'
+
+    def is_governance_policy_content_disposed(self):
+        """
+        Check if the union tag is ``governance_policy_content_disposed``.
+
+        :rtype: bool
+        """
+        return self._tag == 'governance_policy_content_disposed'
 
     def is_governance_policy_create(self):
         """
@@ -26665,6 +29473,22 @@ class EventType(bb.Union):
         """
         return self._tag == 'emm_refresh_auth_token'
 
+    def is_external_drive_backup_eligibility_status_checked(self):
+        """
+        Check if the union tag is ``external_drive_backup_eligibility_status_checked``.
+
+        :rtype: bool
+        """
+        return self._tag == 'external_drive_backup_eligibility_status_checked'
+
+    def is_external_drive_backup_status_changed(self):
+        """
+        Check if the union tag is ``external_drive_backup_status_changed``.
+
+        :rtype: bool
+        """
+        return self._tag == 'external_drive_backup_status_changed'
+
     def is_account_capture_change_availability(self):
         """
         Check if the union tag is ``account_capture_change_availability``.
@@ -26784,6 +29608,14 @@ class EventType(bb.Union):
         :rtype: bool
         """
         return self._tag == 'enabled_domain_invites'
+
+    def is_apply_naming_convention(self):
+        """
+        Check if the union tag is ``apply_naming_convention``.
+
+        :rtype: bool
+        """
+        return self._tag == 'apply_naming_convention'
 
     def is_create_folder(self):
         """
@@ -26937,6 +29769,38 @@ class EventType(bb.Union):
         """
         return self._tag == 'folder_overview_item_unpinned'
 
+    def is_object_label_added(self):
+        """
+        Check if the union tag is ``object_label_added``.
+
+        :rtype: bool
+        """
+        return self._tag == 'object_label_added'
+
+    def is_object_label_removed(self):
+        """
+        Check if the union tag is ``object_label_removed``.
+
+        :rtype: bool
+        """
+        return self._tag == 'object_label_removed'
+
+    def is_object_label_updated_value(self):
+        """
+        Check if the union tag is ``object_label_updated_value``.
+
+        :rtype: bool
+        """
+        return self._tag == 'object_label_updated_value'
+
+    def is_organize_folder_with_tidy(self):
+        """
+        Check if the union tag is ``organize_folder_with_tidy``.
+
+        :rtype: bool
+        """
+        return self._tag == 'organize_folder_with_tidy'
+
     def is_rewind_folder(self):
         """
         Check if the union tag is ``rewind_folder``.
@@ -26944,6 +29808,46 @@ class EventType(bb.Union):
         :rtype: bool
         """
         return self._tag == 'rewind_folder'
+
+    def is_undo_naming_convention(self):
+        """
+        Check if the union tag is ``undo_naming_convention``.
+
+        :rtype: bool
+        """
+        return self._tag == 'undo_naming_convention'
+
+    def is_undo_organize_folder_with_tidy(self):
+        """
+        Check if the union tag is ``undo_organize_folder_with_tidy``.
+
+        :rtype: bool
+        """
+        return self._tag == 'undo_organize_folder_with_tidy'
+
+    def is_user_tags_added(self):
+        """
+        Check if the union tag is ``user_tags_added``.
+
+        :rtype: bool
+        """
+        return self._tag == 'user_tags_added'
+
+    def is_user_tags_removed(self):
+        """
+        Check if the union tag is ``user_tags_removed``.
+
+        :rtype: bool
+        """
+        return self._tag == 'user_tags_removed'
+
+    def is_email_ingest_receive_file(self):
+        """
+        Check if the union tag is ``email_ingest_receive_file``.
+
+        :rtype: bool
+        """
+        return self._tag == 'email_ingest_receive_file'
 
     def is_file_request_change(self):
         """
@@ -28953,6 +31857,14 @@ class EventType(bb.Union):
         """
         return self._tag == 'account_capture_change_policy'
 
+    def is_admin_email_reminders_changed(self):
+        """
+        Check if the union tag is ``admin_email_reminders_changed``.
+
+        :rtype: bool
+        """
+        return self._tag == 'admin_email_reminders_changed'
+
     def is_allow_download_disabled(self):
         """
         Check if the union tag is ``allow_download_disabled``.
@@ -28969,6 +31881,14 @@ class EventType(bb.Union):
         """
         return self._tag == 'allow_download_enabled'
 
+    def is_app_permissions_changed(self):
+        """
+        Check if the union tag is ``app_permissions_changed``.
+
+        :rtype: bool
+        """
+        return self._tag == 'app_permissions_changed'
+
     def is_camera_uploads_policy_changed(self):
         """
         Check if the union tag is ``camera_uploads_policy_changed``.
@@ -28976,6 +31896,14 @@ class EventType(bb.Union):
         :rtype: bool
         """
         return self._tag == 'camera_uploads_policy_changed'
+
+    def is_capture_transcript_policy_changed(self):
+        """
+        Check if the union tag is ``capture_transcript_policy_changed``.
+
+        :rtype: bool
+        """
+        return self._tag == 'capture_transcript_policy_changed'
 
     def is_classification_change_policy(self):
         """
@@ -29081,6 +32009,22 @@ class EventType(bb.Union):
         """
         return self._tag == 'directory_restrictions_remove_members'
 
+    def is_dropbox_passwords_policy_changed(self):
+        """
+        Check if the union tag is ``dropbox_passwords_policy_changed``.
+
+        :rtype: bool
+        """
+        return self._tag == 'dropbox_passwords_policy_changed'
+
+    def is_email_ingest_policy_changed(self):
+        """
+        Check if the union tag is ``email_ingest_policy_changed``.
+
+        :rtype: bool
+        """
+        return self._tag == 'email_ingest_policy_changed'
+
     def is_emm_add_exception(self):
         """
         Check if the union tag is ``emm_add_exception``.
@@ -29113,6 +32057,14 @@ class EventType(bb.Union):
         """
         return self._tag == 'extended_version_history_change_policy'
 
+    def is_external_drive_backup_policy_changed(self):
+        """
+        Check if the union tag is ``external_drive_backup_policy_changed``.
+
+        :rtype: bool
+        """
+        return self._tag == 'external_drive_backup_policy_changed'
+
     def is_file_comments_change_policy(self):
         """
         Check if the union tag is ``file_comments_change_policy``.
@@ -29128,6 +32080,14 @@ class EventType(bb.Union):
         :rtype: bool
         """
         return self._tag == 'file_locking_policy_changed'
+
+    def is_file_provider_migration_policy_changed(self):
+        """
+        Check if the union tag is ``file_provider_migration_policy_changed``.
+
+        :rtype: bool
+        """
+        return self._tag == 'file_provider_migration_policy_changed'
 
     def is_file_requests_change_policy(self):
         """
@@ -29184,6 +32144,14 @@ class EventType(bb.Union):
         :rtype: bool
         """
         return self._tag == 'integration_policy_changed'
+
+    def is_invite_acceptance_email_policy_changed(self):
+        """
+        Check if the union tag is ``invite_acceptance_email_policy_changed``.
+
+        :rtype: bool
+        """
+        return self._tag == 'invite_acceptance_email_policy_changed'
 
     def is_member_requests_change_policy(self):
         """
@@ -29369,6 +32337,30 @@ class EventType(bb.Union):
         """
         return self._tag == 'sharing_change_folder_join_policy'
 
+    def is_sharing_change_link_allow_change_expiration_policy(self):
+        """
+        Check if the union tag is ``sharing_change_link_allow_change_expiration_policy``.
+
+        :rtype: bool
+        """
+        return self._tag == 'sharing_change_link_allow_change_expiration_policy'
+
+    def is_sharing_change_link_default_expiration_policy(self):
+        """
+        Check if the union tag is ``sharing_change_link_default_expiration_policy``.
+
+        :rtype: bool
+        """
+        return self._tag == 'sharing_change_link_default_expiration_policy'
+
+    def is_sharing_change_link_enforce_password_policy(self):
+        """
+        Check if the union tag is ``sharing_change_link_enforce_password_policy``.
+
+        :rtype: bool
+        """
+        return self._tag == 'sharing_change_link_enforce_password_policy'
+
     def is_sharing_change_link_policy(self):
         """
         Check if the union tag is ``sharing_change_link_policy``.
@@ -29552,6 +32544,22 @@ class EventType(bb.Union):
         :rtype: bool
         """
         return self._tag == 'web_sessions_change_idle_length_policy'
+
+    def is_data_residency_migration_request_successful(self):
+        """
+        Check if the union tag is ``data_residency_migration_request_successful``.
+
+        :rtype: bool
+        """
+        return self._tag == 'data_residency_migration_request_successful'
+
+    def is_data_residency_migration_request_unsuccessful(self):
+        """
+        Check if the union tag is ``data_residency_migration_request_unsuccessful``.
+
+        :rtype: bool
+        """
+        return self._tag == 'data_residency_migration_request_unsuccessful'
 
     def is_team_merge_from(self):
         """
@@ -29897,6 +32905,18 @@ class EventType(bb.Union):
         """
         return self._tag == 'other'
 
+    def get_admin_alerting_alert_state_changed(self):
+        """
+        (admin_alerting) Changed an alert state
+
+        Only call this if :meth:`is_admin_alerting_alert_state_changed` is true.
+
+        :rtype: AdminAlertingAlertStateChangedType
+        """
+        if not self.is_admin_alerting_alert_state_changed():
+            raise AttributeError("tag 'admin_alerting_alert_state_changed' not set")
+        return self._value
+
     def get_admin_alerting_changed_alert_config(self):
         """
         (admin_alerting) Changed an alert setting
@@ -29919,6 +32939,18 @@ class EventType(bb.Union):
         """
         if not self.is_admin_alerting_triggered_alert():
             raise AttributeError("tag 'admin_alerting_triggered_alert' not set")
+        return self._value
+
+    def get_app_blocked_by_permissions(self):
+        """
+        (apps) Failed to connect app for member
+
+        Only call this if :meth:`is_app_blocked_by_permissions` is true.
+
+        :rtype: AppBlockedByPermissionsType
+        """
+        if not self.is_app_blocked_by_permissions():
+            raise AttributeError("tag 'app_blocked_by_permissions' not set")
         return self._value
 
     def get_app_link_team(self):
@@ -30112,6 +33144,18 @@ class EventType(bb.Union):
         """
         if not self.is_governance_policy_add_folder_failed():
             raise AttributeError("tag 'governance_policy_add_folder_failed' not set")
+        return self._value
+
+    def get_governance_policy_content_disposed(self):
+        """
+        (data_governance) Content disposed
+
+        Only call this if :meth:`is_governance_policy_content_disposed` is true.
+
+        :rtype: GovernancePolicyContentDisposedType
+        """
+        if not self.is_governance_policy_content_disposed():
+            raise AttributeError("tag 'governance_policy_content_disposed' not set")
         return self._value
 
     def get_governance_policy_create(self):
@@ -30522,6 +33566,30 @@ class EventType(bb.Union):
             raise AttributeError("tag 'emm_refresh_auth_token' not set")
         return self._value
 
+    def get_external_drive_backup_eligibility_status_checked(self):
+        """
+        (devices) Checked external drive backup eligibility status
+
+        Only call this if :meth:`is_external_drive_backup_eligibility_status_checked` is true.
+
+        :rtype: ExternalDriveBackupEligibilityStatusCheckedType
+        """
+        if not self.is_external_drive_backup_eligibility_status_checked():
+            raise AttributeError("tag 'external_drive_backup_eligibility_status_checked' not set")
+        return self._value
+
+    def get_external_drive_backup_status_changed(self):
+        """
+        (devices) Modified external drive backup
+
+        Only call this if :meth:`is_external_drive_backup_status_changed` is true.
+
+        :rtype: ExternalDriveBackupStatusChangedType
+        """
+        if not self.is_external_drive_backup_status_changed():
+            raise AttributeError("tag 'external_drive_backup_status_changed' not set")
+        return self._value
+
     def get_account_capture_change_availability(self):
         """
         (domains) Granted/revoked option to enable account capture on team
@@ -30704,6 +33772,18 @@ class EventType(bb.Union):
         """
         if not self.is_enabled_domain_invites():
             raise AttributeError("tag 'enabled_domain_invites' not set")
+        return self._value
+
+    def get_apply_naming_convention(self):
+        """
+        (file_operations) Applied naming convention
+
+        Only call this if :meth:`is_apply_naming_convention` is true.
+
+        :rtype: ApplyNamingConventionType
+        """
+        if not self.is_apply_naming_convention():
+            raise AttributeError("tag 'apply_naming_convention' not set")
         return self._value
 
     def get_create_folder(self):
@@ -30934,6 +34014,54 @@ class EventType(bb.Union):
             raise AttributeError("tag 'folder_overview_item_unpinned' not set")
         return self._value
 
+    def get_object_label_added(self):
+        """
+        (file_operations) Added a label
+
+        Only call this if :meth:`is_object_label_added` is true.
+
+        :rtype: ObjectLabelAddedType
+        """
+        if not self.is_object_label_added():
+            raise AttributeError("tag 'object_label_added' not set")
+        return self._value
+
+    def get_object_label_removed(self):
+        """
+        (file_operations) Removed a label
+
+        Only call this if :meth:`is_object_label_removed` is true.
+
+        :rtype: ObjectLabelRemovedType
+        """
+        if not self.is_object_label_removed():
+            raise AttributeError("tag 'object_label_removed' not set")
+        return self._value
+
+    def get_object_label_updated_value(self):
+        """
+        (file_operations) Updated a label's value
+
+        Only call this if :meth:`is_object_label_updated_value` is true.
+
+        :rtype: ObjectLabelUpdatedValueType
+        """
+        if not self.is_object_label_updated_value():
+            raise AttributeError("tag 'object_label_updated_value' not set")
+        return self._value
+
+    def get_organize_folder_with_tidy(self):
+        """
+        (file_operations) Organized a folder with multi-file organize
+
+        Only call this if :meth:`is_organize_folder_with_tidy` is true.
+
+        :rtype: OrganizeFolderWithTidyType
+        """
+        if not self.is_organize_folder_with_tidy():
+            raise AttributeError("tag 'organize_folder_with_tidy' not set")
+        return self._value
+
     def get_rewind_folder(self):
         """
         (file_operations) Rewound a folder
@@ -30944,6 +34072,66 @@ class EventType(bb.Union):
         """
         if not self.is_rewind_folder():
             raise AttributeError("tag 'rewind_folder' not set")
+        return self._value
+
+    def get_undo_naming_convention(self):
+        """
+        (file_operations) Reverted naming convention
+
+        Only call this if :meth:`is_undo_naming_convention` is true.
+
+        :rtype: UndoNamingConventionType
+        """
+        if not self.is_undo_naming_convention():
+            raise AttributeError("tag 'undo_naming_convention' not set")
+        return self._value
+
+    def get_undo_organize_folder_with_tidy(self):
+        """
+        (file_operations) Removed multi-file organize
+
+        Only call this if :meth:`is_undo_organize_folder_with_tidy` is true.
+
+        :rtype: UndoOrganizeFolderWithTidyType
+        """
+        if not self.is_undo_organize_folder_with_tidy():
+            raise AttributeError("tag 'undo_organize_folder_with_tidy' not set")
+        return self._value
+
+    def get_user_tags_added(self):
+        """
+        (file_operations) Tagged a file
+
+        Only call this if :meth:`is_user_tags_added` is true.
+
+        :rtype: UserTagsAddedType
+        """
+        if not self.is_user_tags_added():
+            raise AttributeError("tag 'user_tags_added' not set")
+        return self._value
+
+    def get_user_tags_removed(self):
+        """
+        (file_operations) Removed tags
+
+        Only call this if :meth:`is_user_tags_removed` is true.
+
+        :rtype: UserTagsRemovedType
+        """
+        if not self.is_user_tags_removed():
+            raise AttributeError("tag 'user_tags_removed' not set")
+        return self._value
+
+    def get_email_ingest_receive_file(self):
+        """
+        (file_requests) Received files via Email to Dropbox
+
+        Only call this if :meth:`is_email_ingest_receive_file` is true.
+
+        :rtype: EmailIngestReceiveFileType
+        """
+        if not self.is_email_ingest_receive_file():
+            raise AttributeError("tag 'email_ingest_receive_file' not set")
         return self._value
 
     def get_file_request_change(self):
@@ -33997,6 +37185,19 @@ class EventType(bb.Union):
             raise AttributeError("tag 'account_capture_change_policy' not set")
         return self._value
 
+    def get_admin_email_reminders_changed(self):
+        """
+        (team_policies) Changed admin reminder settings for requests to join the
+        team
+
+        Only call this if :meth:`is_admin_email_reminders_changed` is true.
+
+        :rtype: AdminEmailRemindersChangedType
+        """
+        if not self.is_admin_email_reminders_changed():
+            raise AttributeError("tag 'admin_email_reminders_changed' not set")
+        return self._value
+
     def get_allow_download_disabled(self):
         """
         (team_policies) Disabled downloads (deprecated, no longer logged)
@@ -34021,6 +37222,18 @@ class EventType(bb.Union):
             raise AttributeError("tag 'allow_download_enabled' not set")
         return self._value
 
+    def get_app_permissions_changed(self):
+        """
+        (team_policies) Changed app permissions
+
+        Only call this if :meth:`is_app_permissions_changed` is true.
+
+        :rtype: AppPermissionsChangedType
+        """
+        if not self.is_app_permissions_changed():
+            raise AttributeError("tag 'app_permissions_changed' not set")
+        return self._value
+
     def get_camera_uploads_policy_changed(self):
         """
         (team_policies) Changed camera uploads setting for team
@@ -34031,6 +37244,18 @@ class EventType(bb.Union):
         """
         if not self.is_camera_uploads_policy_changed():
             raise AttributeError("tag 'camera_uploads_policy_changed' not set")
+        return self._value
+
+    def get_capture_transcript_policy_changed(self):
+        """
+        (team_policies) Changed Capture transcription policy for team
+
+        Only call this if :meth:`is_capture_transcript_policy_changed` is true.
+
+        :rtype: CaptureTranscriptPolicyChangedType
+        """
+        if not self.is_capture_transcript_policy_changed():
+            raise AttributeError("tag 'capture_transcript_policy_changed' not set")
         return self._value
 
     def get_classification_change_policy(self):
@@ -34195,6 +37420,30 @@ class EventType(bb.Union):
             raise AttributeError("tag 'directory_restrictions_remove_members' not set")
         return self._value
 
+    def get_dropbox_passwords_policy_changed(self):
+        """
+        (team_policies) Changed Dropbox Passwords policy for team
+
+        Only call this if :meth:`is_dropbox_passwords_policy_changed` is true.
+
+        :rtype: DropboxPasswordsPolicyChangedType
+        """
+        if not self.is_dropbox_passwords_policy_changed():
+            raise AttributeError("tag 'dropbox_passwords_policy_changed' not set")
+        return self._value
+
+    def get_email_ingest_policy_changed(self):
+        """
+        (team_policies) Changed email to Dropbox policy for team
+
+        Only call this if :meth:`is_email_ingest_policy_changed` is true.
+
+        :rtype: EmailIngestPolicyChangedType
+        """
+        if not self.is_email_ingest_policy_changed():
+            raise AttributeError("tag 'email_ingest_policy_changed' not set")
+        return self._value
+
     def get_emm_add_exception(self):
         """
         (team_policies) Added members to EMM exception list
@@ -34244,6 +37493,18 @@ class EventType(bb.Union):
             raise AttributeError("tag 'extended_version_history_change_policy' not set")
         return self._value
 
+    def get_external_drive_backup_policy_changed(self):
+        """
+        (team_policies) Changed external drive backup policy for team
+
+        Only call this if :meth:`is_external_drive_backup_policy_changed` is true.
+
+        :rtype: ExternalDriveBackupPolicyChangedType
+        """
+        if not self.is_external_drive_backup_policy_changed():
+            raise AttributeError("tag 'external_drive_backup_policy_changed' not set")
+        return self._value
+
     def get_file_comments_change_policy(self):
         """
         (team_policies) Enabled/disabled commenting on team files
@@ -34266,6 +37527,18 @@ class EventType(bb.Union):
         """
         if not self.is_file_locking_policy_changed():
             raise AttributeError("tag 'file_locking_policy_changed' not set")
+        return self._value
+
+    def get_file_provider_migration_policy_changed(self):
+        """
+        (team_policies) Changed File Provider Migration policy for team
+
+        Only call this if :meth:`is_file_provider_migration_policy_changed` is true.
+
+        :rtype: FileProviderMigrationPolicyChangedType
+        """
+        if not self.is_file_provider_migration_policy_changed():
+            raise AttributeError("tag 'file_provider_migration_policy_changed' not set")
         return self._value
 
     def get_file_requests_change_policy(self):
@@ -34352,6 +37625,18 @@ class EventType(bb.Union):
         """
         if not self.is_integration_policy_changed():
             raise AttributeError("tag 'integration_policy_changed' not set")
+        return self._value
+
+    def get_invite_acceptance_email_policy_changed(self):
+        """
+        (team_policies) Changed invite accept email policy for team
+
+        Only call this if :meth:`is_invite_acceptance_email_policy_changed` is true.
+
+        :rtype: InviteAcceptanceEmailPolicyChangedType
+        """
+        if not self.is_invite_acceptance_email_policy_changed():
+            raise AttributeError("tag 'invite_acceptance_email_policy_changed' not set")
         return self._value
 
     def get_member_requests_change_policy(self):
@@ -34637,6 +37922,45 @@ class EventType(bb.Union):
             raise AttributeError("tag 'sharing_change_folder_join_policy' not set")
         return self._value
 
+    def get_sharing_change_link_allow_change_expiration_policy(self):
+        """
+        (team_policies) Changed the allow remove or change expiration policy for
+        the links shared outside of the team
+
+        Only call this if :meth:`is_sharing_change_link_allow_change_expiration_policy` is true.
+
+        :rtype: SharingChangeLinkAllowChangeExpirationPolicyType
+        """
+        if not self.is_sharing_change_link_allow_change_expiration_policy():
+            raise AttributeError("tag 'sharing_change_link_allow_change_expiration_policy' not set")
+        return self._value
+
+    def get_sharing_change_link_default_expiration_policy(self):
+        """
+        (team_policies) Changed the default expiration for the links shared
+        outside of the team
+
+        Only call this if :meth:`is_sharing_change_link_default_expiration_policy` is true.
+
+        :rtype: SharingChangeLinkDefaultExpirationPolicyType
+        """
+        if not self.is_sharing_change_link_default_expiration_policy():
+            raise AttributeError("tag 'sharing_change_link_default_expiration_policy' not set")
+        return self._value
+
+    def get_sharing_change_link_enforce_password_policy(self):
+        """
+        (team_policies) Changed the password requirement for the links shared
+        outside of the team
+
+        Only call this if :meth:`is_sharing_change_link_enforce_password_policy` is true.
+
+        :rtype: SharingChangeLinkEnforcePasswordPolicyType
+        """
+        if not self.is_sharing_change_link_enforce_password_policy():
+            raise AttributeError("tag 'sharing_change_link_enforce_password_policy' not set")
+        return self._value
+
     def get_sharing_change_link_policy(self):
         """
         (team_policies) Changed whether members can share links outside team,
@@ -34920,6 +38244,31 @@ class EventType(bb.Union):
         """
         if not self.is_web_sessions_change_idle_length_policy():
             raise AttributeError("tag 'web_sessions_change_idle_length_policy' not set")
+        return self._value
+
+    def get_data_residency_migration_request_successful(self):
+        """
+        (team_profile) Requested data residency migration for team data
+
+        Only call this if :meth:`is_data_residency_migration_request_successful` is true.
+
+        :rtype: DataResidencyMigrationRequestSuccessfulType
+        """
+        if not self.is_data_residency_migration_request_successful():
+            raise AttributeError("tag 'data_residency_migration_request_successful' not set")
+        return self._value
+
+    def get_data_residency_migration_request_unsuccessful(self):
+        """
+        (team_profile) Request for data residency migration for team data has
+        failed
+
+        Only call this if :meth:`is_data_residency_migration_request_unsuccessful` is true.
+
+        :rtype: DataResidencyMigrationRequestUnsuccessfulType
+        """
+        if not self.is_data_residency_migration_request_unsuccessful():
+            raise AttributeError("tag 'data_residency_migration_request_unsuccessful' not set")
         return self._value
 
     def get_team_merge_from(self):
@@ -35450,10 +38799,14 @@ class EventTypeArg(bb.Union):
     return true. To get the associated value of a tag (if one exists), use the
     corresponding ``get_*`` method.
 
+    :ivar team_log.EventTypeArg.admin_alerting_alert_state_changed:
+        (admin_alerting) Changed an alert state
     :ivar team_log.EventTypeArg.admin_alerting_changed_alert_config:
         (admin_alerting) Changed an alert setting
     :ivar team_log.EventTypeArg.admin_alerting_triggered_alert: (admin_alerting)
         Triggered security alert
+    :ivar team_log.EventTypeArg.app_blocked_by_permissions: (apps) Failed to
+        connect app for member
     :ivar team_log.EventTypeArg.app_link_team: (apps) Linked app for team
     :ivar team_log.EventTypeArg.app_link_user: (apps) Linked app for member
     :ivar team_log.EventTypeArg.app_unlink_team: (apps) Unlinked app for team
@@ -35481,6 +38834,8 @@ class EventTypeArg(bb.Union):
         Added folders to policy
     :ivar team_log.EventTypeArg.governance_policy_add_folder_failed:
         (data_governance) Couldn't add a folder to a policy
+    :ivar team_log.EventTypeArg.governance_policy_content_disposed:
+        (data_governance) Content disposed
     :ivar team_log.EventTypeArg.governance_policy_create: (data_governance)
         Activated a new policy
     :ivar team_log.EventTypeArg.governance_policy_delete: (data_governance)
@@ -35547,6 +38902,11 @@ class EventTypeArg(bb.Union):
         Enrolled new Dropbox Passwords device
     :ivar team_log.EventTypeArg.emm_refresh_auth_token: (devices) Refreshed auth
         token used for setting up EMM
+    :ivar
+        team_log.EventTypeArg.external_drive_backup_eligibility_status_checked:
+        (devices) Checked external drive backup eligibility status
+    :ivar team_log.EventTypeArg.external_drive_backup_status_changed: (devices)
+        Modified external drive backup
     :ivar team_log.EventTypeArg.account_capture_change_availability: (domains)
         Granted/revoked option to enable account capture on team domains
     :ivar team_log.EventTypeArg.account_capture_migrate_account: (domains)
@@ -35580,6 +38940,8 @@ class EventTypeArg(bb.Union):
         Removed domain from list of verified team domains
     :ivar team_log.EventTypeArg.enabled_domain_invites: (domains) Enabled domain
         invites (deprecated, no longer logged)
+    :ivar team_log.EventTypeArg.apply_naming_convention: (file_operations)
+        Applied naming convention
     :ivar team_log.EventTypeArg.create_folder: (file_operations) Created folders
         (deprecated, no longer logged)
     :ivar team_log.EventTypeArg.file_add: (file_operations) Added files and/or
@@ -35617,8 +38979,25 @@ class EventTypeArg(bb.Union):
         Pinned item to folder overview
     :ivar team_log.EventTypeArg.folder_overview_item_unpinned: (file_operations)
         Unpinned item from folder overview
+    :ivar team_log.EventTypeArg.object_label_added: (file_operations) Added a
+        label
+    :ivar team_log.EventTypeArg.object_label_removed: (file_operations) Removed
+        a label
+    :ivar team_log.EventTypeArg.object_label_updated_value: (file_operations)
+        Updated a label's value
+    :ivar team_log.EventTypeArg.organize_folder_with_tidy: (file_operations)
+        Organized a folder with multi-file organize
     :ivar team_log.EventTypeArg.rewind_folder: (file_operations) Rewound a
         folder
+    :ivar team_log.EventTypeArg.undo_naming_convention: (file_operations)
+        Reverted naming convention
+    :ivar team_log.EventTypeArg.undo_organize_folder_with_tidy:
+        (file_operations) Removed multi-file organize
+    :ivar team_log.EventTypeArg.user_tags_added: (file_operations) Tagged a file
+    :ivar team_log.EventTypeArg.user_tags_removed: (file_operations) Removed
+        tags
+    :ivar team_log.EventTypeArg.email_ingest_receive_file: (file_requests)
+        Received files via Email to Dropbox
     :ivar team_log.EventTypeArg.file_request_change: (file_requests) Changed
         file request
     :ivar team_log.EventTypeArg.file_request_close: (file_requests) Closed file
@@ -36117,12 +39496,18 @@ class EventTypeArg(bb.Union):
         (team_folders) Changed sync default
     :ivar team_log.EventTypeArg.account_capture_change_policy: (team_policies)
         Changed account capture setting on team domain
+    :ivar team_log.EventTypeArg.admin_email_reminders_changed: (team_policies)
+        Changed admin reminder settings for requests to join the team
     :ivar team_log.EventTypeArg.allow_download_disabled: (team_policies)
         Disabled downloads (deprecated, no longer logged)
     :ivar team_log.EventTypeArg.allow_download_enabled: (team_policies) Enabled
         downloads (deprecated, no longer logged)
+    :ivar team_log.EventTypeArg.app_permissions_changed: (team_policies) Changed
+        app permissions
     :ivar team_log.EventTypeArg.camera_uploads_policy_changed: (team_policies)
         Changed camera uploads setting for team
+    :ivar team_log.EventTypeArg.capture_transcript_policy_changed:
+        (team_policies) Changed Capture transcription policy for team
     :ivar team_log.EventTypeArg.classification_change_policy: (team_policies)
         Changed classification policy for team
     :ivar team_log.EventTypeArg.computer_backup_policy_changed: (team_policies)
@@ -36155,6 +39540,10 @@ class EventTypeArg(bb.Union):
         (team_policies) Added members to directory restrictions list
     :ivar team_log.EventTypeArg.directory_restrictions_remove_members:
         (team_policies) Removed members from directory restrictions list
+    :ivar team_log.EventTypeArg.dropbox_passwords_policy_changed:
+        (team_policies) Changed Dropbox Passwords policy for team
+    :ivar team_log.EventTypeArg.email_ingest_policy_changed: (team_policies)
+        Changed email to Dropbox policy for team
     :ivar team_log.EventTypeArg.emm_add_exception: (team_policies) Added members
         to EMM exception list
     :ivar team_log.EventTypeArg.emm_change_policy: (team_policies)
@@ -36163,10 +39552,14 @@ class EventTypeArg(bb.Union):
         members from EMM exception list
     :ivar team_log.EventTypeArg.extended_version_history_change_policy:
         (team_policies) Accepted/opted out of extended version history
+    :ivar team_log.EventTypeArg.external_drive_backup_policy_changed:
+        (team_policies) Changed external drive backup policy for team
     :ivar team_log.EventTypeArg.file_comments_change_policy: (team_policies)
         Enabled/disabled commenting on team files
     :ivar team_log.EventTypeArg.file_locking_policy_changed: (team_policies)
         Changed file locking policy for team
+    :ivar team_log.EventTypeArg.file_provider_migration_policy_changed:
+        (team_policies) Changed File Provider Migration policy for team
     :ivar team_log.EventTypeArg.file_requests_change_policy: (team_policies)
         Enabled/disabled file requests
     :ivar team_log.EventTypeArg.file_requests_emails_enabled: (team_policies)
@@ -36182,6 +39575,8 @@ class EventTypeArg(bb.Union):
         (team_policies) Changed who can create groups
     :ivar team_log.EventTypeArg.integration_policy_changed: (team_policies)
         Changed integration policy for team
+    :ivar team_log.EventTypeArg.invite_acceptance_email_policy_changed:
+        (team_policies) Changed invite accept email policy for team
     :ivar team_log.EventTypeArg.member_requests_change_policy: (team_policies)
         Changed whether users can find team when not invited
     :ivar team_log.EventTypeArg.member_send_invite_policy_changed:
@@ -36233,6 +39628,16 @@ class EventTypeArg(bb.Union):
     :ivar team_log.EventTypeArg.sharing_change_folder_join_policy:
         (team_policies) Changed whether team members can join shared folders
         owned outside team
+    :ivar
+        team_log.EventTypeArg.sharing_change_link_allow_change_expiration_policy:
+        (team_policies) Changed the allow remove or change expiration policy for
+        the links shared outside of the team
+    :ivar team_log.EventTypeArg.sharing_change_link_default_expiration_policy:
+        (team_policies) Changed the default expiration for the links shared
+        outside of the team
+    :ivar team_log.EventTypeArg.sharing_change_link_enforce_password_policy:
+        (team_policies) Changed the password requirement for the links shared
+        outside of the team
     :ivar team_log.EventTypeArg.sharing_change_link_policy: (team_policies)
         Changed whether members can share links outside team, and if links are
         accessible only by team members or anyone by default
@@ -36284,6 +39689,11 @@ class EventTypeArg(bb.Union):
     :ivar team_log.EventTypeArg.web_sessions_change_idle_length_policy:
         (team_policies) Changed how long team members can be idle while signed
         in to Dropbox.com
+    :ivar team_log.EventTypeArg.data_residency_migration_request_successful:
+        (team_profile) Requested data residency migration for team data
+    :ivar team_log.EventTypeArg.data_residency_migration_request_unsuccessful:
+        (team_profile) Request for data residency migration for team data has
+        failed
     :ivar team_log.EventTypeArg.team_merge_from: (team_profile) Merged another
         team into this team
     :ivar team_log.EventTypeArg.team_merge_to: (team_profile) Merged this team
@@ -36393,9 +39803,13 @@ class EventTypeArg(bb.Union):
 
     _catch_all = 'other'
     # Attribute is overwritten below the class definition
+    admin_alerting_alert_state_changed = None
+    # Attribute is overwritten below the class definition
     admin_alerting_changed_alert_config = None
     # Attribute is overwritten below the class definition
     admin_alerting_triggered_alert = None
+    # Attribute is overwritten below the class definition
+    app_blocked_by_permissions = None
     # Attribute is overwritten below the class definition
     app_link_team = None
     # Attribute is overwritten below the class definition
@@ -36428,6 +39842,8 @@ class EventTypeArg(bb.Union):
     governance_policy_add_folders = None
     # Attribute is overwritten below the class definition
     governance_policy_add_folder_failed = None
+    # Attribute is overwritten below the class definition
+    governance_policy_content_disposed = None
     # Attribute is overwritten below the class definition
     governance_policy_create = None
     # Attribute is overwritten below the class definition
@@ -36497,6 +39913,10 @@ class EventTypeArg(bb.Union):
     # Attribute is overwritten below the class definition
     emm_refresh_auth_token = None
     # Attribute is overwritten below the class definition
+    external_drive_backup_eligibility_status_checked = None
+    # Attribute is overwritten below the class definition
+    external_drive_backup_status_changed = None
+    # Attribute is overwritten below the class definition
     account_capture_change_availability = None
     # Attribute is overwritten below the class definition
     account_capture_migrate_account = None
@@ -36526,6 +39946,8 @@ class EventTypeArg(bb.Union):
     domain_verification_remove_domain = None
     # Attribute is overwritten below the class definition
     enabled_domain_invites = None
+    # Attribute is overwritten below the class definition
+    apply_naming_convention = None
     # Attribute is overwritten below the class definition
     create_folder = None
     # Attribute is overwritten below the class definition
@@ -36565,7 +39987,25 @@ class EventTypeArg(bb.Union):
     # Attribute is overwritten below the class definition
     folder_overview_item_unpinned = None
     # Attribute is overwritten below the class definition
+    object_label_added = None
+    # Attribute is overwritten below the class definition
+    object_label_removed = None
+    # Attribute is overwritten below the class definition
+    object_label_updated_value = None
+    # Attribute is overwritten below the class definition
+    organize_folder_with_tidy = None
+    # Attribute is overwritten below the class definition
     rewind_folder = None
+    # Attribute is overwritten below the class definition
+    undo_naming_convention = None
+    # Attribute is overwritten below the class definition
+    undo_organize_folder_with_tidy = None
+    # Attribute is overwritten below the class definition
+    user_tags_added = None
+    # Attribute is overwritten below the class definition
+    user_tags_removed = None
+    # Attribute is overwritten below the class definition
+    email_ingest_receive_file = None
     # Attribute is overwritten below the class definition
     file_request_change = None
     # Attribute is overwritten below the class definition
@@ -37069,11 +40509,17 @@ class EventTypeArg(bb.Union):
     # Attribute is overwritten below the class definition
     account_capture_change_policy = None
     # Attribute is overwritten below the class definition
+    admin_email_reminders_changed = None
+    # Attribute is overwritten below the class definition
     allow_download_disabled = None
     # Attribute is overwritten below the class definition
     allow_download_enabled = None
     # Attribute is overwritten below the class definition
+    app_permissions_changed = None
+    # Attribute is overwritten below the class definition
     camera_uploads_policy_changed = None
+    # Attribute is overwritten below the class definition
+    capture_transcript_policy_changed = None
     # Attribute is overwritten below the class definition
     classification_change_policy = None
     # Attribute is overwritten below the class definition
@@ -37101,6 +40547,10 @@ class EventTypeArg(bb.Union):
     # Attribute is overwritten below the class definition
     directory_restrictions_remove_members = None
     # Attribute is overwritten below the class definition
+    dropbox_passwords_policy_changed = None
+    # Attribute is overwritten below the class definition
+    email_ingest_policy_changed = None
+    # Attribute is overwritten below the class definition
     emm_add_exception = None
     # Attribute is overwritten below the class definition
     emm_change_policy = None
@@ -37109,9 +40559,13 @@ class EventTypeArg(bb.Union):
     # Attribute is overwritten below the class definition
     extended_version_history_change_policy = None
     # Attribute is overwritten below the class definition
+    external_drive_backup_policy_changed = None
+    # Attribute is overwritten below the class definition
     file_comments_change_policy = None
     # Attribute is overwritten below the class definition
     file_locking_policy_changed = None
+    # Attribute is overwritten below the class definition
+    file_provider_migration_policy_changed = None
     # Attribute is overwritten below the class definition
     file_requests_change_policy = None
     # Attribute is overwritten below the class definition
@@ -37126,6 +40580,8 @@ class EventTypeArg(bb.Union):
     group_user_management_change_policy = None
     # Attribute is overwritten below the class definition
     integration_policy_changed = None
+    # Attribute is overwritten below the class definition
+    invite_acceptance_email_policy_changed = None
     # Attribute is overwritten below the class definition
     member_requests_change_policy = None
     # Attribute is overwritten below the class definition
@@ -37173,6 +40629,12 @@ class EventTypeArg(bb.Union):
     # Attribute is overwritten below the class definition
     sharing_change_folder_join_policy = None
     # Attribute is overwritten below the class definition
+    sharing_change_link_allow_change_expiration_policy = None
+    # Attribute is overwritten below the class definition
+    sharing_change_link_default_expiration_policy = None
+    # Attribute is overwritten below the class definition
+    sharing_change_link_enforce_password_policy = None
+    # Attribute is overwritten below the class definition
     sharing_change_link_policy = None
     # Attribute is overwritten below the class definition
     sharing_change_member_policy = None
@@ -37218,6 +40680,10 @@ class EventTypeArg(bb.Union):
     web_sessions_change_fixed_length_policy = None
     # Attribute is overwritten below the class definition
     web_sessions_change_idle_length_policy = None
+    # Attribute is overwritten below the class definition
+    data_residency_migration_request_successful = None
+    # Attribute is overwritten below the class definition
+    data_residency_migration_request_unsuccessful = None
     # Attribute is overwritten below the class definition
     team_merge_from = None
     # Attribute is overwritten below the class definition
@@ -37305,6 +40771,14 @@ class EventTypeArg(bb.Union):
     # Attribute is overwritten below the class definition
     other = None
 
+    def is_admin_alerting_alert_state_changed(self):
+        """
+        Check if the union tag is ``admin_alerting_alert_state_changed``.
+
+        :rtype: bool
+        """
+        return self._tag == 'admin_alerting_alert_state_changed'
+
     def is_admin_alerting_changed_alert_config(self):
         """
         Check if the union tag is ``admin_alerting_changed_alert_config``.
@@ -37320,6 +40794,14 @@ class EventTypeArg(bb.Union):
         :rtype: bool
         """
         return self._tag == 'admin_alerting_triggered_alert'
+
+    def is_app_blocked_by_permissions(self):
+        """
+        Check if the union tag is ``app_blocked_by_permissions``.
+
+        :rtype: bool
+        """
+        return self._tag == 'app_blocked_by_permissions'
 
     def is_app_link_team(self):
         """
@@ -37448,6 +40930,14 @@ class EventTypeArg(bb.Union):
         :rtype: bool
         """
         return self._tag == 'governance_policy_add_folder_failed'
+
+    def is_governance_policy_content_disposed(self):
+        """
+        Check if the union tag is ``governance_policy_content_disposed``.
+
+        :rtype: bool
+        """
+        return self._tag == 'governance_policy_content_disposed'
 
     def is_governance_policy_create(self):
         """
@@ -37721,6 +41211,22 @@ class EventTypeArg(bb.Union):
         """
         return self._tag == 'emm_refresh_auth_token'
 
+    def is_external_drive_backup_eligibility_status_checked(self):
+        """
+        Check if the union tag is ``external_drive_backup_eligibility_status_checked``.
+
+        :rtype: bool
+        """
+        return self._tag == 'external_drive_backup_eligibility_status_checked'
+
+    def is_external_drive_backup_status_changed(self):
+        """
+        Check if the union tag is ``external_drive_backup_status_changed``.
+
+        :rtype: bool
+        """
+        return self._tag == 'external_drive_backup_status_changed'
+
     def is_account_capture_change_availability(self):
         """
         Check if the union tag is ``account_capture_change_availability``.
@@ -37840,6 +41346,14 @@ class EventTypeArg(bb.Union):
         :rtype: bool
         """
         return self._tag == 'enabled_domain_invites'
+
+    def is_apply_naming_convention(self):
+        """
+        Check if the union tag is ``apply_naming_convention``.
+
+        :rtype: bool
+        """
+        return self._tag == 'apply_naming_convention'
 
     def is_create_folder(self):
         """
@@ -37993,6 +41507,38 @@ class EventTypeArg(bb.Union):
         """
         return self._tag == 'folder_overview_item_unpinned'
 
+    def is_object_label_added(self):
+        """
+        Check if the union tag is ``object_label_added``.
+
+        :rtype: bool
+        """
+        return self._tag == 'object_label_added'
+
+    def is_object_label_removed(self):
+        """
+        Check if the union tag is ``object_label_removed``.
+
+        :rtype: bool
+        """
+        return self._tag == 'object_label_removed'
+
+    def is_object_label_updated_value(self):
+        """
+        Check if the union tag is ``object_label_updated_value``.
+
+        :rtype: bool
+        """
+        return self._tag == 'object_label_updated_value'
+
+    def is_organize_folder_with_tidy(self):
+        """
+        Check if the union tag is ``organize_folder_with_tidy``.
+
+        :rtype: bool
+        """
+        return self._tag == 'organize_folder_with_tidy'
+
     def is_rewind_folder(self):
         """
         Check if the union tag is ``rewind_folder``.
@@ -38000,6 +41546,46 @@ class EventTypeArg(bb.Union):
         :rtype: bool
         """
         return self._tag == 'rewind_folder'
+
+    def is_undo_naming_convention(self):
+        """
+        Check if the union tag is ``undo_naming_convention``.
+
+        :rtype: bool
+        """
+        return self._tag == 'undo_naming_convention'
+
+    def is_undo_organize_folder_with_tidy(self):
+        """
+        Check if the union tag is ``undo_organize_folder_with_tidy``.
+
+        :rtype: bool
+        """
+        return self._tag == 'undo_organize_folder_with_tidy'
+
+    def is_user_tags_added(self):
+        """
+        Check if the union tag is ``user_tags_added``.
+
+        :rtype: bool
+        """
+        return self._tag == 'user_tags_added'
+
+    def is_user_tags_removed(self):
+        """
+        Check if the union tag is ``user_tags_removed``.
+
+        :rtype: bool
+        """
+        return self._tag == 'user_tags_removed'
+
+    def is_email_ingest_receive_file(self):
+        """
+        Check if the union tag is ``email_ingest_receive_file``.
+
+        :rtype: bool
+        """
+        return self._tag == 'email_ingest_receive_file'
 
     def is_file_request_change(self):
         """
@@ -40009,6 +43595,14 @@ class EventTypeArg(bb.Union):
         """
         return self._tag == 'account_capture_change_policy'
 
+    def is_admin_email_reminders_changed(self):
+        """
+        Check if the union tag is ``admin_email_reminders_changed``.
+
+        :rtype: bool
+        """
+        return self._tag == 'admin_email_reminders_changed'
+
     def is_allow_download_disabled(self):
         """
         Check if the union tag is ``allow_download_disabled``.
@@ -40025,6 +43619,14 @@ class EventTypeArg(bb.Union):
         """
         return self._tag == 'allow_download_enabled'
 
+    def is_app_permissions_changed(self):
+        """
+        Check if the union tag is ``app_permissions_changed``.
+
+        :rtype: bool
+        """
+        return self._tag == 'app_permissions_changed'
+
     def is_camera_uploads_policy_changed(self):
         """
         Check if the union tag is ``camera_uploads_policy_changed``.
@@ -40032,6 +43634,14 @@ class EventTypeArg(bb.Union):
         :rtype: bool
         """
         return self._tag == 'camera_uploads_policy_changed'
+
+    def is_capture_transcript_policy_changed(self):
+        """
+        Check if the union tag is ``capture_transcript_policy_changed``.
+
+        :rtype: bool
+        """
+        return self._tag == 'capture_transcript_policy_changed'
 
     def is_classification_change_policy(self):
         """
@@ -40137,6 +43747,22 @@ class EventTypeArg(bb.Union):
         """
         return self._tag == 'directory_restrictions_remove_members'
 
+    def is_dropbox_passwords_policy_changed(self):
+        """
+        Check if the union tag is ``dropbox_passwords_policy_changed``.
+
+        :rtype: bool
+        """
+        return self._tag == 'dropbox_passwords_policy_changed'
+
+    def is_email_ingest_policy_changed(self):
+        """
+        Check if the union tag is ``email_ingest_policy_changed``.
+
+        :rtype: bool
+        """
+        return self._tag == 'email_ingest_policy_changed'
+
     def is_emm_add_exception(self):
         """
         Check if the union tag is ``emm_add_exception``.
@@ -40169,6 +43795,14 @@ class EventTypeArg(bb.Union):
         """
         return self._tag == 'extended_version_history_change_policy'
 
+    def is_external_drive_backup_policy_changed(self):
+        """
+        Check if the union tag is ``external_drive_backup_policy_changed``.
+
+        :rtype: bool
+        """
+        return self._tag == 'external_drive_backup_policy_changed'
+
     def is_file_comments_change_policy(self):
         """
         Check if the union tag is ``file_comments_change_policy``.
@@ -40184,6 +43818,14 @@ class EventTypeArg(bb.Union):
         :rtype: bool
         """
         return self._tag == 'file_locking_policy_changed'
+
+    def is_file_provider_migration_policy_changed(self):
+        """
+        Check if the union tag is ``file_provider_migration_policy_changed``.
+
+        :rtype: bool
+        """
+        return self._tag == 'file_provider_migration_policy_changed'
 
     def is_file_requests_change_policy(self):
         """
@@ -40240,6 +43882,14 @@ class EventTypeArg(bb.Union):
         :rtype: bool
         """
         return self._tag == 'integration_policy_changed'
+
+    def is_invite_acceptance_email_policy_changed(self):
+        """
+        Check if the union tag is ``invite_acceptance_email_policy_changed``.
+
+        :rtype: bool
+        """
+        return self._tag == 'invite_acceptance_email_policy_changed'
 
     def is_member_requests_change_policy(self):
         """
@@ -40425,6 +44075,30 @@ class EventTypeArg(bb.Union):
         """
         return self._tag == 'sharing_change_folder_join_policy'
 
+    def is_sharing_change_link_allow_change_expiration_policy(self):
+        """
+        Check if the union tag is ``sharing_change_link_allow_change_expiration_policy``.
+
+        :rtype: bool
+        """
+        return self._tag == 'sharing_change_link_allow_change_expiration_policy'
+
+    def is_sharing_change_link_default_expiration_policy(self):
+        """
+        Check if the union tag is ``sharing_change_link_default_expiration_policy``.
+
+        :rtype: bool
+        """
+        return self._tag == 'sharing_change_link_default_expiration_policy'
+
+    def is_sharing_change_link_enforce_password_policy(self):
+        """
+        Check if the union tag is ``sharing_change_link_enforce_password_policy``.
+
+        :rtype: bool
+        """
+        return self._tag == 'sharing_change_link_enforce_password_policy'
+
     def is_sharing_change_link_policy(self):
         """
         Check if the union tag is ``sharing_change_link_policy``.
@@ -40608,6 +44282,22 @@ class EventTypeArg(bb.Union):
         :rtype: bool
         """
         return self._tag == 'web_sessions_change_idle_length_policy'
+
+    def is_data_residency_migration_request_successful(self):
+        """
+        Check if the union tag is ``data_residency_migration_request_successful``.
+
+        :rtype: bool
+        """
+        return self._tag == 'data_residency_migration_request_successful'
+
+    def is_data_residency_migration_request_unsuccessful(self):
+        """
+        Check if the union tag is ``data_residency_migration_request_unsuccessful``.
+
+        :rtype: bool
+        """
+        return self._tag == 'data_residency_migration_request_unsuccessful'
 
     def is_team_merge_from(self):
         """
@@ -41173,6 +44863,397 @@ class ExtendedVersionHistoryPolicy(bb.Union):
 
 ExtendedVersionHistoryPolicy_validator = bv.Union(ExtendedVersionHistoryPolicy)
 
+class ExternalDriveBackupEligibilityStatus(bb.Union):
+    """
+    External Drive Backup eligibility status
+
+    This class acts as a tagged union. Only one of the ``is_*`` methods will
+    return true. To get the associated value of a tag (if one exists), use the
+    corresponding ``get_*`` method.
+    """
+
+    _catch_all = 'other'
+    # Attribute is overwritten below the class definition
+    exceed_license_cap = None
+    # Attribute is overwritten below the class definition
+    success = None
+    # Attribute is overwritten below the class definition
+    other = None
+
+    def is_exceed_license_cap(self):
+        """
+        Check if the union tag is ``exceed_license_cap``.
+
+        :rtype: bool
+        """
+        return self._tag == 'exceed_license_cap'
+
+    def is_success(self):
+        """
+        Check if the union tag is ``success``.
+
+        :rtype: bool
+        """
+        return self._tag == 'success'
+
+    def is_other(self):
+        """
+        Check if the union tag is ``other``.
+
+        :rtype: bool
+        """
+        return self._tag == 'other'
+
+    def _process_custom_annotations(self, annotation_type, field_path, processor):
+        super(ExternalDriveBackupEligibilityStatus, self)._process_custom_annotations(annotation_type, field_path, processor)
+
+ExternalDriveBackupEligibilityStatus_validator = bv.Union(ExternalDriveBackupEligibilityStatus)
+
+class ExternalDriveBackupEligibilityStatusCheckedDetails(bb.Struct):
+    """
+    Checked external drive backup eligibility status.
+
+    :ivar
+        team_log.ExternalDriveBackupEligibilityStatusCheckedDetails.desktop_device_session_info:
+        Device's session logged information.
+    :ivar team_log.ExternalDriveBackupEligibilityStatusCheckedDetails.status:
+        Current eligibility status of external drive backup.
+    :ivar
+        team_log.ExternalDriveBackupEligibilityStatusCheckedDetails.number_of_external_drive_backup:
+        Total number of valid external drive backup for all the team members.
+    """
+
+    __slots__ = [
+        '_desktop_device_session_info_value',
+        '_status_value',
+        '_number_of_external_drive_backup_value',
+    ]
+
+    _has_required_fields = True
+
+    def __init__(self,
+                 desktop_device_session_info=None,
+                 status=None,
+                 number_of_external_drive_backup=None):
+        self._desktop_device_session_info_value = bb.NOT_SET
+        self._status_value = bb.NOT_SET
+        self._number_of_external_drive_backup_value = bb.NOT_SET
+        if desktop_device_session_info is not None:
+            self.desktop_device_session_info = desktop_device_session_info
+        if status is not None:
+            self.status = status
+        if number_of_external_drive_backup is not None:
+            self.number_of_external_drive_backup = number_of_external_drive_backup
+
+    # Instance attribute type: DesktopDeviceSessionLogInfo (validator is set below)
+    desktop_device_session_info = bb.Attribute("desktop_device_session_info", user_defined=True)
+
+    # Instance attribute type: ExternalDriveBackupEligibilityStatus (validator is set below)
+    status = bb.Attribute("status", user_defined=True)
+
+    # Instance attribute type: int (validator is set below)
+    number_of_external_drive_backup = bb.Attribute("number_of_external_drive_backup")
+
+    def _process_custom_annotations(self, annotation_type, field_path, processor):
+        super(ExternalDriveBackupEligibilityStatusCheckedDetails, self)._process_custom_annotations(annotation_type, field_path, processor)
+
+ExternalDriveBackupEligibilityStatusCheckedDetails_validator = bv.Struct(ExternalDriveBackupEligibilityStatusCheckedDetails)
+
+class ExternalDriveBackupEligibilityStatusCheckedType(bb.Struct):
+
+    __slots__ = [
+        '_description_value',
+    ]
+
+    _has_required_fields = True
+
+    def __init__(self,
+                 description=None):
+        self._description_value = bb.NOT_SET
+        if description is not None:
+            self.description = description
+
+    # Instance attribute type: str (validator is set below)
+    description = bb.Attribute("description")
+
+    def _process_custom_annotations(self, annotation_type, field_path, processor):
+        super(ExternalDriveBackupEligibilityStatusCheckedType, self)._process_custom_annotations(annotation_type, field_path, processor)
+
+ExternalDriveBackupEligibilityStatusCheckedType_validator = bv.Struct(ExternalDriveBackupEligibilityStatusCheckedType)
+
+class ExternalDriveBackupPolicy(bb.Union):
+    """
+    Policy for controlling team access to external drive backup feature
+
+    This class acts as a tagged union. Only one of the ``is_*`` methods will
+    return true. To get the associated value of a tag (if one exists), use the
+    corresponding ``get_*`` method.
+    """
+
+    _catch_all = 'other'
+    # Attribute is overwritten below the class definition
+    default = None
+    # Attribute is overwritten below the class definition
+    disabled = None
+    # Attribute is overwritten below the class definition
+    enabled = None
+    # Attribute is overwritten below the class definition
+    other = None
+
+    def is_default(self):
+        """
+        Check if the union tag is ``default``.
+
+        :rtype: bool
+        """
+        return self._tag == 'default'
+
+    def is_disabled(self):
+        """
+        Check if the union tag is ``disabled``.
+
+        :rtype: bool
+        """
+        return self._tag == 'disabled'
+
+    def is_enabled(self):
+        """
+        Check if the union tag is ``enabled``.
+
+        :rtype: bool
+        """
+        return self._tag == 'enabled'
+
+    def is_other(self):
+        """
+        Check if the union tag is ``other``.
+
+        :rtype: bool
+        """
+        return self._tag == 'other'
+
+    def _process_custom_annotations(self, annotation_type, field_path, processor):
+        super(ExternalDriveBackupPolicy, self)._process_custom_annotations(annotation_type, field_path, processor)
+
+ExternalDriveBackupPolicy_validator = bv.Union(ExternalDriveBackupPolicy)
+
+class ExternalDriveBackupPolicyChangedDetails(bb.Struct):
+    """
+    Changed external drive backup policy for team.
+
+    :ivar team_log.ExternalDriveBackupPolicyChangedDetails.new_value: New
+        external drive backup policy.
+    :ivar team_log.ExternalDriveBackupPolicyChangedDetails.previous_value:
+        Previous external drive backup policy.
+    """
+
+    __slots__ = [
+        '_new_value_value',
+        '_previous_value_value',
+    ]
+
+    _has_required_fields = True
+
+    def __init__(self,
+                 new_value=None,
+                 previous_value=None):
+        self._new_value_value = bb.NOT_SET
+        self._previous_value_value = bb.NOT_SET
+        if new_value is not None:
+            self.new_value = new_value
+        if previous_value is not None:
+            self.previous_value = previous_value
+
+    # Instance attribute type: ExternalDriveBackupPolicy (validator is set below)
+    new_value = bb.Attribute("new_value", user_defined=True)
+
+    # Instance attribute type: ExternalDriveBackupPolicy (validator is set below)
+    previous_value = bb.Attribute("previous_value", user_defined=True)
+
+    def _process_custom_annotations(self, annotation_type, field_path, processor):
+        super(ExternalDriveBackupPolicyChangedDetails, self)._process_custom_annotations(annotation_type, field_path, processor)
+
+ExternalDriveBackupPolicyChangedDetails_validator = bv.Struct(ExternalDriveBackupPolicyChangedDetails)
+
+class ExternalDriveBackupPolicyChangedType(bb.Struct):
+
+    __slots__ = [
+        '_description_value',
+    ]
+
+    _has_required_fields = True
+
+    def __init__(self,
+                 description=None):
+        self._description_value = bb.NOT_SET
+        if description is not None:
+            self.description = description
+
+    # Instance attribute type: str (validator is set below)
+    description = bb.Attribute("description")
+
+    def _process_custom_annotations(self, annotation_type, field_path, processor):
+        super(ExternalDriveBackupPolicyChangedType, self)._process_custom_annotations(annotation_type, field_path, processor)
+
+ExternalDriveBackupPolicyChangedType_validator = bv.Struct(ExternalDriveBackupPolicyChangedType)
+
+class ExternalDriveBackupStatus(bb.Union):
+    """
+    External Drive Backup status
+
+    This class acts as a tagged union. Only one of the ``is_*`` methods will
+    return true. To get the associated value of a tag (if one exists), use the
+    corresponding ``get_*`` method.
+    """
+
+    _catch_all = 'other'
+    # Attribute is overwritten below the class definition
+    broken = None
+    # Attribute is overwritten below the class definition
+    created = None
+    # Attribute is overwritten below the class definition
+    created_or_broken = None
+    # Attribute is overwritten below the class definition
+    deleted = None
+    # Attribute is overwritten below the class definition
+    empty = None
+    # Attribute is overwritten below the class definition
+    unknown = None
+    # Attribute is overwritten below the class definition
+    other = None
+
+    def is_broken(self):
+        """
+        Check if the union tag is ``broken``.
+
+        :rtype: bool
+        """
+        return self._tag == 'broken'
+
+    def is_created(self):
+        """
+        Check if the union tag is ``created``.
+
+        :rtype: bool
+        """
+        return self._tag == 'created'
+
+    def is_created_or_broken(self):
+        """
+        Check if the union tag is ``created_or_broken``.
+
+        :rtype: bool
+        """
+        return self._tag == 'created_or_broken'
+
+    def is_deleted(self):
+        """
+        Check if the union tag is ``deleted``.
+
+        :rtype: bool
+        """
+        return self._tag == 'deleted'
+
+    def is_empty(self):
+        """
+        Check if the union tag is ``empty``.
+
+        :rtype: bool
+        """
+        return self._tag == 'empty'
+
+    def is_unknown(self):
+        """
+        Check if the union tag is ``unknown``.
+
+        :rtype: bool
+        """
+        return self._tag == 'unknown'
+
+    def is_other(self):
+        """
+        Check if the union tag is ``other``.
+
+        :rtype: bool
+        """
+        return self._tag == 'other'
+
+    def _process_custom_annotations(self, annotation_type, field_path, processor):
+        super(ExternalDriveBackupStatus, self)._process_custom_annotations(annotation_type, field_path, processor)
+
+ExternalDriveBackupStatus_validator = bv.Union(ExternalDriveBackupStatus)
+
+class ExternalDriveBackupStatusChangedDetails(bb.Struct):
+    """
+    Modified external drive backup.
+
+    :ivar
+        team_log.ExternalDriveBackupStatusChangedDetails.desktop_device_session_info:
+        Device's session logged information.
+    :ivar team_log.ExternalDriveBackupStatusChangedDetails.previous_value:
+        Previous status of this external drive backup.
+    :ivar team_log.ExternalDriveBackupStatusChangedDetails.new_value: Next
+        status of this external drive backup.
+    """
+
+    __slots__ = [
+        '_desktop_device_session_info_value',
+        '_previous_value_value',
+        '_new_value_value',
+    ]
+
+    _has_required_fields = True
+
+    def __init__(self,
+                 desktop_device_session_info=None,
+                 previous_value=None,
+                 new_value=None):
+        self._desktop_device_session_info_value = bb.NOT_SET
+        self._previous_value_value = bb.NOT_SET
+        self._new_value_value = bb.NOT_SET
+        if desktop_device_session_info is not None:
+            self.desktop_device_session_info = desktop_device_session_info
+        if previous_value is not None:
+            self.previous_value = previous_value
+        if new_value is not None:
+            self.new_value = new_value
+
+    # Instance attribute type: DesktopDeviceSessionLogInfo (validator is set below)
+    desktop_device_session_info = bb.Attribute("desktop_device_session_info", user_defined=True)
+
+    # Instance attribute type: ExternalDriveBackupStatus (validator is set below)
+    previous_value = bb.Attribute("previous_value", user_defined=True)
+
+    # Instance attribute type: ExternalDriveBackupStatus (validator is set below)
+    new_value = bb.Attribute("new_value", user_defined=True)
+
+    def _process_custom_annotations(self, annotation_type, field_path, processor):
+        super(ExternalDriveBackupStatusChangedDetails, self)._process_custom_annotations(annotation_type, field_path, processor)
+
+ExternalDriveBackupStatusChangedDetails_validator = bv.Struct(ExternalDriveBackupStatusChangedDetails)
+
+class ExternalDriveBackupStatusChangedType(bb.Struct):
+
+    __slots__ = [
+        '_description_value',
+    ]
+
+    _has_required_fields = True
+
+    def __init__(self,
+                 description=None):
+        self._description_value = bb.NOT_SET
+        if description is not None:
+            self.description = description
+
+    # Instance attribute type: str (validator is set below)
+    description = bb.Attribute("description")
+
+    def _process_custom_annotations(self, annotation_type, field_path, processor):
+        super(ExternalDriveBackupStatusChangedType, self)._process_custom_annotations(annotation_type, field_path, processor)
+
+ExternalDriveBackupStatusChangedType_validator = bv.Struct(ExternalDriveBackupStatusChangedType)
+
 class ExternalSharingCreateReportDetails(bb.Struct):
     """
     Created External sharing report.
@@ -41305,7 +45386,7 @@ class FailureDetailsLogInfo(bb.Struct):
     Provides details about a failure
 
     :ivar team_log.FailureDetailsLogInfo.user_friendly_message: A user friendly
-        explanation of the error. Might be missing due to historical data gap.
+        explanation of the error.
     :ivar team_log.FailureDetailsLogInfo.technical_error_message: A technical
         explanation of the error. This is relevant for some errors.
     """
@@ -41691,8 +45772,7 @@ class FileAddCommentDetails(bb.Struct):
     """
     Added file comment.
 
-    :ivar team_log.FileAddCommentDetails.comment_text: Comment text. Might be
-        missing due to historical data gap.
+    :ivar team_log.FileAddCommentDetails.comment_text: Comment text.
     """
 
     __slots__ = [
@@ -42044,8 +46124,7 @@ class FileDeleteCommentDetails(bb.Struct):
     """
     Deleted file comment.
 
-    :ivar team_log.FileDeleteCommentDetails.comment_text: Comment text. Might be
-        missing due to historical data gap.
+    :ivar team_log.FileDeleteCommentDetails.comment_text: Comment text.
     """
 
     __slots__ = [
@@ -42174,8 +46253,7 @@ class FileEditCommentDetails(bb.Struct):
     """
     Edited file comment.
 
-    :ivar team_log.FileEditCommentDetails.comment_text: Comment text. Might be
-        missing due to historical data gap.
+    :ivar team_log.FileEditCommentDetails.comment_text: Comment text.
     :ivar team_log.FileEditCommentDetails.previous_comment_text: Previous
         comment text.
     """
@@ -42314,8 +46392,7 @@ class FileLikeCommentDetails(bb.Struct):
     """
     Liked file comment.
 
-    :ivar team_log.FileLikeCommentDetails.comment_text: Comment text. Might be
-        missing due to historical data gap.
+    :ivar team_log.FileLikeCommentDetails.comment_text: Comment text.
     """
 
     __slots__ = [
@@ -42485,10 +46562,8 @@ class FileOrFolderLogInfo(bb.Struct):
     Generic information relevant both for files and folders
 
     :ivar team_log.FileOrFolderLogInfo.path: Path relative to event context.
-    :ivar team_log.FileOrFolderLogInfo.display_name: Display name. Might be
-        missing due to historical data gap.
-    :ivar team_log.FileOrFolderLogInfo.file_id: Unique ID. Might be missing due
-        to historical data gap.
+    :ivar team_log.FileOrFolderLogInfo.display_name: Display name.
+    :ivar team_log.FileOrFolderLogInfo.file_id: Unique ID.
     :ivar team_log.FileOrFolderLogInfo.file_size: File or folder size in bytes.
     """
 
@@ -42690,6 +46765,65 @@ class FilePreviewType(bb.Struct):
         super(FilePreviewType, self)._process_custom_annotations(annotation_type, field_path, processor)
 
 FilePreviewType_validator = bv.Struct(FilePreviewType)
+
+class FileProviderMigrationPolicyChangedDetails(bb.Struct):
+    """
+    Changed File Provider Migration policy for team.
+
+    :ivar team_log.FileProviderMigrationPolicyChangedDetails.new_value: To.
+    :ivar team_log.FileProviderMigrationPolicyChangedDetails.previous_value:
+        From.
+    """
+
+    __slots__ = [
+        '_new_value_value',
+        '_previous_value_value',
+    ]
+
+    _has_required_fields = True
+
+    def __init__(self,
+                 new_value=None,
+                 previous_value=None):
+        self._new_value_value = bb.NOT_SET
+        self._previous_value_value = bb.NOT_SET
+        if new_value is not None:
+            self.new_value = new_value
+        if previous_value is not None:
+            self.previous_value = previous_value
+
+    # Instance attribute type: team_policies.FileProviderMigrationPolicyState (validator is set below)
+    new_value = bb.Attribute("new_value", user_defined=True)
+
+    # Instance attribute type: team_policies.FileProviderMigrationPolicyState (validator is set below)
+    previous_value = bb.Attribute("previous_value", user_defined=True)
+
+    def _process_custom_annotations(self, annotation_type, field_path, processor):
+        super(FileProviderMigrationPolicyChangedDetails, self)._process_custom_annotations(annotation_type, field_path, processor)
+
+FileProviderMigrationPolicyChangedDetails_validator = bv.Struct(FileProviderMigrationPolicyChangedDetails)
+
+class FileProviderMigrationPolicyChangedType(bb.Struct):
+
+    __slots__ = [
+        '_description_value',
+    ]
+
+    _has_required_fields = True
+
+    def __init__(self,
+                 description=None):
+        self._description_value = bb.NOT_SET
+        if description is not None:
+            self.description = description
+
+    # Instance attribute type: str (validator is set below)
+    description = bb.Attribute("description")
+
+    def _process_custom_annotations(self, annotation_type, field_path, processor):
+        super(FileProviderMigrationPolicyChangedType, self)._process_custom_annotations(annotation_type, field_path, processor)
+
+FileProviderMigrationPolicyChangedType_validator = bv.Struct(FileProviderMigrationPolicyChangedType)
 
 class FileRenameDetails(bb.Struct):
     """
@@ -42938,8 +47072,7 @@ class FileRequestDeadline(bb.Struct):
     :ivar team_log.FileRequestDeadline.deadline: The deadline for this file
         request. Might be missing due to historical data gap.
     :ivar team_log.FileRequestDeadline.allow_late_uploads: If set, allow uploads
-        after the deadline has passed. Might be missing due to historical data
-        gap.
+        after the deadline has passed.
     """
 
     __slots__ = [
@@ -43036,8 +47169,7 @@ class FileRequestDetails(bb.Struct):
 
     :ivar team_log.FileRequestDetails.asset_index: Asset position in the Assets
         list.
-    :ivar team_log.FileRequestDetails.deadline: File request deadline. Might be
-        missing due to historical data gap.
+    :ivar team_log.FileRequestDetails.deadline: File request deadline.
     """
 
     __slots__ = [
@@ -43079,9 +47211,9 @@ class FileRequestReceiveFileDetails(bb.Struct):
     :ivar team_log.FileRequestReceiveFileDetails.submitted_file_names: Submitted
         file names.
     :ivar team_log.FileRequestReceiveFileDetails.submitter_name: The name as
-        provided by the submitter. Might be missing due to historical data gap.
+        provided by the submitter.
     :ivar team_log.FileRequestReceiveFileDetails.submitter_email: The email as
-        provided by the submitter. Might be missing due to historical data gap.
+        provided by the submitter.
     """
 
     __slots__ = [
@@ -43348,8 +47480,7 @@ class FileResolveCommentDetails(bb.Struct):
     """
     Resolved file comment.
 
-    :ivar team_log.FileResolveCommentDetails.comment_text: Comment text. Might
-        be missing due to historical data gap.
+    :ivar team_log.FileResolveCommentDetails.comment_text: Comment text.
     """
 
     __slots__ = [
@@ -43923,8 +48054,7 @@ class FileUnlikeCommentDetails(bb.Struct):
     """
     Unliked file comment.
 
-    :ivar team_log.FileUnlikeCommentDetails.comment_text: Comment text. Might be
-        missing due to historical data gap.
+    :ivar team_log.FileUnlikeCommentDetails.comment_text: Comment text.
     """
 
     __slots__ = [
@@ -43973,8 +48103,7 @@ class FileUnresolveCommentDetails(bb.Struct):
     """
     Unresolved file comment.
 
-    :ivar team_log.FileUnresolveCommentDetails.comment_text: Comment text. Might
-        be missing due to historical data gap.
+    :ivar team_log.FileUnresolveCommentDetails.comment_text: Comment text.
     """
 
     __slots__ = [
@@ -44852,6 +48981,85 @@ class GovernancePolicyAddFoldersType(bb.Struct):
         super(GovernancePolicyAddFoldersType, self)._process_custom_annotations(annotation_type, field_path, processor)
 
 GovernancePolicyAddFoldersType_validator = bv.Struct(GovernancePolicyAddFoldersType)
+
+class GovernancePolicyContentDisposedDetails(bb.Struct):
+    """
+    Content disposed.
+
+    :ivar team_log.GovernancePolicyContentDisposedDetails.governance_policy_id:
+        Policy ID.
+    :ivar team_log.GovernancePolicyContentDisposedDetails.name: Policy name.
+    :ivar team_log.GovernancePolicyContentDisposedDetails.policy_type: Policy
+        type.
+    :ivar team_log.GovernancePolicyContentDisposedDetails.disposition_type:
+        Disposition type.
+    """
+
+    __slots__ = [
+        '_governance_policy_id_value',
+        '_name_value',
+        '_policy_type_value',
+        '_disposition_type_value',
+    ]
+
+    _has_required_fields = True
+
+    def __init__(self,
+                 governance_policy_id=None,
+                 name=None,
+                 disposition_type=None,
+                 policy_type=None):
+        self._governance_policy_id_value = bb.NOT_SET
+        self._name_value = bb.NOT_SET
+        self._policy_type_value = bb.NOT_SET
+        self._disposition_type_value = bb.NOT_SET
+        if governance_policy_id is not None:
+            self.governance_policy_id = governance_policy_id
+        if name is not None:
+            self.name = name
+        if policy_type is not None:
+            self.policy_type = policy_type
+        if disposition_type is not None:
+            self.disposition_type = disposition_type
+
+    # Instance attribute type: str (validator is set below)
+    governance_policy_id = bb.Attribute("governance_policy_id")
+
+    # Instance attribute type: str (validator is set below)
+    name = bb.Attribute("name")
+
+    # Instance attribute type: PolicyType (validator is set below)
+    policy_type = bb.Attribute("policy_type", nullable=True, user_defined=True)
+
+    # Instance attribute type: DispositionActionType (validator is set below)
+    disposition_type = bb.Attribute("disposition_type", user_defined=True)
+
+    def _process_custom_annotations(self, annotation_type, field_path, processor):
+        super(GovernancePolicyContentDisposedDetails, self)._process_custom_annotations(annotation_type, field_path, processor)
+
+GovernancePolicyContentDisposedDetails_validator = bv.Struct(GovernancePolicyContentDisposedDetails)
+
+class GovernancePolicyContentDisposedType(bb.Struct):
+
+    __slots__ = [
+        '_description_value',
+    ]
+
+    _has_required_fields = True
+
+    def __init__(self,
+                 description=None):
+        self._description_value = bb.NOT_SET
+        if description is not None:
+            self.description = description
+
+    # Instance attribute type: str (validator is set below)
+    description = bb.Attribute("description")
+
+    def _process_custom_annotations(self, annotation_type, field_path, processor):
+        super(GovernancePolicyContentDisposedType, self)._process_custom_annotations(annotation_type, field_path, processor)
+
+GovernancePolicyContentDisposedType_validator = bv.Struct(GovernancePolicyContentDisposedType)
 
 class GovernancePolicyCreateDetails(bb.Struct):
     """
@@ -45861,7 +50069,7 @@ class GroupCreateDetails(bb.Struct):
     Created group.
 
     :ivar team_log.GroupCreateDetails.is_company_managed: Is company managed
-        group. Might be missing due to historical data gap.
+        group.
     :ivar team_log.GroupCreateDetails.join_policy: Group join policy.
     """
 
@@ -45920,7 +50128,7 @@ class GroupDeleteDetails(bb.Struct):
     Deleted group.
 
     :ivar team_log.GroupDeleteDetails.is_company_managed: Is company managed
-        group. Might be missing due to historical data gap.
+        group.
     """
 
     __slots__ = [
@@ -46054,7 +50262,7 @@ class GroupJoinPolicyUpdatedDetails(bb.Struct):
     Updated group join policy.
 
     :ivar team_log.GroupJoinPolicyUpdatedDetails.is_company_managed: Is company
-        managed group. Might be missing due to historical data gap.
+        managed group.
     :ivar team_log.GroupJoinPolicyUpdatedDetails.join_policy: Group join policy.
     """
 
@@ -46112,11 +50320,9 @@ class GroupLogInfo(bb.Struct):
     """
     Group's logged information.
 
-    :ivar team_log.GroupLogInfo.group_id: The unique id of this group. Might be
-        missing due to historical data gap.
+    :ivar team_log.GroupLogInfo.group_id: The unique id of this group.
     :ivar team_log.GroupLogInfo.display_name: The name of this group.
-    :ivar team_log.GroupLogInfo.external_id: External group ID. Might be missing
-        due to historical data gap.
+    :ivar team_log.GroupLogInfo.external_id: External group ID.
     """
 
     __slots__ = [
@@ -46882,6 +51088,112 @@ class IntegrationPolicyChangedType(bb.Struct):
 
 IntegrationPolicyChangedType_validator = bv.Struct(IntegrationPolicyChangedType)
 
+class InviteAcceptanceEmailPolicy(bb.Union):
+    """
+    Policy for deciding whether team admins receive email when an invitation to
+    join the team is accepted
+
+    This class acts as a tagged union. Only one of the ``is_*`` methods will
+    return true. To get the associated value of a tag (if one exists), use the
+    corresponding ``get_*`` method.
+    """
+
+    _catch_all = 'other'
+    # Attribute is overwritten below the class definition
+    disabled = None
+    # Attribute is overwritten below the class definition
+    enabled = None
+    # Attribute is overwritten below the class definition
+    other = None
+
+    def is_disabled(self):
+        """
+        Check if the union tag is ``disabled``.
+
+        :rtype: bool
+        """
+        return self._tag == 'disabled'
+
+    def is_enabled(self):
+        """
+        Check if the union tag is ``enabled``.
+
+        :rtype: bool
+        """
+        return self._tag == 'enabled'
+
+    def is_other(self):
+        """
+        Check if the union tag is ``other``.
+
+        :rtype: bool
+        """
+        return self._tag == 'other'
+
+    def _process_custom_annotations(self, annotation_type, field_path, processor):
+        super(InviteAcceptanceEmailPolicy, self)._process_custom_annotations(annotation_type, field_path, processor)
+
+InviteAcceptanceEmailPolicy_validator = bv.Union(InviteAcceptanceEmailPolicy)
+
+class InviteAcceptanceEmailPolicyChangedDetails(bb.Struct):
+    """
+    Changed invite accept email policy for team.
+
+    :ivar team_log.InviteAcceptanceEmailPolicyChangedDetails.new_value: To.
+    :ivar team_log.InviteAcceptanceEmailPolicyChangedDetails.previous_value:
+        From.
+    """
+
+    __slots__ = [
+        '_new_value_value',
+        '_previous_value_value',
+    ]
+
+    _has_required_fields = True
+
+    def __init__(self,
+                 new_value=None,
+                 previous_value=None):
+        self._new_value_value = bb.NOT_SET
+        self._previous_value_value = bb.NOT_SET
+        if new_value is not None:
+            self.new_value = new_value
+        if previous_value is not None:
+            self.previous_value = previous_value
+
+    # Instance attribute type: InviteAcceptanceEmailPolicy (validator is set below)
+    new_value = bb.Attribute("new_value", user_defined=True)
+
+    # Instance attribute type: InviteAcceptanceEmailPolicy (validator is set below)
+    previous_value = bb.Attribute("previous_value", user_defined=True)
+
+    def _process_custom_annotations(self, annotation_type, field_path, processor):
+        super(InviteAcceptanceEmailPolicyChangedDetails, self)._process_custom_annotations(annotation_type, field_path, processor)
+
+InviteAcceptanceEmailPolicyChangedDetails_validator = bv.Struct(InviteAcceptanceEmailPolicyChangedDetails)
+
+class InviteAcceptanceEmailPolicyChangedType(bb.Struct):
+
+    __slots__ = [
+        '_description_value',
+    ]
+
+    _has_required_fields = True
+
+    def __init__(self,
+                 description=None):
+        self._description_value = bb.NOT_SET
+        if description is not None:
+            self.description = description
+
+    # Instance attribute type: str (validator is set below)
+    description = bb.Attribute("description")
+
+    def _process_custom_annotations(self, annotation_type, field_path, processor):
+        super(InviteAcceptanceEmailPolicyChangedType, self)._process_custom_annotations(annotation_type, field_path, processor)
+
+InviteAcceptanceEmailPolicyChangedType_validator = bv.Struct(InviteAcceptanceEmailPolicyChangedType)
+
 class InviteMethod(bb.Union):
     """
     This class acts as a tagged union. Only one of the ``is_*`` methods will
@@ -47057,12 +51369,67 @@ class JoinTeamDetails(bb.Struct):
 
 JoinTeamDetails_validator = bv.Struct(JoinTeamDetails)
 
+class LabelType(bb.Union):
+    """
+    Label type
+
+    This class acts as a tagged union. Only one of the ``is_*`` methods will
+    return true. To get the associated value of a tag (if one exists), use the
+    corresponding ``get_*`` method.
+    """
+
+    _catch_all = 'other'
+    # Attribute is overwritten below the class definition
+    personal_information = None
+    # Attribute is overwritten below the class definition
+    test_only = None
+    # Attribute is overwritten below the class definition
+    user_defined_tag = None
+    # Attribute is overwritten below the class definition
+    other = None
+
+    def is_personal_information(self):
+        """
+        Check if the union tag is ``personal_information``.
+
+        :rtype: bool
+        """
+        return self._tag == 'personal_information'
+
+    def is_test_only(self):
+        """
+        Check if the union tag is ``test_only``.
+
+        :rtype: bool
+        """
+        return self._tag == 'test_only'
+
+    def is_user_defined_tag(self):
+        """
+        Check if the union tag is ``user_defined_tag``.
+
+        :rtype: bool
+        """
+        return self._tag == 'user_defined_tag'
+
+    def is_other(self):
+        """
+        Check if the union tag is ``other``.
+
+        :rtype: bool
+        """
+        return self._tag == 'other'
+
+    def _process_custom_annotations(self, annotation_type, field_path, processor):
+        super(LabelType, self)._process_custom_annotations(annotation_type, field_path, processor)
+
+LabelType_validator = bv.Union(LabelType)
+
 class LegacyDeviceSessionLogInfo(DeviceSessionLogInfo):
     """
     Information on sessions, in legacy format
 
     :ivar team_log.LegacyDeviceSessionLogInfo.session_info: Session unique id.
-        Might be missing due to historical data gap.
     :ivar team_log.LegacyDeviceSessionLogInfo.display_name: The device name.
         Might be missing due to historical data gap.
     :ivar team_log.LegacyDeviceSessionLogInfo.is_emm_managed: Is device managed
@@ -50144,6 +54511,44 @@ class MemberTransferAccountContentsType(bb.Struct):
 
 MemberTransferAccountContentsType_validator = bv.Struct(MemberTransferAccountContentsType)
 
+class MemberTransferredInternalFields(bb.Struct):
+    """
+    Internal only - fields for target team computations
+
+    :ivar team_log.MemberTransferredInternalFields.source_team_id: Internal only
+        - team user was moved from.
+    :ivar team_log.MemberTransferredInternalFields.target_team_id: Internal only
+        - team user was moved to.
+    """
+
+    __slots__ = [
+        '_source_team_id_value',
+        '_target_team_id_value',
+    ]
+
+    _has_required_fields = True
+
+    def __init__(self,
+                 source_team_id=None,
+                 target_team_id=None):
+        self._source_team_id_value = bb.NOT_SET
+        self._target_team_id_value = bb.NOT_SET
+        if source_team_id is not None:
+            self.source_team_id = source_team_id
+        if target_team_id is not None:
+            self.target_team_id = target_team_id
+
+    # Instance attribute type: str (validator is set below)
+    source_team_id = bb.Attribute("source_team_id")
+
+    # Instance attribute type: str (validator is set below)
+    target_team_id = bb.Attribute("target_team_id")
+
+    def _process_custom_annotations(self, annotation_type, field_path, processor):
+        super(MemberTransferredInternalFields, self)._process_custom_annotations(annotation_type, field_path, processor)
+
+MemberTransferredInternalFields_validator = bv.Struct(MemberTransferredInternalFields)
+
 class MicrosoftOfficeAddinChangePolicyDetails(bb.Struct):
     """
     Enabled/disabled Microsoft Office add-in.
@@ -50285,7 +54690,7 @@ class MobileDeviceSessionLogInfo(DeviceSessionLogInfo):
     Information about linked Dropbox mobile client sessions
 
     :ivar team_log.MobileDeviceSessionLogInfo.session_info: Mobile session
-        unique id. Might be missing due to historical data gap.
+        unique id.
     :ivar team_log.MobileDeviceSessionLogInfo.device_name: The device name.
     :ivar team_log.MobileDeviceSessionLogInfo.client_type: The mobile
         application type.
@@ -50386,13 +54791,11 @@ class NamespaceRelativePathLogInfo(bb.Struct):
     """
     Namespace relative path details.
 
-    :ivar team_log.NamespaceRelativePathLogInfo.ns_id: Namespace ID. Might be
-        missing due to historical data gap.
+    :ivar team_log.NamespaceRelativePathLogInfo.ns_id: Namespace ID.
     :ivar team_log.NamespaceRelativePathLogInfo.relative_path: A path relative
-        to the specified namespace ID. Might be missing due to historical data
-        gap.
+        to the specified namespace ID.
     :ivar team_log.NamespaceRelativePathLogInfo.is_shared_namespace: True if the
-        namespace is shared. Might be missing due to historical data gap.
+        namespace is shared.
     """
 
     __slots__ = [
@@ -50871,12 +55274,9 @@ class UserLogInfo(bb.Struct):
     """
     User's logged information.
 
-    :ivar team_log.UserLogInfo.account_id: User unique ID. Might be missing due
-        to historical data gap.
-    :ivar team_log.UserLogInfo.display_name: User display name. Might be missing
-        due to historical data gap.
-    :ivar team_log.UserLogInfo.email: User email address. Might be missing due
-        to historical data gap.
+    :ivar team_log.UserLogInfo.account_id: User unique ID.
+    :ivar team_log.UserLogInfo.display_name: User display name.
+    :ivar team_log.UserLogInfo.email: User email address.
     """
 
     __slots__ = [
@@ -51166,6 +55566,156 @@ class NoteSharedType(bb.Struct):
 
 NoteSharedType_validator = bv.Struct(NoteSharedType)
 
+class ObjectLabelAddedDetails(bb.Struct):
+    """
+    Added a label.
+
+    :ivar team_log.ObjectLabelAddedDetails.label_type: Labels mark a file or
+        folder.
+    """
+
+    __slots__ = [
+        '_label_type_value',
+    ]
+
+    _has_required_fields = True
+
+    def __init__(self,
+                 label_type=None):
+        self._label_type_value = bb.NOT_SET
+        if label_type is not None:
+            self.label_type = label_type
+
+    # Instance attribute type: LabelType (validator is set below)
+    label_type = bb.Attribute("label_type", user_defined=True)
+
+    def _process_custom_annotations(self, annotation_type, field_path, processor):
+        super(ObjectLabelAddedDetails, self)._process_custom_annotations(annotation_type, field_path, processor)
+
+ObjectLabelAddedDetails_validator = bv.Struct(ObjectLabelAddedDetails)
+
+class ObjectLabelAddedType(bb.Struct):
+
+    __slots__ = [
+        '_description_value',
+    ]
+
+    _has_required_fields = True
+
+    def __init__(self,
+                 description=None):
+        self._description_value = bb.NOT_SET
+        if description is not None:
+            self.description = description
+
+    # Instance attribute type: str (validator is set below)
+    description = bb.Attribute("description")
+
+    def _process_custom_annotations(self, annotation_type, field_path, processor):
+        super(ObjectLabelAddedType, self)._process_custom_annotations(annotation_type, field_path, processor)
+
+ObjectLabelAddedType_validator = bv.Struct(ObjectLabelAddedType)
+
+class ObjectLabelRemovedDetails(bb.Struct):
+    """
+    Removed a label.
+
+    :ivar team_log.ObjectLabelRemovedDetails.label_type: Labels mark a file or
+        folder.
+    """
+
+    __slots__ = [
+        '_label_type_value',
+    ]
+
+    _has_required_fields = True
+
+    def __init__(self,
+                 label_type=None):
+        self._label_type_value = bb.NOT_SET
+        if label_type is not None:
+            self.label_type = label_type
+
+    # Instance attribute type: LabelType (validator is set below)
+    label_type = bb.Attribute("label_type", user_defined=True)
+
+    def _process_custom_annotations(self, annotation_type, field_path, processor):
+        super(ObjectLabelRemovedDetails, self)._process_custom_annotations(annotation_type, field_path, processor)
+
+ObjectLabelRemovedDetails_validator = bv.Struct(ObjectLabelRemovedDetails)
+
+class ObjectLabelRemovedType(bb.Struct):
+
+    __slots__ = [
+        '_description_value',
+    ]
+
+    _has_required_fields = True
+
+    def __init__(self,
+                 description=None):
+        self._description_value = bb.NOT_SET
+        if description is not None:
+            self.description = description
+
+    # Instance attribute type: str (validator is set below)
+    description = bb.Attribute("description")
+
+    def _process_custom_annotations(self, annotation_type, field_path, processor):
+        super(ObjectLabelRemovedType, self)._process_custom_annotations(annotation_type, field_path, processor)
+
+ObjectLabelRemovedType_validator = bv.Struct(ObjectLabelRemovedType)
+
+class ObjectLabelUpdatedValueDetails(bb.Struct):
+    """
+    Updated a label's value.
+
+    :ivar team_log.ObjectLabelUpdatedValueDetails.label_type: Labels mark a file
+        or folder.
+    """
+
+    __slots__ = [
+        '_label_type_value',
+    ]
+
+    _has_required_fields = True
+
+    def __init__(self,
+                 label_type=None):
+        self._label_type_value = bb.NOT_SET
+        if label_type is not None:
+            self.label_type = label_type
+
+    # Instance attribute type: LabelType (validator is set below)
+    label_type = bb.Attribute("label_type", user_defined=True)
+
+    def _process_custom_annotations(self, annotation_type, field_path, processor):
+        super(ObjectLabelUpdatedValueDetails, self)._process_custom_annotations(annotation_type, field_path, processor)
+
+ObjectLabelUpdatedValueDetails_validator = bv.Struct(ObjectLabelUpdatedValueDetails)
+
+class ObjectLabelUpdatedValueType(bb.Struct):
+
+    __slots__ = [
+        '_description_value',
+    ]
+
+    _has_required_fields = True
+
+    def __init__(self,
+                 description=None):
+        self._description_value = bb.NOT_SET
+        if description is not None:
+            self.description = description
+
+    # Instance attribute type: str (validator is set below)
+    description = bb.Attribute("description")
+
+    def _process_custom_annotations(self, annotation_type, field_path, processor):
+        super(ObjectLabelUpdatedValueType, self)._process_custom_annotations(annotation_type, field_path, processor)
+
+ObjectLabelUpdatedValueType_validator = bv.Struct(ObjectLabelUpdatedValueType)
+
 class OpenNoteSharedDetails(bb.Struct):
     """
     Opened shared Paper doc.
@@ -51260,6 +55810,46 @@ class OrganizationName(bb.Struct):
         super(OrganizationName, self)._process_custom_annotations(annotation_type, field_path, processor)
 
 OrganizationName_validator = bv.Struct(OrganizationName)
+
+class OrganizeFolderWithTidyDetails(bb.Struct):
+    """
+    Organized a folder with multi-file organize.
+    """
+
+    __slots__ = [
+    ]
+
+    _has_required_fields = False
+
+    def __init__(self):
+        pass
+
+    def _process_custom_annotations(self, annotation_type, field_path, processor):
+        super(OrganizeFolderWithTidyDetails, self)._process_custom_annotations(annotation_type, field_path, processor)
+
+OrganizeFolderWithTidyDetails_validator = bv.Struct(OrganizeFolderWithTidyDetails)
+
+class OrganizeFolderWithTidyType(bb.Struct):
+
+    __slots__ = [
+        '_description_value',
+    ]
+
+    _has_required_fields = True
+
+    def __init__(self,
+                 description=None):
+        self._description_value = bb.NOT_SET
+        if description is not None:
+            self.description = description
+
+    # Instance attribute type: str (validator is set below)
+    description = bb.Attribute("description")
+
+    def _process_custom_annotations(self, annotation_type, field_path, processor):
+        super(OrganizeFolderWithTidyType, self)._process_custom_annotations(annotation_type, field_path, processor)
+
+OrganizeFolderWithTidyType_validator = bv.Struct(OrganizeFolderWithTidyType)
 
 class OriginLogInfo(bb.Struct):
     """
@@ -52443,8 +57033,7 @@ class PaperDocAddCommentDetails(bb.Struct):
 
     :ivar team_log.PaperDocAddCommentDetails.event_uuid: Event unique
         identifier.
-    :ivar team_log.PaperDocAddCommentDetails.comment_text: Comment text. Might
-        be missing due to historical data gap.
+    :ivar team_log.PaperDocAddCommentDetails.comment_text: Comment text.
     """
 
     __slots__ = [
@@ -52564,10 +57153,9 @@ class PaperDocChangeSharingPolicyDetails(bb.Struct):
     :ivar team_log.PaperDocChangeSharingPolicyDetails.event_uuid: Event unique
         identifier.
     :ivar team_log.PaperDocChangeSharingPolicyDetails.public_sharing_policy:
-        Sharing policy with external users. Might be missing due to historical
-        data gap.
+        Sharing policy with external users.
     :ivar team_log.PaperDocChangeSharingPolicyDetails.team_sharing_policy:
-        Sharing policy with team. Might be missing due to historical data gap.
+        Sharing policy with team.
     """
 
     __slots__ = [
@@ -52707,7 +57295,6 @@ class PaperDocDeleteCommentDetails(bb.Struct):
     :ivar team_log.PaperDocDeleteCommentDetails.event_uuid: Event unique
         identifier.
     :ivar team_log.PaperDocDeleteCommentDetails.comment_text: Comment text.
-        Might be missing due to historical data gap.
     """
 
     __slots__ = [
@@ -52874,8 +57461,7 @@ class PaperDocEditCommentDetails(bb.Struct):
 
     :ivar team_log.PaperDocEditCommentDetails.event_uuid: Event unique
         identifier.
-    :ivar team_log.PaperDocEditCommentDetails.comment_text: Comment text. Might
-        be missing due to historical data gap.
+    :ivar team_log.PaperDocEditCommentDetails.comment_text: Comment text.
     """
 
     __slots__ = [
@@ -53201,7 +57787,6 @@ class PaperDocResolveCommentDetails(bb.Struct):
     :ivar team_log.PaperDocResolveCommentDetails.event_uuid: Event unique
         identifier.
     :ivar team_log.PaperDocResolveCommentDetails.comment_text: Comment text.
-        Might be missing due to historical data gap.
     """
 
     __slots__ = [
@@ -53459,7 +58044,6 @@ class PaperDocUnresolveCommentDetails(bb.Struct):
     :ivar team_log.PaperDocUnresolveCommentDetails.event_uuid: Event unique
         identifier.
     :ivar team_log.PaperDocUnresolveCommentDetails.comment_text: Comment text.
-        Might be missing due to historical data gap.
     """
 
     __slots__ = [
@@ -54807,7 +59391,7 @@ class PathLogInfo(bb.Struct):
     Path's details.
 
     :ivar team_log.PathLogInfo.contextual: Fully qualified path relative to
-        event's context. Might be missing due to historical data gap.
+        event's context.
     :ivar team_log.PathLogInfo.namespace_relative: Path relative to the
         namespace containing the content.
     """
@@ -54968,6 +59552,10 @@ class PlacementRestriction(bb.Union):
     # Attribute is overwritten below the class definition
     none = None
     # Attribute is overwritten below the class definition
+    uk_only = None
+    # Attribute is overwritten below the class definition
+    us_s3_only = None
+    # Attribute is overwritten below the class definition
     other = None
 
     def is_australia_only(self):
@@ -55002,6 +59590,22 @@ class PlacementRestriction(bb.Union):
         """
         return self._tag == 'none'
 
+    def is_uk_only(self):
+        """
+        Check if the union tag is ``uk_only``.
+
+        :rtype: bool
+        """
+        return self._tag == 'uk_only'
+
+    def is_us_s3_only(self):
+        """
+        Check if the union tag is ``us_s3_only``.
+
+        :rtype: bool
+        """
+        return self._tag == 'us_s3_only'
+
     def is_other(self):
         """
         Check if the union tag is ``other``.
@@ -55024,9 +59628,19 @@ class PolicyType(bb.Union):
 
     _catch_all = 'other'
     # Attribute is overwritten below the class definition
+    disposition = None
+    # Attribute is overwritten below the class definition
     retention = None
     # Attribute is overwritten below the class definition
     other = None
+
+    def is_disposition(self):
+        """
+        Check if the union tag is ``disposition``.
+
+        :rtype: bool
+        """
+        return self._tag == 'disposition'
 
     def is_retention(self):
         """
@@ -55286,6 +59900,53 @@ class QuickActionType(bb.Union):
         super(QuickActionType, self)._process_custom_annotations(annotation_type, field_path, processor)
 
 QuickActionType_validator = bv.Union(QuickActionType)
+
+class RecipientsConfiguration(bb.Struct):
+    """
+    Recipients Configuration
+
+    :ivar team_log.RecipientsConfiguration.recipient_setting_type: Recipients
+        setting type.
+    :ivar team_log.RecipientsConfiguration.emails: A list of user emails to
+        notify.
+    :ivar team_log.RecipientsConfiguration.groups: A list of groups to notify.
+    """
+
+    __slots__ = [
+        '_recipient_setting_type_value',
+        '_emails_value',
+        '_groups_value',
+    ]
+
+    _has_required_fields = False
+
+    def __init__(self,
+                 recipient_setting_type=None,
+                 emails=None,
+                 groups=None):
+        self._recipient_setting_type_value = bb.NOT_SET
+        self._emails_value = bb.NOT_SET
+        self._groups_value = bb.NOT_SET
+        if recipient_setting_type is not None:
+            self.recipient_setting_type = recipient_setting_type
+        if emails is not None:
+            self.emails = emails
+        if groups is not None:
+            self.groups = groups
+
+    # Instance attribute type: AlertRecipientsSettingType (validator is set below)
+    recipient_setting_type = bb.Attribute("recipient_setting_type", nullable=True, user_defined=True)
+
+    # Instance attribute type: list of [str] (validator is set below)
+    emails = bb.Attribute("emails", nullable=True)
+
+    # Instance attribute type: list of [str] (validator is set below)
+    groups = bb.Attribute("groups", nullable=True)
+
+    def _process_custom_annotations(self, annotation_type, field_path, processor):
+        super(RecipientsConfiguration, self)._process_custom_annotations(annotation_type, field_path, processor)
+
+RecipientsConfiguration_validator = bv.Struct(RecipientsConfiguration)
 
 class RelocateAssetReferencesLogInfo(bb.Struct):
     """
@@ -56200,7 +60861,6 @@ class SfAddGroupDetails(bb.Struct):
     :ivar team_log.SfAddGroupDetails.original_folder_name: Original shared
         folder name.
     :ivar team_log.SfAddGroupDetails.sharing_permission: Sharing permission.
-        Might be missing due to historical data gap.
     :ivar team_log.SfAddGroupDetails.team_name: Team name.
     """
 
@@ -56280,7 +60940,7 @@ class SfAllowNonMembersToViewSharedLinksDetails(bb.Struct):
         team_log.SfAllowNonMembersToViewSharedLinksDetails.original_folder_name:
         Original shared folder name.
     :ivar team_log.SfAllowNonMembersToViewSharedLinksDetails.shared_folder_type:
-        Shared folder type. Might be missing due to historical data gap.
+        Shared folder type.
     """
 
     __slots__ = [
@@ -56350,10 +61010,9 @@ class SfExternalInviteWarnDetails(bb.Struct):
     :ivar team_log.SfExternalInviteWarnDetails.original_folder_name: Original
         shared folder name.
     :ivar team_log.SfExternalInviteWarnDetails.new_sharing_permission: New
-        sharing permission. Might be missing due to historical data gap.
+        sharing permission.
     :ivar team_log.SfExternalInviteWarnDetails.previous_sharing_permission:
-        Previous sharing permission. Might be missing due to historical data
-        gap.
+        Previous sharing permission.
     """
 
     __slots__ = [
@@ -56431,10 +61090,9 @@ class SfFbInviteChangeRoleDetails(bb.Struct):
     :ivar team_log.SfFbInviteChangeRoleDetails.original_folder_name: Original
         shared folder name.
     :ivar team_log.SfFbInviteChangeRoleDetails.previous_sharing_permission:
-        Previous sharing permission. Might be missing due to historical data
-        gap.
+        Previous sharing permission.
     :ivar team_log.SfFbInviteChangeRoleDetails.new_sharing_permission: New
-        sharing permission. Might be missing due to historical data gap.
+        sharing permission.
     """
 
     __slots__ = [
@@ -56512,7 +61170,6 @@ class SfFbInviteDetails(bb.Struct):
     :ivar team_log.SfFbInviteDetails.original_folder_name: Original shared
         folder name.
     :ivar team_log.SfFbInviteDetails.sharing_permission: Sharing permission.
-        Might be missing due to historical data gap.
     """
 
     __slots__ = [
@@ -56752,10 +61409,9 @@ class SfTeamInviteChangeRoleDetails(bb.Struct):
     :ivar team_log.SfTeamInviteChangeRoleDetails.original_folder_name: Original
         shared folder name.
     :ivar team_log.SfTeamInviteChangeRoleDetails.new_sharing_permission: New
-        sharing permission. Might be missing due to historical data gap.
+        sharing permission.
     :ivar team_log.SfTeamInviteChangeRoleDetails.previous_sharing_permission:
-        Previous sharing permission. Might be missing due to historical data
-        gap.
+        Previous sharing permission.
     """
 
     __slots__ = [
@@ -56833,7 +61489,6 @@ class SfTeamInviteDetails(bb.Struct):
     :ivar team_log.SfTeamInviteDetails.original_folder_name: Original shared
         folder name.
     :ivar team_log.SfTeamInviteDetails.sharing_permission: Sharing permission.
-        Might be missing due to historical data gap.
     """
 
     __slots__ = [
@@ -56943,7 +61598,7 @@ class SfTeamJoinFromOobLinkDetails(bb.Struct):
     :ivar team_log.SfTeamJoinFromOobLinkDetails.token_key: Shared link token
         key.
     :ivar team_log.SfTeamJoinFromOobLinkDetails.sharing_permission: Sharing
-        permission. Might be missing due to historical data gap.
+        permission.
     """
 
     __slots__ = [
@@ -57654,7 +62309,7 @@ class SharedContentChangeViewerInfoPolicyDetails(bb.Struct):
     :ivar team_log.SharedContentChangeViewerInfoPolicyDetails.new_value: New
         viewer info policy.
     :ivar team_log.SharedContentChangeViewerInfoPolicyDetails.previous_value:
-        Previous view info policy. Might be missing due to historical data gap.
+        Previous view info policy.
     """
 
     __slots__ = [
@@ -58660,7 +63315,6 @@ class SharedFolderCreateDetails(bb.Struct):
     Created shared folder.
 
     :ivar team_log.SharedFolderCreateDetails.target_ns_id: Target namespace ID.
-        Might be missing due to historical data gap.
     """
 
     __slots__ = [
@@ -58836,13 +63490,12 @@ class SharedFolderNestDetails(bb.Struct):
     Changed parent of shared folder.
 
     :ivar team_log.SharedFolderNestDetails.previous_parent_ns_id: Previous
-        parent namespace ID. Might be missing due to historical data gap.
+        parent namespace ID.
     :ivar team_log.SharedFolderNestDetails.new_parent_ns_id: New parent
-        namespace ID. Might be missing due to historical data gap.
+        namespace ID.
     :ivar team_log.SharedFolderNestDetails.previous_ns_path: Previous namespace
-        path. Might be missing due to historical data gap.
+        path.
     :ivar team_log.SharedFolderNestDetails.new_ns_path: New namespace path.
-        Might be missing due to historical data gap.
     """
 
     __slots__ = [
@@ -60380,6 +65033,189 @@ class SharingChangeFolderJoinPolicyType(bb.Struct):
 
 SharingChangeFolderJoinPolicyType_validator = bv.Struct(SharingChangeFolderJoinPolicyType)
 
+class SharingChangeLinkAllowChangeExpirationPolicyDetails(bb.Struct):
+    """
+    Changed the allow remove or change expiration policy for the links shared
+    outside of the team.
+
+    :ivar
+        team_log.SharingChangeLinkAllowChangeExpirationPolicyDetails.new_value:
+        To.
+    :ivar
+        team_log.SharingChangeLinkAllowChangeExpirationPolicyDetails.previous_value:
+        From.
+    """
+
+    __slots__ = [
+        '_new_value_value',
+        '_previous_value_value',
+    ]
+
+    _has_required_fields = True
+
+    def __init__(self,
+                 new_value=None,
+                 previous_value=None):
+        self._new_value_value = bb.NOT_SET
+        self._previous_value_value = bb.NOT_SET
+        if new_value is not None:
+            self.new_value = new_value
+        if previous_value is not None:
+            self.previous_value = previous_value
+
+    # Instance attribute type: EnforceLinkPasswordPolicy (validator is set below)
+    new_value = bb.Attribute("new_value", user_defined=True)
+
+    # Instance attribute type: EnforceLinkPasswordPolicy (validator is set below)
+    previous_value = bb.Attribute("previous_value", nullable=True, user_defined=True)
+
+    def _process_custom_annotations(self, annotation_type, field_path, processor):
+        super(SharingChangeLinkAllowChangeExpirationPolicyDetails, self)._process_custom_annotations(annotation_type, field_path, processor)
+
+SharingChangeLinkAllowChangeExpirationPolicyDetails_validator = bv.Struct(SharingChangeLinkAllowChangeExpirationPolicyDetails)
+
+class SharingChangeLinkAllowChangeExpirationPolicyType(bb.Struct):
+
+    __slots__ = [
+        '_description_value',
+    ]
+
+    _has_required_fields = True
+
+    def __init__(self,
+                 description=None):
+        self._description_value = bb.NOT_SET
+        if description is not None:
+            self.description = description
+
+    # Instance attribute type: str (validator is set below)
+    description = bb.Attribute("description")
+
+    def _process_custom_annotations(self, annotation_type, field_path, processor):
+        super(SharingChangeLinkAllowChangeExpirationPolicyType, self)._process_custom_annotations(annotation_type, field_path, processor)
+
+SharingChangeLinkAllowChangeExpirationPolicyType_validator = bv.Struct(SharingChangeLinkAllowChangeExpirationPolicyType)
+
+class SharingChangeLinkDefaultExpirationPolicyDetails(bb.Struct):
+    """
+    Changed the default expiration for the links shared outside of the team.
+
+    :ivar team_log.SharingChangeLinkDefaultExpirationPolicyDetails.new_value:
+        To.
+    :ivar
+        team_log.SharingChangeLinkDefaultExpirationPolicyDetails.previous_value:
+        From.
+    """
+
+    __slots__ = [
+        '_new_value_value',
+        '_previous_value_value',
+    ]
+
+    _has_required_fields = True
+
+    def __init__(self,
+                 new_value=None,
+                 previous_value=None):
+        self._new_value_value = bb.NOT_SET
+        self._previous_value_value = bb.NOT_SET
+        if new_value is not None:
+            self.new_value = new_value
+        if previous_value is not None:
+            self.previous_value = previous_value
+
+    # Instance attribute type: DefaultLinkExpirationDaysPolicy (validator is set below)
+    new_value = bb.Attribute("new_value", user_defined=True)
+
+    # Instance attribute type: DefaultLinkExpirationDaysPolicy (validator is set below)
+    previous_value = bb.Attribute("previous_value", nullable=True, user_defined=True)
+
+    def _process_custom_annotations(self, annotation_type, field_path, processor):
+        super(SharingChangeLinkDefaultExpirationPolicyDetails, self)._process_custom_annotations(annotation_type, field_path, processor)
+
+SharingChangeLinkDefaultExpirationPolicyDetails_validator = bv.Struct(SharingChangeLinkDefaultExpirationPolicyDetails)
+
+class SharingChangeLinkDefaultExpirationPolicyType(bb.Struct):
+
+    __slots__ = [
+        '_description_value',
+    ]
+
+    _has_required_fields = True
+
+    def __init__(self,
+                 description=None):
+        self._description_value = bb.NOT_SET
+        if description is not None:
+            self.description = description
+
+    # Instance attribute type: str (validator is set below)
+    description = bb.Attribute("description")
+
+    def _process_custom_annotations(self, annotation_type, field_path, processor):
+        super(SharingChangeLinkDefaultExpirationPolicyType, self)._process_custom_annotations(annotation_type, field_path, processor)
+
+SharingChangeLinkDefaultExpirationPolicyType_validator = bv.Struct(SharingChangeLinkDefaultExpirationPolicyType)
+
+class SharingChangeLinkEnforcePasswordPolicyDetails(bb.Struct):
+    """
+    Changed the password requirement for the links shared outside of the team.
+
+    :ivar team_log.SharingChangeLinkEnforcePasswordPolicyDetails.new_value: To.
+    :ivar team_log.SharingChangeLinkEnforcePasswordPolicyDetails.previous_value:
+        From.
+    """
+
+    __slots__ = [
+        '_new_value_value',
+        '_previous_value_value',
+    ]
+
+    _has_required_fields = True
+
+    def __init__(self,
+                 new_value=None,
+                 previous_value=None):
+        self._new_value_value = bb.NOT_SET
+        self._previous_value_value = bb.NOT_SET
+        if new_value is not None:
+            self.new_value = new_value
+        if previous_value is not None:
+            self.previous_value = previous_value
+
+    # Instance attribute type: ChangeLinkExpirationPolicy (validator is set below)
+    new_value = bb.Attribute("new_value", user_defined=True)
+
+    # Instance attribute type: ChangeLinkExpirationPolicy (validator is set below)
+    previous_value = bb.Attribute("previous_value", nullable=True, user_defined=True)
+
+    def _process_custom_annotations(self, annotation_type, field_path, processor):
+        super(SharingChangeLinkEnforcePasswordPolicyDetails, self)._process_custom_annotations(annotation_type, field_path, processor)
+
+SharingChangeLinkEnforcePasswordPolicyDetails_validator = bv.Struct(SharingChangeLinkEnforcePasswordPolicyDetails)
+
+class SharingChangeLinkEnforcePasswordPolicyType(bb.Struct):
+
+    __slots__ = [
+        '_description_value',
+    ]
+
+    _has_required_fields = True
+
+    def __init__(self,
+                 description=None):
+        self._description_value = bb.NOT_SET
+        if description is not None:
+            self.description = description
+
+    # Instance attribute type: str (validator is set below)
+    description = bb.Attribute("description")
+
+    def _process_custom_annotations(self, annotation_type, field_path, processor):
+        super(SharingChangeLinkEnforcePasswordPolicyType, self)._process_custom_annotations(annotation_type, field_path, processor)
+
+SharingChangeLinkEnforcePasswordPolicyType_validator = bv.Struct(SharingChangeLinkEnforcePasswordPolicyType)
+
 class SharingChangeLinkPolicyDetails(bb.Struct):
     """
     Changed whether members can share links outside team, and if links are
@@ -60560,6 +65396,8 @@ class SharingLinkPolicy(bb.Union):
 
     _catch_all = 'other'
     # Attribute is overwritten below the class definition
+    default_no_one = None
+    # Attribute is overwritten below the class definition
     default_private = None
     # Attribute is overwritten below the class definition
     default_public = None
@@ -60567,6 +65405,14 @@ class SharingLinkPolicy(bb.Union):
     only_private = None
     # Attribute is overwritten below the class definition
     other = None
+
+    def is_default_no_one(self):
+        """
+        Check if the union tag is ``default_no_one``.
+
+        :rtype: bool
+        """
+        return self._tag == 'default_no_one'
 
     def is_default_private(self):
         """
@@ -63020,7 +67866,7 @@ class SsoAddLogoutUrlDetails(bb.Struct):
     Added sign-out URL for SSO.
 
     :ivar team_log.SsoAddLogoutUrlDetails.new_value: New single sign-on logout
-        URL. Might be missing due to historical data gap.
+        URL.
     """
 
     __slots__ = [
@@ -63192,7 +68038,7 @@ class SsoChangeLogoutUrlDetails(bb.Struct):
     :ivar team_log.SsoChangeLogoutUrlDetails.previous_value: Previous single
         sign-on logout URL. Might be missing due to historical data gap.
     :ivar team_log.SsoChangeLogoutUrlDetails.new_value: New single sign-on
-        logout URL. Might be missing due to historical data gap.
+        logout URL.
     """
 
     __slots__ = [
@@ -64415,8 +69261,7 @@ class TeamMemberLogInfo(UserLogInfo):
     """
     Team member's logged information.
 
-    :ivar team_log.TeamMemberLogInfo.team_member_id: Team member ID. Might be
-        missing due to historical data gap.
+    :ivar team_log.TeamMemberLogInfo.team_member_id: Team member ID.
     :ivar team_log.TeamMemberLogInfo.member_external_id: Team member external
         ID.
     :ivar team_log.TeamMemberLogInfo.team: Details about this user&#x2019s team
@@ -64478,6 +69323,8 @@ class TeamMembershipType(bb.Union):
     # Attribute is overwritten below the class definition
     full = None
     # Attribute is overwritten below the class definition
+    guest = None
+    # Attribute is overwritten below the class definition
     other = None
 
     def is_free(self):
@@ -64495,6 +69342,14 @@ class TeamMembershipType(bb.Union):
         :rtype: bool
         """
         return self._tag == 'full'
+
+    def is_guest(self):
+        """
+        Check if the union tag is ``guest``.
+
+        :rtype: bool
+        """
+        return self._tag == 'guest'
 
     def is_other(self):
         """
@@ -67542,6 +72397,86 @@ class TwoAccountPolicy(bb.Union):
 
 TwoAccountPolicy_validator = bv.Union(TwoAccountPolicy)
 
+class UndoNamingConventionDetails(bb.Struct):
+    """
+    Reverted naming convention.
+    """
+
+    __slots__ = [
+    ]
+
+    _has_required_fields = False
+
+    def __init__(self):
+        pass
+
+    def _process_custom_annotations(self, annotation_type, field_path, processor):
+        super(UndoNamingConventionDetails, self)._process_custom_annotations(annotation_type, field_path, processor)
+
+UndoNamingConventionDetails_validator = bv.Struct(UndoNamingConventionDetails)
+
+class UndoNamingConventionType(bb.Struct):
+
+    __slots__ = [
+        '_description_value',
+    ]
+
+    _has_required_fields = True
+
+    def __init__(self,
+                 description=None):
+        self._description_value = bb.NOT_SET
+        if description is not None:
+            self.description = description
+
+    # Instance attribute type: str (validator is set below)
+    description = bb.Attribute("description")
+
+    def _process_custom_annotations(self, annotation_type, field_path, processor):
+        super(UndoNamingConventionType, self)._process_custom_annotations(annotation_type, field_path, processor)
+
+UndoNamingConventionType_validator = bv.Struct(UndoNamingConventionType)
+
+class UndoOrganizeFolderWithTidyDetails(bb.Struct):
+    """
+    Removed multi-file organize.
+    """
+
+    __slots__ = [
+    ]
+
+    _has_required_fields = False
+
+    def __init__(self):
+        pass
+
+    def _process_custom_annotations(self, annotation_type, field_path, processor):
+        super(UndoOrganizeFolderWithTidyDetails, self)._process_custom_annotations(annotation_type, field_path, processor)
+
+UndoOrganizeFolderWithTidyDetails_validator = bv.Struct(UndoOrganizeFolderWithTidyDetails)
+
+class UndoOrganizeFolderWithTidyType(bb.Struct):
+
+    __slots__ = [
+        '_description_value',
+    ]
+
+    _has_required_fields = True
+
+    def __init__(self,
+                 description=None):
+        self._description_value = bb.NOT_SET
+        if description is not None:
+            self.description = description
+
+    # Instance attribute type: str (validator is set below)
+    description = bb.Attribute("description")
+
+    def _process_custom_annotations(self, annotation_type, field_path, processor):
+        super(UndoOrganizeFolderWithTidyType, self)._process_custom_annotations(annotation_type, field_path, processor)
+
+UndoOrganizeFolderWithTidyType_validator = bv.Struct(UndoOrganizeFolderWithTidyType)
+
 class UserLinkedAppLogInfo(AppLogInfo):
     """
     User linked app
@@ -67630,6 +72565,104 @@ class UserOrTeamLinkedAppLogInfo(AppLogInfo):
         super(UserOrTeamLinkedAppLogInfo, self)._process_custom_annotations(annotation_type, field_path, processor)
 
 UserOrTeamLinkedAppLogInfo_validator = bv.Struct(UserOrTeamLinkedAppLogInfo)
+
+class UserTagsAddedDetails(bb.Struct):
+    """
+    Tagged a file.
+
+    :ivar team_log.UserTagsAddedDetails.values: values.
+    """
+
+    __slots__ = [
+        '_values_value',
+    ]
+
+    _has_required_fields = True
+
+    def __init__(self,
+                 values=None):
+        self._values_value = bb.NOT_SET
+        if values is not None:
+            self.values = values
+
+    # Instance attribute type: list of [str] (validator is set below)
+    values = bb.Attribute("values")
+
+    def _process_custom_annotations(self, annotation_type, field_path, processor):
+        super(UserTagsAddedDetails, self)._process_custom_annotations(annotation_type, field_path, processor)
+
+UserTagsAddedDetails_validator = bv.Struct(UserTagsAddedDetails)
+
+class UserTagsAddedType(bb.Struct):
+
+    __slots__ = [
+        '_description_value',
+    ]
+
+    _has_required_fields = True
+
+    def __init__(self,
+                 description=None):
+        self._description_value = bb.NOT_SET
+        if description is not None:
+            self.description = description
+
+    # Instance attribute type: str (validator is set below)
+    description = bb.Attribute("description")
+
+    def _process_custom_annotations(self, annotation_type, field_path, processor):
+        super(UserTagsAddedType, self)._process_custom_annotations(annotation_type, field_path, processor)
+
+UserTagsAddedType_validator = bv.Struct(UserTagsAddedType)
+
+class UserTagsRemovedDetails(bb.Struct):
+    """
+    Removed tags.
+
+    :ivar team_log.UserTagsRemovedDetails.values: values.
+    """
+
+    __slots__ = [
+        '_values_value',
+    ]
+
+    _has_required_fields = True
+
+    def __init__(self,
+                 values=None):
+        self._values_value = bb.NOT_SET
+        if values is not None:
+            self.values = values
+
+    # Instance attribute type: list of [str] (validator is set below)
+    values = bb.Attribute("values")
+
+    def _process_custom_annotations(self, annotation_type, field_path, processor):
+        super(UserTagsRemovedDetails, self)._process_custom_annotations(annotation_type, field_path, processor)
+
+UserTagsRemovedDetails_validator = bv.Struct(UserTagsRemovedDetails)
+
+class UserTagsRemovedType(bb.Struct):
+
+    __slots__ = [
+        '_description_value',
+    ]
+
+    _has_required_fields = True
+
+    def __init__(self,
+                 description=None):
+        self._description_value = bb.NOT_SET
+        if description is not None:
+            self.description = description
+
+    # Instance attribute type: str (validator is set below)
+    description = bb.Attribute("description")
+
+    def _process_custom_annotations(self, annotation_type, field_path, processor):
+        super(UserTagsRemovedType, self)._process_custom_annotations(annotation_type, field_path, processor)
+
+UserTagsRemovedType_validator = bv.Struct(UserTagsRemovedType)
 
 class ViewerInfoPolicyChangedDetails(bb.Struct):
     """
@@ -67802,7 +72835,6 @@ class WebDeviceSessionLogInfo(DeviceSessionLogInfo):
     Information on active web sessions
 
     :ivar team_log.WebDeviceSessionLogInfo.session_info: Web session unique id.
-        Might be missing due to historical data gap.
     :ivar team_log.WebDeviceSessionLogInfo.user_agent: Information on the
         hosting device.
     :ivar team_log.WebDeviceSessionLogInfo.os: Information on the hosting
@@ -68399,6 +73431,7 @@ ActorLogInfo.other = ActorLogInfo('other')
 
 AdminAlertCategoryEnum._account_takeover_validator = bv.Void()
 AdminAlertCategoryEnum._data_loss_protection_validator = bv.Void()
+AdminAlertCategoryEnum._information_governance_validator = bv.Void()
 AdminAlertCategoryEnum._malware_sharing_validator = bv.Void()
 AdminAlertCategoryEnum._massive_file_operation_validator = bv.Void()
 AdminAlertCategoryEnum._na_validator = bv.Void()
@@ -68407,6 +73440,7 @@ AdminAlertCategoryEnum._other_validator = bv.Void()
 AdminAlertCategoryEnum._tagmap = {
     'account_takeover': AdminAlertCategoryEnum._account_takeover_validator,
     'data_loss_protection': AdminAlertCategoryEnum._data_loss_protection_validator,
+    'information_governance': AdminAlertCategoryEnum._information_governance_validator,
     'malware_sharing': AdminAlertCategoryEnum._malware_sharing_validator,
     'massive_file_operation': AdminAlertCategoryEnum._massive_file_operation_validator,
     'na': AdminAlertCategoryEnum._na_validator,
@@ -68416,11 +73450,34 @@ AdminAlertCategoryEnum._tagmap = {
 
 AdminAlertCategoryEnum.account_takeover = AdminAlertCategoryEnum('account_takeover')
 AdminAlertCategoryEnum.data_loss_protection = AdminAlertCategoryEnum('data_loss_protection')
+AdminAlertCategoryEnum.information_governance = AdminAlertCategoryEnum('information_governance')
 AdminAlertCategoryEnum.malware_sharing = AdminAlertCategoryEnum('malware_sharing')
 AdminAlertCategoryEnum.massive_file_operation = AdminAlertCategoryEnum('massive_file_operation')
 AdminAlertCategoryEnum.na = AdminAlertCategoryEnum('na')
 AdminAlertCategoryEnum.threat_management = AdminAlertCategoryEnum('threat_management')
 AdminAlertCategoryEnum.other = AdminAlertCategoryEnum('other')
+
+AdminAlertGeneralStateEnum._active_validator = bv.Void()
+AdminAlertGeneralStateEnum._dismissed_validator = bv.Void()
+AdminAlertGeneralStateEnum._in_progress_validator = bv.Void()
+AdminAlertGeneralStateEnum._na_validator = bv.Void()
+AdminAlertGeneralStateEnum._resolved_validator = bv.Void()
+AdminAlertGeneralStateEnum._other_validator = bv.Void()
+AdminAlertGeneralStateEnum._tagmap = {
+    'active': AdminAlertGeneralStateEnum._active_validator,
+    'dismissed': AdminAlertGeneralStateEnum._dismissed_validator,
+    'in_progress': AdminAlertGeneralStateEnum._in_progress_validator,
+    'na': AdminAlertGeneralStateEnum._na_validator,
+    'resolved': AdminAlertGeneralStateEnum._resolved_validator,
+    'other': AdminAlertGeneralStateEnum._other_validator,
+}
+
+AdminAlertGeneralStateEnum.active = AdminAlertGeneralStateEnum('active')
+AdminAlertGeneralStateEnum.dismissed = AdminAlertGeneralStateEnum('dismissed')
+AdminAlertGeneralStateEnum.in_progress = AdminAlertGeneralStateEnum('in_progress')
+AdminAlertGeneralStateEnum.na = AdminAlertGeneralStateEnum('na')
+AdminAlertGeneralStateEnum.resolved = AdminAlertGeneralStateEnum('resolved')
+AdminAlertGeneralStateEnum.other = AdminAlertGeneralStateEnum('other')
 
 AdminAlertSeverityEnum._high_validator = bv.Void()
 AdminAlertSeverityEnum._info_validator = bv.Void()
@@ -68444,9 +73501,77 @@ AdminAlertSeverityEnum.medium = AdminAlertSeverityEnum('medium')
 AdminAlertSeverityEnum.na = AdminAlertSeverityEnum('na')
 AdminAlertSeverityEnum.other = AdminAlertSeverityEnum('other')
 
-AdminAlertingAlertConfiguration.alert_state.validator = AdminAlertingAlertStatePolicy_validator
-AdminAlertingAlertConfiguration._all_field_names_ = set(['alert_state'])
-AdminAlertingAlertConfiguration._all_fields_ = [('alert_state', AdminAlertingAlertConfiguration.alert_state.validator)]
+AdminAlertingAlertConfiguration.alert_state.validator = bv.Nullable(AdminAlertingAlertStatePolicy_validator)
+AdminAlertingAlertConfiguration.sensitivity_level.validator = bv.Nullable(AdminAlertingAlertSensitivity_validator)
+AdminAlertingAlertConfiguration.recipients_settings.validator = bv.Nullable(RecipientsConfiguration_validator)
+AdminAlertingAlertConfiguration.text.validator = bv.Nullable(bv.String())
+AdminAlertingAlertConfiguration.excluded_file_extensions.validator = bv.Nullable(bv.String())
+AdminAlertingAlertConfiguration._all_field_names_ = set([
+    'alert_state',
+    'sensitivity_level',
+    'recipients_settings',
+    'text',
+    'excluded_file_extensions',
+])
+AdminAlertingAlertConfiguration._all_fields_ = [
+    ('alert_state', AdminAlertingAlertConfiguration.alert_state.validator),
+    ('sensitivity_level', AdminAlertingAlertConfiguration.sensitivity_level.validator),
+    ('recipients_settings', AdminAlertingAlertConfiguration.recipients_settings.validator),
+    ('text', AdminAlertingAlertConfiguration.text.validator),
+    ('excluded_file_extensions', AdminAlertingAlertConfiguration.excluded_file_extensions.validator),
+]
+
+AdminAlertingAlertSensitivity._high_validator = bv.Void()
+AdminAlertingAlertSensitivity._highest_validator = bv.Void()
+AdminAlertingAlertSensitivity._invalid_validator = bv.Void()
+AdminAlertingAlertSensitivity._low_validator = bv.Void()
+AdminAlertingAlertSensitivity._lowest_validator = bv.Void()
+AdminAlertingAlertSensitivity._medium_validator = bv.Void()
+AdminAlertingAlertSensitivity._other_validator = bv.Void()
+AdminAlertingAlertSensitivity._tagmap = {
+    'high': AdminAlertingAlertSensitivity._high_validator,
+    'highest': AdminAlertingAlertSensitivity._highest_validator,
+    'invalid': AdminAlertingAlertSensitivity._invalid_validator,
+    'low': AdminAlertingAlertSensitivity._low_validator,
+    'lowest': AdminAlertingAlertSensitivity._lowest_validator,
+    'medium': AdminAlertingAlertSensitivity._medium_validator,
+    'other': AdminAlertingAlertSensitivity._other_validator,
+}
+
+AdminAlertingAlertSensitivity.high = AdminAlertingAlertSensitivity('high')
+AdminAlertingAlertSensitivity.highest = AdminAlertingAlertSensitivity('highest')
+AdminAlertingAlertSensitivity.invalid = AdminAlertingAlertSensitivity('invalid')
+AdminAlertingAlertSensitivity.low = AdminAlertingAlertSensitivity('low')
+AdminAlertingAlertSensitivity.lowest = AdminAlertingAlertSensitivity('lowest')
+AdminAlertingAlertSensitivity.medium = AdminAlertingAlertSensitivity('medium')
+AdminAlertingAlertSensitivity.other = AdminAlertingAlertSensitivity('other')
+
+AdminAlertingAlertStateChangedDetails.alert_name.validator = bv.String()
+AdminAlertingAlertStateChangedDetails.alert_severity.validator = AdminAlertSeverityEnum_validator
+AdminAlertingAlertStateChangedDetails.alert_category.validator = AdminAlertCategoryEnum_validator
+AdminAlertingAlertStateChangedDetails.alert_instance_id.validator = bv.String()
+AdminAlertingAlertStateChangedDetails.previous_value.validator = AdminAlertGeneralStateEnum_validator
+AdminAlertingAlertStateChangedDetails.new_value.validator = AdminAlertGeneralStateEnum_validator
+AdminAlertingAlertStateChangedDetails._all_field_names_ = set([
+    'alert_name',
+    'alert_severity',
+    'alert_category',
+    'alert_instance_id',
+    'previous_value',
+    'new_value',
+])
+AdminAlertingAlertStateChangedDetails._all_fields_ = [
+    ('alert_name', AdminAlertingAlertStateChangedDetails.alert_name.validator),
+    ('alert_severity', AdminAlertingAlertStateChangedDetails.alert_severity.validator),
+    ('alert_category', AdminAlertingAlertStateChangedDetails.alert_category.validator),
+    ('alert_instance_id', AdminAlertingAlertStateChangedDetails.alert_instance_id.validator),
+    ('previous_value', AdminAlertingAlertStateChangedDetails.previous_value.validator),
+    ('new_value', AdminAlertingAlertStateChangedDetails.new_value.validator),
+]
+
+AdminAlertingAlertStateChangedType.description.validator = bv.String()
+AdminAlertingAlertStateChangedType._all_field_names_ = set(['description'])
+AdminAlertingAlertStateChangedType._all_fields_ = [('description', AdminAlertingAlertStateChangedType.description.validator)]
 
 AdminAlertingAlertStatePolicy._off_validator = bv.Void()
 AdminAlertingAlertStatePolicy._on_validator = bv.Void()
@@ -68500,27 +73625,121 @@ AdminAlertingTriggeredAlertType.description.validator = bv.String()
 AdminAlertingTriggeredAlertType._all_field_names_ = set(['description'])
 AdminAlertingTriggeredAlertType._all_fields_ = [('description', AdminAlertingTriggeredAlertType.description.validator)]
 
+AdminConsoleAppPermission._default_for_listed_apps_validator = bv.Void()
+AdminConsoleAppPermission._default_for_unlisted_apps_validator = bv.Void()
+AdminConsoleAppPermission._other_validator = bv.Void()
+AdminConsoleAppPermission._tagmap = {
+    'default_for_listed_apps': AdminConsoleAppPermission._default_for_listed_apps_validator,
+    'default_for_unlisted_apps': AdminConsoleAppPermission._default_for_unlisted_apps_validator,
+    'other': AdminConsoleAppPermission._other_validator,
+}
+
+AdminConsoleAppPermission.default_for_listed_apps = AdminConsoleAppPermission('default_for_listed_apps')
+AdminConsoleAppPermission.default_for_unlisted_apps = AdminConsoleAppPermission('default_for_unlisted_apps')
+AdminConsoleAppPermission.other = AdminConsoleAppPermission('other')
+
+AdminConsoleAppPolicy._allow_validator = bv.Void()
+AdminConsoleAppPolicy._block_validator = bv.Void()
+AdminConsoleAppPolicy._default_validator = bv.Void()
+AdminConsoleAppPolicy._other_validator = bv.Void()
+AdminConsoleAppPolicy._tagmap = {
+    'allow': AdminConsoleAppPolicy._allow_validator,
+    'block': AdminConsoleAppPolicy._block_validator,
+    'default': AdminConsoleAppPolicy._default_validator,
+    'other': AdminConsoleAppPolicy._other_validator,
+}
+
+AdminConsoleAppPolicy.allow = AdminConsoleAppPolicy('allow')
+AdminConsoleAppPolicy.block = AdminConsoleAppPolicy('block')
+AdminConsoleAppPolicy.default = AdminConsoleAppPolicy('default')
+AdminConsoleAppPolicy.other = AdminConsoleAppPolicy('other')
+
+AdminEmailRemindersChangedDetails.new_value.validator = AdminEmailRemindersPolicy_validator
+AdminEmailRemindersChangedDetails.previous_value.validator = AdminEmailRemindersPolicy_validator
+AdminEmailRemindersChangedDetails._all_field_names_ = set([
+    'new_value',
+    'previous_value',
+])
+AdminEmailRemindersChangedDetails._all_fields_ = [
+    ('new_value', AdminEmailRemindersChangedDetails.new_value.validator),
+    ('previous_value', AdminEmailRemindersChangedDetails.previous_value.validator),
+]
+
+AdminEmailRemindersChangedType.description.validator = bv.String()
+AdminEmailRemindersChangedType._all_field_names_ = set(['description'])
+AdminEmailRemindersChangedType._all_fields_ = [('description', AdminEmailRemindersChangedType.description.validator)]
+
+AdminEmailRemindersPolicy._default_validator = bv.Void()
+AdminEmailRemindersPolicy._disabled_validator = bv.Void()
+AdminEmailRemindersPolicy._enabled_validator = bv.Void()
+AdminEmailRemindersPolicy._other_validator = bv.Void()
+AdminEmailRemindersPolicy._tagmap = {
+    'default': AdminEmailRemindersPolicy._default_validator,
+    'disabled': AdminEmailRemindersPolicy._disabled_validator,
+    'enabled': AdminEmailRemindersPolicy._enabled_validator,
+    'other': AdminEmailRemindersPolicy._other_validator,
+}
+
+AdminEmailRemindersPolicy.default = AdminEmailRemindersPolicy('default')
+AdminEmailRemindersPolicy.disabled = AdminEmailRemindersPolicy('disabled')
+AdminEmailRemindersPolicy.enabled = AdminEmailRemindersPolicy('enabled')
+AdminEmailRemindersPolicy.other = AdminEmailRemindersPolicy('other')
+
+AdminRole._billing_admin_validator = bv.Void()
+AdminRole._compliance_admin_validator = bv.Void()
+AdminRole._content_admin_validator = bv.Void()
 AdminRole._limited_admin_validator = bv.Void()
 AdminRole._member_only_validator = bv.Void()
+AdminRole._reporting_admin_validator = bv.Void()
+AdminRole._security_admin_validator = bv.Void()
 AdminRole._support_admin_validator = bv.Void()
 AdminRole._team_admin_validator = bv.Void()
 AdminRole._user_management_admin_validator = bv.Void()
 AdminRole._other_validator = bv.Void()
 AdminRole._tagmap = {
+    'billing_admin': AdminRole._billing_admin_validator,
+    'compliance_admin': AdminRole._compliance_admin_validator,
+    'content_admin': AdminRole._content_admin_validator,
     'limited_admin': AdminRole._limited_admin_validator,
     'member_only': AdminRole._member_only_validator,
+    'reporting_admin': AdminRole._reporting_admin_validator,
+    'security_admin': AdminRole._security_admin_validator,
     'support_admin': AdminRole._support_admin_validator,
     'team_admin': AdminRole._team_admin_validator,
     'user_management_admin': AdminRole._user_management_admin_validator,
     'other': AdminRole._other_validator,
 }
 
+AdminRole.billing_admin = AdminRole('billing_admin')
+AdminRole.compliance_admin = AdminRole('compliance_admin')
+AdminRole.content_admin = AdminRole('content_admin')
 AdminRole.limited_admin = AdminRole('limited_admin')
 AdminRole.member_only = AdminRole('member_only')
+AdminRole.reporting_admin = AdminRole('reporting_admin')
+AdminRole.security_admin = AdminRole('security_admin')
 AdminRole.support_admin = AdminRole('support_admin')
 AdminRole.team_admin = AdminRole('team_admin')
 AdminRole.user_management_admin = AdminRole('user_management_admin')
 AdminRole.other = AdminRole('other')
+
+AlertRecipientsSettingType._custom_list_validator = bv.Void()
+AlertRecipientsSettingType._invalid_validator = bv.Void()
+AlertRecipientsSettingType._none_validator = bv.Void()
+AlertRecipientsSettingType._team_admins_validator = bv.Void()
+AlertRecipientsSettingType._other_validator = bv.Void()
+AlertRecipientsSettingType._tagmap = {
+    'custom_list': AlertRecipientsSettingType._custom_list_validator,
+    'invalid': AlertRecipientsSettingType._invalid_validator,
+    'none': AlertRecipientsSettingType._none_validator,
+    'team_admins': AlertRecipientsSettingType._team_admins_validator,
+    'other': AlertRecipientsSettingType._other_validator,
+}
+
+AlertRecipientsSettingType.custom_list = AlertRecipientsSettingType('custom_list')
+AlertRecipientsSettingType.invalid = AlertRecipientsSettingType('invalid')
+AlertRecipientsSettingType.none = AlertRecipientsSettingType('none')
+AlertRecipientsSettingType.team_admins = AlertRecipientsSettingType('team_admins')
+AlertRecipientsSettingType.other = AlertRecipientsSettingType('other')
 
 AllowDownloadDisabledDetails._all_field_names_ = set([])
 AllowDownloadDisabledDetails._all_fields_ = []
@@ -68539,6 +73758,14 @@ AllowDownloadEnabledType._all_fields_ = [('description', AllowDownloadEnabledTyp
 ApiSessionLogInfo.request_id.validator = RequestId_validator
 ApiSessionLogInfo._all_field_names_ = set(['request_id'])
 ApiSessionLogInfo._all_fields_ = [('request_id', ApiSessionLogInfo.request_id.validator)]
+
+AppBlockedByPermissionsDetails.app_info.validator = AppLogInfo_validator
+AppBlockedByPermissionsDetails._all_field_names_ = set(['app_info'])
+AppBlockedByPermissionsDetails._all_fields_ = [('app_info', AppBlockedByPermissionsDetails.app_info.validator)]
+
+AppBlockedByPermissionsType.description.validator = bv.String()
+AppBlockedByPermissionsType._all_field_names_ = set(['description'])
+AppBlockedByPermissionsType._all_fields_ = [('description', AppBlockedByPermissionsType.description.validator)]
 
 AppLinkTeamDetails.app_info.validator = AppLogInfo_validator
 AppLinkTeamDetails._all_field_names_ = set(['app_info'])
@@ -68570,16 +73797,37 @@ AppLogInfo._fields_ = [
 AppLogInfo._all_fields_ = AppLogInfo._fields_
 
 AppLogInfo._tag_to_subtype_ = {
-    (u'user_or_team_linked_app',): UserOrTeamLinkedAppLogInfo_validator,
-    (u'user_linked_app',): UserLinkedAppLogInfo_validator,
-    (u'team_linked_app',): TeamLinkedAppLogInfo_validator,
+    ('user_or_team_linked_app',): UserOrTeamLinkedAppLogInfo_validator,
+    ('user_linked_app',): UserLinkedAppLogInfo_validator,
+    ('team_linked_app',): TeamLinkedAppLogInfo_validator,
 }
 AppLogInfo._pytype_to_tag_and_subtype_ = {
-    UserOrTeamLinkedAppLogInfo: ((u'user_or_team_linked_app',), UserOrTeamLinkedAppLogInfo_validator),
-    UserLinkedAppLogInfo: ((u'user_linked_app',), UserLinkedAppLogInfo_validator),
-    TeamLinkedAppLogInfo: ((u'team_linked_app',), TeamLinkedAppLogInfo_validator),
+    UserOrTeamLinkedAppLogInfo: (('user_or_team_linked_app',), UserOrTeamLinkedAppLogInfo_validator),
+    UserLinkedAppLogInfo: (('user_linked_app',), UserLinkedAppLogInfo_validator),
+    TeamLinkedAppLogInfo: (('team_linked_app',), TeamLinkedAppLogInfo_validator),
 }
 AppLogInfo._is_catch_all_ = True
+
+AppPermissionsChangedDetails.app_name.validator = bv.Nullable(bv.String())
+AppPermissionsChangedDetails.permission.validator = bv.Nullable(AdminConsoleAppPermission_validator)
+AppPermissionsChangedDetails.previous_value.validator = AdminConsoleAppPolicy_validator
+AppPermissionsChangedDetails.new_value.validator = AdminConsoleAppPolicy_validator
+AppPermissionsChangedDetails._all_field_names_ = set([
+    'app_name',
+    'permission',
+    'previous_value',
+    'new_value',
+])
+AppPermissionsChangedDetails._all_fields_ = [
+    ('app_name', AppPermissionsChangedDetails.app_name.validator),
+    ('permission', AppPermissionsChangedDetails.permission.validator),
+    ('previous_value', AppPermissionsChangedDetails.previous_value.validator),
+    ('new_value', AppPermissionsChangedDetails.new_value.validator),
+]
+
+AppPermissionsChangedType.description.validator = bv.String()
+AppPermissionsChangedType._all_field_names_ = set(['description'])
+AppPermissionsChangedType._all_fields_ = [('description', AppPermissionsChangedType.description.validator)]
 
 AppUnlinkTeamDetails.app_info.validator = AppLogInfo_validator
 AppUnlinkTeamDetails._all_field_names_ = set(['app_info'])
@@ -68596,6 +73844,13 @@ AppUnlinkUserDetails._all_fields_ = [('app_info', AppUnlinkUserDetails.app_info.
 AppUnlinkUserType.description.validator = bv.String()
 AppUnlinkUserType._all_field_names_ = set(['description'])
 AppUnlinkUserType._all_fields_ = [('description', AppUnlinkUserType.description.validator)]
+
+ApplyNamingConventionDetails._all_field_names_ = set([])
+ApplyNamingConventionDetails._all_fields_ = []
+
+ApplyNamingConventionType.description.validator = bv.String()
+ApplyNamingConventionType._all_field_names_ = set(['description'])
+ApplyNamingConventionType._all_fields_ = [('description', ApplyNamingConventionType.description.validator)]
 
 AssetLogInfo._file_validator = FileLogInfo_validator
 AssetLogInfo._folder_validator = FolderLogInfo_validator
@@ -68805,6 +74060,37 @@ CameraUploadsPolicyChangedType.description.validator = bv.String()
 CameraUploadsPolicyChangedType._all_field_names_ = set(['description'])
 CameraUploadsPolicyChangedType._all_fields_ = [('description', CameraUploadsPolicyChangedType.description.validator)]
 
+CaptureTranscriptPolicy._default_validator = bv.Void()
+CaptureTranscriptPolicy._disabled_validator = bv.Void()
+CaptureTranscriptPolicy._enabled_validator = bv.Void()
+CaptureTranscriptPolicy._other_validator = bv.Void()
+CaptureTranscriptPolicy._tagmap = {
+    'default': CaptureTranscriptPolicy._default_validator,
+    'disabled': CaptureTranscriptPolicy._disabled_validator,
+    'enabled': CaptureTranscriptPolicy._enabled_validator,
+    'other': CaptureTranscriptPolicy._other_validator,
+}
+
+CaptureTranscriptPolicy.default = CaptureTranscriptPolicy('default')
+CaptureTranscriptPolicy.disabled = CaptureTranscriptPolicy('disabled')
+CaptureTranscriptPolicy.enabled = CaptureTranscriptPolicy('enabled')
+CaptureTranscriptPolicy.other = CaptureTranscriptPolicy('other')
+
+CaptureTranscriptPolicyChangedDetails.new_value.validator = CaptureTranscriptPolicy_validator
+CaptureTranscriptPolicyChangedDetails.previous_value.validator = CaptureTranscriptPolicy_validator
+CaptureTranscriptPolicyChangedDetails._all_field_names_ = set([
+    'new_value',
+    'previous_value',
+])
+CaptureTranscriptPolicyChangedDetails._all_fields_ = [
+    ('new_value', CaptureTranscriptPolicyChangedDetails.new_value.validator),
+    ('previous_value', CaptureTranscriptPolicyChangedDetails.previous_value.validator),
+]
+
+CaptureTranscriptPolicyChangedType.description.validator = bv.String()
+CaptureTranscriptPolicyChangedType._all_field_names_ = set(['description'])
+CaptureTranscriptPolicyChangedType._all_fields_ = [('description', CaptureTranscriptPolicyChangedType.description.validator)]
+
 Certificate.subject.validator = bv.String()
 Certificate.issuer.validator = bv.String()
 Certificate.issue_date.validator = bv.String()
@@ -68830,6 +74116,19 @@ Certificate._all_fields_ = [
     ('sha1_fingerprint', Certificate.sha1_fingerprint.validator),
     ('common_name', Certificate.common_name.validator),
 ]
+
+ChangeLinkExpirationPolicy._allowed_validator = bv.Void()
+ChangeLinkExpirationPolicy._not_allowed_validator = bv.Void()
+ChangeLinkExpirationPolicy._other_validator = bv.Void()
+ChangeLinkExpirationPolicy._tagmap = {
+    'allowed': ChangeLinkExpirationPolicy._allowed_validator,
+    'not_allowed': ChangeLinkExpirationPolicy._not_allowed_validator,
+    'other': ChangeLinkExpirationPolicy._other_validator,
+}
+
+ChangeLinkExpirationPolicy.allowed = ChangeLinkExpirationPolicy('allowed')
+ChangeLinkExpirationPolicy.not_allowed = ChangeLinkExpirationPolicy('not_allowed')
+ChangeLinkExpirationPolicy.other = ChangeLinkExpirationPolicy('other')
 
 ChangedEnterpriseAdminRoleDetails.previous_value.validator = FedAdminRole_validator
 ChangedEnterpriseAdminRoleDetails.new_value.validator = FedAdminRole_validator
@@ -68905,24 +74204,33 @@ ClassificationCreateReportType._all_fields_ = [('description', ClassificationCre
 
 ClassificationPolicyEnumWrapper._disabled_validator = bv.Void()
 ClassificationPolicyEnumWrapper._enabled_validator = bv.Void()
+ClassificationPolicyEnumWrapper._member_and_team_folders_validator = bv.Void()
+ClassificationPolicyEnumWrapper._team_folders_validator = bv.Void()
 ClassificationPolicyEnumWrapper._other_validator = bv.Void()
 ClassificationPolicyEnumWrapper._tagmap = {
     'disabled': ClassificationPolicyEnumWrapper._disabled_validator,
     'enabled': ClassificationPolicyEnumWrapper._enabled_validator,
+    'member_and_team_folders': ClassificationPolicyEnumWrapper._member_and_team_folders_validator,
+    'team_folders': ClassificationPolicyEnumWrapper._team_folders_validator,
     'other': ClassificationPolicyEnumWrapper._other_validator,
 }
 
 ClassificationPolicyEnumWrapper.disabled = ClassificationPolicyEnumWrapper('disabled')
 ClassificationPolicyEnumWrapper.enabled = ClassificationPolicyEnumWrapper('enabled')
+ClassificationPolicyEnumWrapper.member_and_team_folders = ClassificationPolicyEnumWrapper('member_and_team_folders')
+ClassificationPolicyEnumWrapper.team_folders = ClassificationPolicyEnumWrapper('team_folders')
 ClassificationPolicyEnumWrapper.other = ClassificationPolicyEnumWrapper('other')
 
+ClassificationType._personal_information_validator = bv.Void()
 ClassificationType._pii_validator = bv.Void()
 ClassificationType._other_validator = bv.Void()
 ClassificationType._tagmap = {
+    'personal_information': ClassificationType._personal_information_validator,
     'pii': ClassificationType._pii_validator,
     'other': ClassificationType._other_validator,
 }
 
+ClassificationType.personal_information = ClassificationType('personal_information')
 ClassificationType.pii = ClassificationType('pii')
 ClassificationType.other = ClassificationType('other')
 
@@ -69063,6 +74371,51 @@ DataPlacementRestrictionSatisfyPolicyType.description.validator = bv.String()
 DataPlacementRestrictionSatisfyPolicyType._all_field_names_ = set(['description'])
 DataPlacementRestrictionSatisfyPolicyType._all_fields_ = [('description', DataPlacementRestrictionSatisfyPolicyType.description.validator)]
 
+DataResidencyMigrationRequestSuccessfulDetails._all_field_names_ = set([])
+DataResidencyMigrationRequestSuccessfulDetails._all_fields_ = []
+
+DataResidencyMigrationRequestSuccessfulType.description.validator = bv.String()
+DataResidencyMigrationRequestSuccessfulType._all_field_names_ = set(['description'])
+DataResidencyMigrationRequestSuccessfulType._all_fields_ = [('description', DataResidencyMigrationRequestSuccessfulType.description.validator)]
+
+DataResidencyMigrationRequestUnsuccessfulDetails._all_field_names_ = set([])
+DataResidencyMigrationRequestUnsuccessfulDetails._all_fields_ = []
+
+DataResidencyMigrationRequestUnsuccessfulType.description.validator = bv.String()
+DataResidencyMigrationRequestUnsuccessfulType._all_field_names_ = set(['description'])
+DataResidencyMigrationRequestUnsuccessfulType._all_fields_ = [('description', DataResidencyMigrationRequestUnsuccessfulType.description.validator)]
+
+DefaultLinkExpirationDaysPolicy._day_1_validator = bv.Void()
+DefaultLinkExpirationDaysPolicy._day_180_validator = bv.Void()
+DefaultLinkExpirationDaysPolicy._day_3_validator = bv.Void()
+DefaultLinkExpirationDaysPolicy._day_30_validator = bv.Void()
+DefaultLinkExpirationDaysPolicy._day_7_validator = bv.Void()
+DefaultLinkExpirationDaysPolicy._day_90_validator = bv.Void()
+DefaultLinkExpirationDaysPolicy._none_validator = bv.Void()
+DefaultLinkExpirationDaysPolicy._year_1_validator = bv.Void()
+DefaultLinkExpirationDaysPolicy._other_validator = bv.Void()
+DefaultLinkExpirationDaysPolicy._tagmap = {
+    'day_1': DefaultLinkExpirationDaysPolicy._day_1_validator,
+    'day_180': DefaultLinkExpirationDaysPolicy._day_180_validator,
+    'day_3': DefaultLinkExpirationDaysPolicy._day_3_validator,
+    'day_30': DefaultLinkExpirationDaysPolicy._day_30_validator,
+    'day_7': DefaultLinkExpirationDaysPolicy._day_7_validator,
+    'day_90': DefaultLinkExpirationDaysPolicy._day_90_validator,
+    'none': DefaultLinkExpirationDaysPolicy._none_validator,
+    'year_1': DefaultLinkExpirationDaysPolicy._year_1_validator,
+    'other': DefaultLinkExpirationDaysPolicy._other_validator,
+}
+
+DefaultLinkExpirationDaysPolicy.day_1 = DefaultLinkExpirationDaysPolicy('day_1')
+DefaultLinkExpirationDaysPolicy.day_180 = DefaultLinkExpirationDaysPolicy('day_180')
+DefaultLinkExpirationDaysPolicy.day_3 = DefaultLinkExpirationDaysPolicy('day_3')
+DefaultLinkExpirationDaysPolicy.day_30 = DefaultLinkExpirationDaysPolicy('day_30')
+DefaultLinkExpirationDaysPolicy.day_7 = DefaultLinkExpirationDaysPolicy('day_7')
+DefaultLinkExpirationDaysPolicy.day_90 = DefaultLinkExpirationDaysPolicy('day_90')
+DefaultLinkExpirationDaysPolicy.none = DefaultLinkExpirationDaysPolicy('none')
+DefaultLinkExpirationDaysPolicy.year_1 = DefaultLinkExpirationDaysPolicy('year_1')
+DefaultLinkExpirationDaysPolicy.other = DefaultLinkExpirationDaysPolicy('other')
+
 DeleteTeamInviteLinkDetails.link_url.validator = bv.String()
 DeleteTeamInviteLinkDetails._all_field_names_ = set(['link_url'])
 DeleteTeamInviteLinkDetails._all_fields_ = [('link_url', DeleteTeamInviteLinkDetails.link_url.validator)]
@@ -69088,16 +74441,16 @@ DeviceSessionLogInfo._fields_ = [
 DeviceSessionLogInfo._all_fields_ = DeviceSessionLogInfo._fields_
 
 DeviceSessionLogInfo._tag_to_subtype_ = {
-    (u'desktop_device_session',): DesktopDeviceSessionLogInfo_validator,
-    (u'mobile_device_session',): MobileDeviceSessionLogInfo_validator,
-    (u'web_device_session',): WebDeviceSessionLogInfo_validator,
-    (u'legacy_device_session',): LegacyDeviceSessionLogInfo_validator,
+    ('desktop_device_session',): DesktopDeviceSessionLogInfo_validator,
+    ('mobile_device_session',): MobileDeviceSessionLogInfo_validator,
+    ('web_device_session',): WebDeviceSessionLogInfo_validator,
+    ('legacy_device_session',): LegacyDeviceSessionLogInfo_validator,
 }
 DeviceSessionLogInfo._pytype_to_tag_and_subtype_ = {
-    DesktopDeviceSessionLogInfo: ((u'desktop_device_session',), DesktopDeviceSessionLogInfo_validator),
-    MobileDeviceSessionLogInfo: ((u'mobile_device_session',), MobileDeviceSessionLogInfo_validator),
-    WebDeviceSessionLogInfo: ((u'web_device_session',), WebDeviceSessionLogInfo_validator),
-    LegacyDeviceSessionLogInfo: ((u'legacy_device_session',), LegacyDeviceSessionLogInfo_validator),
+    DesktopDeviceSessionLogInfo: (('desktop_device_session',), DesktopDeviceSessionLogInfo_validator),
+    MobileDeviceSessionLogInfo: (('mobile_device_session',), MobileDeviceSessionLogInfo_validator),
+    WebDeviceSessionLogInfo: (('web_device_session',), WebDeviceSessionLogInfo_validator),
+    LegacyDeviceSessionLogInfo: (('legacy_device_session',), LegacyDeviceSessionLogInfo_validator),
 }
 DeviceSessionLogInfo._is_catch_all_ = True
 
@@ -69133,14 +74486,14 @@ SessionLogInfo._fields_ = [('session_id', SessionLogInfo.session_id.validator)]
 SessionLogInfo._all_fields_ = SessionLogInfo._fields_
 
 SessionLogInfo._tag_to_subtype_ = {
-    (u'web',): WebSessionLogInfo_validator,
-    (u'desktop',): DesktopSessionLogInfo_validator,
-    (u'mobile',): MobileSessionLogInfo_validator,
+    ('web',): WebSessionLogInfo_validator,
+    ('desktop',): DesktopSessionLogInfo_validator,
+    ('mobile',): MobileSessionLogInfo_validator,
 }
 SessionLogInfo._pytype_to_tag_and_subtype_ = {
-    WebSessionLogInfo: ((u'web',), WebSessionLogInfo_validator),
-    DesktopSessionLogInfo: ((u'desktop',), DesktopSessionLogInfo_validator),
-    MobileSessionLogInfo: ((u'mobile',), MobileSessionLogInfo_validator),
+    WebSessionLogInfo: (('web',), WebSessionLogInfo_validator),
+    DesktopSessionLogInfo: (('desktop',), DesktopSessionLogInfo_validator),
+    MobileSessionLogInfo: (('mobile',), MobileSessionLogInfo_validator),
 }
 SessionLogInfo._is_catch_all_ = True
 
@@ -69413,6 +74766,19 @@ DisabledDomainInvitesType.description.validator = bv.String()
 DisabledDomainInvitesType._all_field_names_ = set(['description'])
 DisabledDomainInvitesType._all_fields_ = [('description', DisabledDomainInvitesType.description.validator)]
 
+DispositionActionType._automatic_delete_validator = bv.Void()
+DispositionActionType._automatic_permanently_delete_validator = bv.Void()
+DispositionActionType._other_validator = bv.Void()
+DispositionActionType._tagmap = {
+    'automatic_delete': DispositionActionType._automatic_delete_validator,
+    'automatic_permanently_delete': DispositionActionType._automatic_permanently_delete_validator,
+    'other': DispositionActionType._other_validator,
+}
+
+DispositionActionType.automatic_delete = DispositionActionType('automatic_delete')
+DispositionActionType.automatic_permanently_delete = DispositionActionType('automatic_permanently_delete')
+DispositionActionType.other = DispositionActionType('other')
+
 DomainInvitesApproveRequestToJoinTeamDetails._all_field_names_ = set([])
 DomainInvitesApproveRequestToJoinTeamDetails._all_fields_ = []
 
@@ -69537,6 +74903,37 @@ DropboxPasswordsNewDeviceEnrolledType.description.validator = bv.String()
 DropboxPasswordsNewDeviceEnrolledType._all_field_names_ = set(['description'])
 DropboxPasswordsNewDeviceEnrolledType._all_fields_ = [('description', DropboxPasswordsNewDeviceEnrolledType.description.validator)]
 
+DropboxPasswordsPolicy._default_validator = bv.Void()
+DropboxPasswordsPolicy._disabled_validator = bv.Void()
+DropboxPasswordsPolicy._enabled_validator = bv.Void()
+DropboxPasswordsPolicy._other_validator = bv.Void()
+DropboxPasswordsPolicy._tagmap = {
+    'default': DropboxPasswordsPolicy._default_validator,
+    'disabled': DropboxPasswordsPolicy._disabled_validator,
+    'enabled': DropboxPasswordsPolicy._enabled_validator,
+    'other': DropboxPasswordsPolicy._other_validator,
+}
+
+DropboxPasswordsPolicy.default = DropboxPasswordsPolicy('default')
+DropboxPasswordsPolicy.disabled = DropboxPasswordsPolicy('disabled')
+DropboxPasswordsPolicy.enabled = DropboxPasswordsPolicy('enabled')
+DropboxPasswordsPolicy.other = DropboxPasswordsPolicy('other')
+
+DropboxPasswordsPolicyChangedDetails.new_value.validator = DropboxPasswordsPolicy_validator
+DropboxPasswordsPolicyChangedDetails.previous_value.validator = DropboxPasswordsPolicy_validator
+DropboxPasswordsPolicyChangedDetails._all_field_names_ = set([
+    'new_value',
+    'previous_value',
+])
+DropboxPasswordsPolicyChangedDetails._all_fields_ = [
+    ('new_value', DropboxPasswordsPolicyChangedDetails.new_value.validator),
+    ('previous_value', DropboxPasswordsPolicyChangedDetails.previous_value.validator),
+]
+
+DropboxPasswordsPolicyChangedType.description.validator = bv.String()
+DropboxPasswordsPolicyChangedType._all_field_names_ = set(['description'])
+DropboxPasswordsPolicyChangedType._all_fields_ = [('description', DropboxPasswordsPolicyChangedType.description.validator)]
+
 DurationLogInfo.unit.validator = TimeUnit_validator
 DurationLogInfo.amount.validator = bv.UInt64()
 DurationLogInfo._all_field_names_ = set([
@@ -69547,6 +74944,58 @@ DurationLogInfo._all_fields_ = [
     ('unit', DurationLogInfo.unit.validator),
     ('amount', DurationLogInfo.amount.validator),
 ]
+
+EmailIngestPolicy._disabled_validator = bv.Void()
+EmailIngestPolicy._enabled_validator = bv.Void()
+EmailIngestPolicy._other_validator = bv.Void()
+EmailIngestPolicy._tagmap = {
+    'disabled': EmailIngestPolicy._disabled_validator,
+    'enabled': EmailIngestPolicy._enabled_validator,
+    'other': EmailIngestPolicy._other_validator,
+}
+
+EmailIngestPolicy.disabled = EmailIngestPolicy('disabled')
+EmailIngestPolicy.enabled = EmailIngestPolicy('enabled')
+EmailIngestPolicy.other = EmailIngestPolicy('other')
+
+EmailIngestPolicyChangedDetails.new_value.validator = EmailIngestPolicy_validator
+EmailIngestPolicyChangedDetails.previous_value.validator = EmailIngestPolicy_validator
+EmailIngestPolicyChangedDetails._all_field_names_ = set([
+    'new_value',
+    'previous_value',
+])
+EmailIngestPolicyChangedDetails._all_fields_ = [
+    ('new_value', EmailIngestPolicyChangedDetails.new_value.validator),
+    ('previous_value', EmailIngestPolicyChangedDetails.previous_value.validator),
+]
+
+EmailIngestPolicyChangedType.description.validator = bv.String()
+EmailIngestPolicyChangedType._all_field_names_ = set(['description'])
+EmailIngestPolicyChangedType._all_fields_ = [('description', EmailIngestPolicyChangedType.description.validator)]
+
+EmailIngestReceiveFileDetails.inbox_name.validator = bv.String()
+EmailIngestReceiveFileDetails.attachment_names.validator = bv.List(bv.String())
+EmailIngestReceiveFileDetails.subject.validator = bv.Nullable(bv.String())
+EmailIngestReceiveFileDetails.from_name.validator = bv.Nullable(common.DisplayNameLegacy_validator)
+EmailIngestReceiveFileDetails.from_email.validator = bv.Nullable(EmailAddress_validator)
+EmailIngestReceiveFileDetails._all_field_names_ = set([
+    'inbox_name',
+    'attachment_names',
+    'subject',
+    'from_name',
+    'from_email',
+])
+EmailIngestReceiveFileDetails._all_fields_ = [
+    ('inbox_name', EmailIngestReceiveFileDetails.inbox_name.validator),
+    ('attachment_names', EmailIngestReceiveFileDetails.attachment_names.validator),
+    ('subject', EmailIngestReceiveFileDetails.subject.validator),
+    ('from_name', EmailIngestReceiveFileDetails.from_name.validator),
+    ('from_email', EmailIngestReceiveFileDetails.from_email.validator),
+]
+
+EmailIngestReceiveFileType.description.validator = bv.String()
+EmailIngestReceiveFileType._all_field_names_ = set(['description'])
+EmailIngestReceiveFileType._all_fields_ = [('description', EmailIngestReceiveFileType.description.validator)]
 
 EmmAddExceptionDetails._all_field_names_ = set([])
 EmmAddExceptionDetails._all_fields_ = []
@@ -69627,6 +75076,19 @@ EndedEnterpriseAdminSessionDetails._all_fields_ = []
 EndedEnterpriseAdminSessionType.description.validator = bv.String()
 EndedEnterpriseAdminSessionType._all_field_names_ = set(['description'])
 EndedEnterpriseAdminSessionType._all_fields_ = [('description', EndedEnterpriseAdminSessionType.description.validator)]
+
+EnforceLinkPasswordPolicy._optional_validator = bv.Void()
+EnforceLinkPasswordPolicy._required_validator = bv.Void()
+EnforceLinkPasswordPolicy._other_validator = bv.Void()
+EnforceLinkPasswordPolicy._tagmap = {
+    'optional': EnforceLinkPasswordPolicy._optional_validator,
+    'required': EnforceLinkPasswordPolicy._required_validator,
+    'other': EnforceLinkPasswordPolicy._other_validator,
+}
+
+EnforceLinkPasswordPolicy.optional = EnforceLinkPasswordPolicy('optional')
+EnforceLinkPasswordPolicy.required = EnforceLinkPasswordPolicy('required')
+EnforceLinkPasswordPolicy.other = EnforceLinkPasswordPolicy('other')
 
 EnterpriseSettingsLockingDetails.team_name.validator = bv.String()
 EnterpriseSettingsLockingDetails.settings_page_name.validator = bv.String()
@@ -69722,8 +75184,10 @@ EventCategory.tfa = EventCategory('tfa')
 EventCategory.trusted_teams = EventCategory('trusted_teams')
 EventCategory.other = EventCategory('other')
 
+EventDetails._admin_alerting_alert_state_changed_details_validator = AdminAlertingAlertStateChangedDetails_validator
 EventDetails._admin_alerting_changed_alert_config_details_validator = AdminAlertingChangedAlertConfigDetails_validator
 EventDetails._admin_alerting_triggered_alert_details_validator = AdminAlertingTriggeredAlertDetails_validator
+EventDetails._app_blocked_by_permissions_details_validator = AppBlockedByPermissionsDetails_validator
 EventDetails._app_link_team_details_validator = AppLinkTeamDetails_validator
 EventDetails._app_link_user_details_validator = AppLinkUserDetails_validator
 EventDetails._app_unlink_team_details_validator = AppUnlinkTeamDetails_validator
@@ -69740,6 +75204,7 @@ EventDetails._file_unlike_comment_details_validator = FileUnlikeCommentDetails_v
 EventDetails._file_unresolve_comment_details_validator = FileUnresolveCommentDetails_validator
 EventDetails._governance_policy_add_folders_details_validator = GovernancePolicyAddFoldersDetails_validator
 EventDetails._governance_policy_add_folder_failed_details_validator = GovernancePolicyAddFolderFailedDetails_validator
+EventDetails._governance_policy_content_disposed_details_validator = GovernancePolicyContentDisposedDetails_validator
 EventDetails._governance_policy_create_details_validator = GovernancePolicyCreateDetails_validator
 EventDetails._governance_policy_delete_details_validator = GovernancePolicyDeleteDetails_validator
 EventDetails._governance_policy_edit_details_details_validator = GovernancePolicyEditDetailsDetails_validator
@@ -69774,6 +75239,8 @@ EventDetails._device_unlink_details_validator = DeviceUnlinkDetails_validator
 EventDetails._dropbox_passwords_exported_details_validator = DropboxPasswordsExportedDetails_validator
 EventDetails._dropbox_passwords_new_device_enrolled_details_validator = DropboxPasswordsNewDeviceEnrolledDetails_validator
 EventDetails._emm_refresh_auth_token_details_validator = EmmRefreshAuthTokenDetails_validator
+EventDetails._external_drive_backup_eligibility_status_checked_details_validator = ExternalDriveBackupEligibilityStatusCheckedDetails_validator
+EventDetails._external_drive_backup_status_changed_details_validator = ExternalDriveBackupStatusChangedDetails_validator
 EventDetails._account_capture_change_availability_details_validator = AccountCaptureChangeAvailabilityDetails_validator
 EventDetails._account_capture_migrate_account_details_validator = AccountCaptureMigrateAccountDetails_validator
 EventDetails._account_capture_notification_emails_sent_details_validator = AccountCaptureNotificationEmailsSentDetails_validator
@@ -69789,6 +75256,7 @@ EventDetails._domain_verification_add_domain_fail_details_validator = DomainVeri
 EventDetails._domain_verification_add_domain_success_details_validator = DomainVerificationAddDomainSuccessDetails_validator
 EventDetails._domain_verification_remove_domain_details_validator = DomainVerificationRemoveDomainDetails_validator
 EventDetails._enabled_domain_invites_details_validator = EnabledDomainInvitesDetails_validator
+EventDetails._apply_naming_convention_details_validator = ApplyNamingConventionDetails_validator
 EventDetails._create_folder_details_validator = CreateFolderDetails_validator
 EventDetails._file_add_details_validator = FileAddDetails_validator
 EventDetails._file_copy_details_validator = FileCopyDetails_validator
@@ -69808,7 +75276,16 @@ EventDetails._file_save_copy_reference_details_validator = FileSaveCopyReference
 EventDetails._folder_overview_description_changed_details_validator = FolderOverviewDescriptionChangedDetails_validator
 EventDetails._folder_overview_item_pinned_details_validator = FolderOverviewItemPinnedDetails_validator
 EventDetails._folder_overview_item_unpinned_details_validator = FolderOverviewItemUnpinnedDetails_validator
+EventDetails._object_label_added_details_validator = ObjectLabelAddedDetails_validator
+EventDetails._object_label_removed_details_validator = ObjectLabelRemovedDetails_validator
+EventDetails._object_label_updated_value_details_validator = ObjectLabelUpdatedValueDetails_validator
+EventDetails._organize_folder_with_tidy_details_validator = OrganizeFolderWithTidyDetails_validator
 EventDetails._rewind_folder_details_validator = RewindFolderDetails_validator
+EventDetails._undo_naming_convention_details_validator = UndoNamingConventionDetails_validator
+EventDetails._undo_organize_folder_with_tidy_details_validator = UndoOrganizeFolderWithTidyDetails_validator
+EventDetails._user_tags_added_details_validator = UserTagsAddedDetails_validator
+EventDetails._user_tags_removed_details_validator = UserTagsRemovedDetails_validator
+EventDetails._email_ingest_receive_file_details_validator = EmailIngestReceiveFileDetails_validator
 EventDetails._file_request_change_details_validator = FileRequestChangeDetails_validator
 EventDetails._file_request_close_details_validator = FileRequestCloseDetails_validator
 EventDetails._file_request_create_details_validator = FileRequestCreateDetails_validator
@@ -70060,9 +75537,12 @@ EventDetails._team_folder_permanently_delete_details_validator = TeamFolderPerma
 EventDetails._team_folder_rename_details_validator = TeamFolderRenameDetails_validator
 EventDetails._team_selective_sync_settings_changed_details_validator = TeamSelectiveSyncSettingsChangedDetails_validator
 EventDetails._account_capture_change_policy_details_validator = AccountCaptureChangePolicyDetails_validator
+EventDetails._admin_email_reminders_changed_details_validator = AdminEmailRemindersChangedDetails_validator
 EventDetails._allow_download_disabled_details_validator = AllowDownloadDisabledDetails_validator
 EventDetails._allow_download_enabled_details_validator = AllowDownloadEnabledDetails_validator
+EventDetails._app_permissions_changed_details_validator = AppPermissionsChangedDetails_validator
 EventDetails._camera_uploads_policy_changed_details_validator = CameraUploadsPolicyChangedDetails_validator
+EventDetails._capture_transcript_policy_changed_details_validator = CaptureTranscriptPolicyChangedDetails_validator
 EventDetails._classification_change_policy_details_validator = ClassificationChangePolicyDetails_validator
 EventDetails._computer_backup_policy_changed_details_validator = ComputerBackupPolicyChangedDetails_validator
 EventDetails._content_administration_policy_changed_details_validator = ContentAdministrationPolicyChangedDetails_validator
@@ -70076,12 +75556,16 @@ EventDetails._device_approvals_change_unlink_action_details_validator = DeviceAp
 EventDetails._device_approvals_remove_exception_details_validator = DeviceApprovalsRemoveExceptionDetails_validator
 EventDetails._directory_restrictions_add_members_details_validator = DirectoryRestrictionsAddMembersDetails_validator
 EventDetails._directory_restrictions_remove_members_details_validator = DirectoryRestrictionsRemoveMembersDetails_validator
+EventDetails._dropbox_passwords_policy_changed_details_validator = DropboxPasswordsPolicyChangedDetails_validator
+EventDetails._email_ingest_policy_changed_details_validator = EmailIngestPolicyChangedDetails_validator
 EventDetails._emm_add_exception_details_validator = EmmAddExceptionDetails_validator
 EventDetails._emm_change_policy_details_validator = EmmChangePolicyDetails_validator
 EventDetails._emm_remove_exception_details_validator = EmmRemoveExceptionDetails_validator
 EventDetails._extended_version_history_change_policy_details_validator = ExtendedVersionHistoryChangePolicyDetails_validator
+EventDetails._external_drive_backup_policy_changed_details_validator = ExternalDriveBackupPolicyChangedDetails_validator
 EventDetails._file_comments_change_policy_details_validator = FileCommentsChangePolicyDetails_validator
 EventDetails._file_locking_policy_changed_details_validator = FileLockingPolicyChangedDetails_validator
+EventDetails._file_provider_migration_policy_changed_details_validator = FileProviderMigrationPolicyChangedDetails_validator
 EventDetails._file_requests_change_policy_details_validator = FileRequestsChangePolicyDetails_validator
 EventDetails._file_requests_emails_enabled_details_validator = FileRequestsEmailsEnabledDetails_validator
 EventDetails._file_requests_emails_restricted_to_team_only_details_validator = FileRequestsEmailsRestrictedToTeamOnlyDetails_validator
@@ -70089,6 +75573,7 @@ EventDetails._file_transfers_policy_changed_details_validator = FileTransfersPol
 EventDetails._google_sso_change_policy_details_validator = GoogleSsoChangePolicyDetails_validator
 EventDetails._group_user_management_change_policy_details_validator = GroupUserManagementChangePolicyDetails_validator
 EventDetails._integration_policy_changed_details_validator = IntegrationPolicyChangedDetails_validator
+EventDetails._invite_acceptance_email_policy_changed_details_validator = InviteAcceptanceEmailPolicyChangedDetails_validator
 EventDetails._member_requests_change_policy_details_validator = MemberRequestsChangePolicyDetails_validator
 EventDetails._member_send_invite_policy_changed_details_validator = MemberSendInvitePolicyChangedDetails_validator
 EventDetails._member_space_limits_add_exception_details_validator = MemberSpaceLimitsAddExceptionDetails_validator
@@ -70112,6 +75597,9 @@ EventDetails._reseller_support_change_policy_details_validator = ResellerSupport
 EventDetails._rewind_policy_changed_details_validator = RewindPolicyChangedDetails_validator
 EventDetails._send_for_signature_policy_changed_details_validator = SendForSignaturePolicyChangedDetails_validator
 EventDetails._sharing_change_folder_join_policy_details_validator = SharingChangeFolderJoinPolicyDetails_validator
+EventDetails._sharing_change_link_allow_change_expiration_policy_details_validator = SharingChangeLinkAllowChangeExpirationPolicyDetails_validator
+EventDetails._sharing_change_link_default_expiration_policy_details_validator = SharingChangeLinkDefaultExpirationPolicyDetails_validator
+EventDetails._sharing_change_link_enforce_password_policy_details_validator = SharingChangeLinkEnforcePasswordPolicyDetails_validator
 EventDetails._sharing_change_link_policy_details_validator = SharingChangeLinkPolicyDetails_validator
 EventDetails._sharing_change_member_policy_details_validator = SharingChangeMemberPolicyDetails_validator
 EventDetails._showcase_change_download_policy_details_validator = ShowcaseChangeDownloadPolicyDetails_validator
@@ -70135,6 +75623,8 @@ EventDetails._watermarking_policy_changed_details_validator = WatermarkingPolicy
 EventDetails._web_sessions_change_active_session_limit_details_validator = WebSessionsChangeActiveSessionLimitDetails_validator
 EventDetails._web_sessions_change_fixed_length_policy_details_validator = WebSessionsChangeFixedLengthPolicyDetails_validator
 EventDetails._web_sessions_change_idle_length_policy_details_validator = WebSessionsChangeIdleLengthPolicyDetails_validator
+EventDetails._data_residency_migration_request_successful_details_validator = DataResidencyMigrationRequestSuccessfulDetails_validator
+EventDetails._data_residency_migration_request_unsuccessful_details_validator = DataResidencyMigrationRequestUnsuccessfulDetails_validator
 EventDetails._team_merge_from_details_validator = TeamMergeFromDetails_validator
 EventDetails._team_merge_to_details_validator = TeamMergeToDetails_validator
 EventDetails._team_profile_add_background_details_validator = TeamProfileAddBackgroundDetails_validator
@@ -70180,8 +75670,10 @@ EventDetails._team_merge_request_sent_shown_to_secondary_team_details_validator 
 EventDetails._missing_details_validator = MissingDetails_validator
 EventDetails._other_validator = bv.Void()
 EventDetails._tagmap = {
+    'admin_alerting_alert_state_changed_details': EventDetails._admin_alerting_alert_state_changed_details_validator,
     'admin_alerting_changed_alert_config_details': EventDetails._admin_alerting_changed_alert_config_details_validator,
     'admin_alerting_triggered_alert_details': EventDetails._admin_alerting_triggered_alert_details_validator,
+    'app_blocked_by_permissions_details': EventDetails._app_blocked_by_permissions_details_validator,
     'app_link_team_details': EventDetails._app_link_team_details_validator,
     'app_link_user_details': EventDetails._app_link_user_details_validator,
     'app_unlink_team_details': EventDetails._app_unlink_team_details_validator,
@@ -70198,6 +75690,7 @@ EventDetails._tagmap = {
     'file_unresolve_comment_details': EventDetails._file_unresolve_comment_details_validator,
     'governance_policy_add_folders_details': EventDetails._governance_policy_add_folders_details_validator,
     'governance_policy_add_folder_failed_details': EventDetails._governance_policy_add_folder_failed_details_validator,
+    'governance_policy_content_disposed_details': EventDetails._governance_policy_content_disposed_details_validator,
     'governance_policy_create_details': EventDetails._governance_policy_create_details_validator,
     'governance_policy_delete_details': EventDetails._governance_policy_delete_details_validator,
     'governance_policy_edit_details_details': EventDetails._governance_policy_edit_details_details_validator,
@@ -70232,6 +75725,8 @@ EventDetails._tagmap = {
     'dropbox_passwords_exported_details': EventDetails._dropbox_passwords_exported_details_validator,
     'dropbox_passwords_new_device_enrolled_details': EventDetails._dropbox_passwords_new_device_enrolled_details_validator,
     'emm_refresh_auth_token_details': EventDetails._emm_refresh_auth_token_details_validator,
+    'external_drive_backup_eligibility_status_checked_details': EventDetails._external_drive_backup_eligibility_status_checked_details_validator,
+    'external_drive_backup_status_changed_details': EventDetails._external_drive_backup_status_changed_details_validator,
     'account_capture_change_availability_details': EventDetails._account_capture_change_availability_details_validator,
     'account_capture_migrate_account_details': EventDetails._account_capture_migrate_account_details_validator,
     'account_capture_notification_emails_sent_details': EventDetails._account_capture_notification_emails_sent_details_validator,
@@ -70247,6 +75742,7 @@ EventDetails._tagmap = {
     'domain_verification_add_domain_success_details': EventDetails._domain_verification_add_domain_success_details_validator,
     'domain_verification_remove_domain_details': EventDetails._domain_verification_remove_domain_details_validator,
     'enabled_domain_invites_details': EventDetails._enabled_domain_invites_details_validator,
+    'apply_naming_convention_details': EventDetails._apply_naming_convention_details_validator,
     'create_folder_details': EventDetails._create_folder_details_validator,
     'file_add_details': EventDetails._file_add_details_validator,
     'file_copy_details': EventDetails._file_copy_details_validator,
@@ -70266,7 +75762,16 @@ EventDetails._tagmap = {
     'folder_overview_description_changed_details': EventDetails._folder_overview_description_changed_details_validator,
     'folder_overview_item_pinned_details': EventDetails._folder_overview_item_pinned_details_validator,
     'folder_overview_item_unpinned_details': EventDetails._folder_overview_item_unpinned_details_validator,
+    'object_label_added_details': EventDetails._object_label_added_details_validator,
+    'object_label_removed_details': EventDetails._object_label_removed_details_validator,
+    'object_label_updated_value_details': EventDetails._object_label_updated_value_details_validator,
+    'organize_folder_with_tidy_details': EventDetails._organize_folder_with_tidy_details_validator,
     'rewind_folder_details': EventDetails._rewind_folder_details_validator,
+    'undo_naming_convention_details': EventDetails._undo_naming_convention_details_validator,
+    'undo_organize_folder_with_tidy_details': EventDetails._undo_organize_folder_with_tidy_details_validator,
+    'user_tags_added_details': EventDetails._user_tags_added_details_validator,
+    'user_tags_removed_details': EventDetails._user_tags_removed_details_validator,
+    'email_ingest_receive_file_details': EventDetails._email_ingest_receive_file_details_validator,
     'file_request_change_details': EventDetails._file_request_change_details_validator,
     'file_request_close_details': EventDetails._file_request_close_details_validator,
     'file_request_create_details': EventDetails._file_request_create_details_validator,
@@ -70518,9 +76023,12 @@ EventDetails._tagmap = {
     'team_folder_rename_details': EventDetails._team_folder_rename_details_validator,
     'team_selective_sync_settings_changed_details': EventDetails._team_selective_sync_settings_changed_details_validator,
     'account_capture_change_policy_details': EventDetails._account_capture_change_policy_details_validator,
+    'admin_email_reminders_changed_details': EventDetails._admin_email_reminders_changed_details_validator,
     'allow_download_disabled_details': EventDetails._allow_download_disabled_details_validator,
     'allow_download_enabled_details': EventDetails._allow_download_enabled_details_validator,
+    'app_permissions_changed_details': EventDetails._app_permissions_changed_details_validator,
     'camera_uploads_policy_changed_details': EventDetails._camera_uploads_policy_changed_details_validator,
+    'capture_transcript_policy_changed_details': EventDetails._capture_transcript_policy_changed_details_validator,
     'classification_change_policy_details': EventDetails._classification_change_policy_details_validator,
     'computer_backup_policy_changed_details': EventDetails._computer_backup_policy_changed_details_validator,
     'content_administration_policy_changed_details': EventDetails._content_administration_policy_changed_details_validator,
@@ -70534,12 +76042,16 @@ EventDetails._tagmap = {
     'device_approvals_remove_exception_details': EventDetails._device_approvals_remove_exception_details_validator,
     'directory_restrictions_add_members_details': EventDetails._directory_restrictions_add_members_details_validator,
     'directory_restrictions_remove_members_details': EventDetails._directory_restrictions_remove_members_details_validator,
+    'dropbox_passwords_policy_changed_details': EventDetails._dropbox_passwords_policy_changed_details_validator,
+    'email_ingest_policy_changed_details': EventDetails._email_ingest_policy_changed_details_validator,
     'emm_add_exception_details': EventDetails._emm_add_exception_details_validator,
     'emm_change_policy_details': EventDetails._emm_change_policy_details_validator,
     'emm_remove_exception_details': EventDetails._emm_remove_exception_details_validator,
     'extended_version_history_change_policy_details': EventDetails._extended_version_history_change_policy_details_validator,
+    'external_drive_backup_policy_changed_details': EventDetails._external_drive_backup_policy_changed_details_validator,
     'file_comments_change_policy_details': EventDetails._file_comments_change_policy_details_validator,
     'file_locking_policy_changed_details': EventDetails._file_locking_policy_changed_details_validator,
+    'file_provider_migration_policy_changed_details': EventDetails._file_provider_migration_policy_changed_details_validator,
     'file_requests_change_policy_details': EventDetails._file_requests_change_policy_details_validator,
     'file_requests_emails_enabled_details': EventDetails._file_requests_emails_enabled_details_validator,
     'file_requests_emails_restricted_to_team_only_details': EventDetails._file_requests_emails_restricted_to_team_only_details_validator,
@@ -70547,6 +76059,7 @@ EventDetails._tagmap = {
     'google_sso_change_policy_details': EventDetails._google_sso_change_policy_details_validator,
     'group_user_management_change_policy_details': EventDetails._group_user_management_change_policy_details_validator,
     'integration_policy_changed_details': EventDetails._integration_policy_changed_details_validator,
+    'invite_acceptance_email_policy_changed_details': EventDetails._invite_acceptance_email_policy_changed_details_validator,
     'member_requests_change_policy_details': EventDetails._member_requests_change_policy_details_validator,
     'member_send_invite_policy_changed_details': EventDetails._member_send_invite_policy_changed_details_validator,
     'member_space_limits_add_exception_details': EventDetails._member_space_limits_add_exception_details_validator,
@@ -70570,6 +76083,9 @@ EventDetails._tagmap = {
     'rewind_policy_changed_details': EventDetails._rewind_policy_changed_details_validator,
     'send_for_signature_policy_changed_details': EventDetails._send_for_signature_policy_changed_details_validator,
     'sharing_change_folder_join_policy_details': EventDetails._sharing_change_folder_join_policy_details_validator,
+    'sharing_change_link_allow_change_expiration_policy_details': EventDetails._sharing_change_link_allow_change_expiration_policy_details_validator,
+    'sharing_change_link_default_expiration_policy_details': EventDetails._sharing_change_link_default_expiration_policy_details_validator,
+    'sharing_change_link_enforce_password_policy_details': EventDetails._sharing_change_link_enforce_password_policy_details_validator,
     'sharing_change_link_policy_details': EventDetails._sharing_change_link_policy_details_validator,
     'sharing_change_member_policy_details': EventDetails._sharing_change_member_policy_details_validator,
     'showcase_change_download_policy_details': EventDetails._showcase_change_download_policy_details_validator,
@@ -70593,6 +76109,8 @@ EventDetails._tagmap = {
     'web_sessions_change_active_session_limit_details': EventDetails._web_sessions_change_active_session_limit_details_validator,
     'web_sessions_change_fixed_length_policy_details': EventDetails._web_sessions_change_fixed_length_policy_details_validator,
     'web_sessions_change_idle_length_policy_details': EventDetails._web_sessions_change_idle_length_policy_details_validator,
+    'data_residency_migration_request_successful_details': EventDetails._data_residency_migration_request_successful_details_validator,
+    'data_residency_migration_request_unsuccessful_details': EventDetails._data_residency_migration_request_unsuccessful_details_validator,
     'team_merge_from_details': EventDetails._team_merge_from_details_validator,
     'team_merge_to_details': EventDetails._team_merge_to_details_validator,
     'team_profile_add_background_details': EventDetails._team_profile_add_background_details_validator,
@@ -70641,8 +76159,10 @@ EventDetails._tagmap = {
 
 EventDetails.other = EventDetails('other')
 
+EventType._admin_alerting_alert_state_changed_validator = AdminAlertingAlertStateChangedType_validator
 EventType._admin_alerting_changed_alert_config_validator = AdminAlertingChangedAlertConfigType_validator
 EventType._admin_alerting_triggered_alert_validator = AdminAlertingTriggeredAlertType_validator
+EventType._app_blocked_by_permissions_validator = AppBlockedByPermissionsType_validator
 EventType._app_link_team_validator = AppLinkTeamType_validator
 EventType._app_link_user_validator = AppLinkUserType_validator
 EventType._app_unlink_team_validator = AppUnlinkTeamType_validator
@@ -70659,6 +76179,7 @@ EventType._file_unlike_comment_validator = FileUnlikeCommentType_validator
 EventType._file_unresolve_comment_validator = FileUnresolveCommentType_validator
 EventType._governance_policy_add_folders_validator = GovernancePolicyAddFoldersType_validator
 EventType._governance_policy_add_folder_failed_validator = GovernancePolicyAddFolderFailedType_validator
+EventType._governance_policy_content_disposed_validator = GovernancePolicyContentDisposedType_validator
 EventType._governance_policy_create_validator = GovernancePolicyCreateType_validator
 EventType._governance_policy_delete_validator = GovernancePolicyDeleteType_validator
 EventType._governance_policy_edit_details_validator = GovernancePolicyEditDetailsType_validator
@@ -70693,6 +76214,8 @@ EventType._device_unlink_validator = DeviceUnlinkType_validator
 EventType._dropbox_passwords_exported_validator = DropboxPasswordsExportedType_validator
 EventType._dropbox_passwords_new_device_enrolled_validator = DropboxPasswordsNewDeviceEnrolledType_validator
 EventType._emm_refresh_auth_token_validator = EmmRefreshAuthTokenType_validator
+EventType._external_drive_backup_eligibility_status_checked_validator = ExternalDriveBackupEligibilityStatusCheckedType_validator
+EventType._external_drive_backup_status_changed_validator = ExternalDriveBackupStatusChangedType_validator
 EventType._account_capture_change_availability_validator = AccountCaptureChangeAvailabilityType_validator
 EventType._account_capture_migrate_account_validator = AccountCaptureMigrateAccountType_validator
 EventType._account_capture_notification_emails_sent_validator = AccountCaptureNotificationEmailsSentType_validator
@@ -70708,6 +76231,7 @@ EventType._domain_verification_add_domain_fail_validator = DomainVerificationAdd
 EventType._domain_verification_add_domain_success_validator = DomainVerificationAddDomainSuccessType_validator
 EventType._domain_verification_remove_domain_validator = DomainVerificationRemoveDomainType_validator
 EventType._enabled_domain_invites_validator = EnabledDomainInvitesType_validator
+EventType._apply_naming_convention_validator = ApplyNamingConventionType_validator
 EventType._create_folder_validator = CreateFolderType_validator
 EventType._file_add_validator = FileAddType_validator
 EventType._file_copy_validator = FileCopyType_validator
@@ -70727,7 +76251,16 @@ EventType._file_save_copy_reference_validator = FileSaveCopyReferenceType_valida
 EventType._folder_overview_description_changed_validator = FolderOverviewDescriptionChangedType_validator
 EventType._folder_overview_item_pinned_validator = FolderOverviewItemPinnedType_validator
 EventType._folder_overview_item_unpinned_validator = FolderOverviewItemUnpinnedType_validator
+EventType._object_label_added_validator = ObjectLabelAddedType_validator
+EventType._object_label_removed_validator = ObjectLabelRemovedType_validator
+EventType._object_label_updated_value_validator = ObjectLabelUpdatedValueType_validator
+EventType._organize_folder_with_tidy_validator = OrganizeFolderWithTidyType_validator
 EventType._rewind_folder_validator = RewindFolderType_validator
+EventType._undo_naming_convention_validator = UndoNamingConventionType_validator
+EventType._undo_organize_folder_with_tidy_validator = UndoOrganizeFolderWithTidyType_validator
+EventType._user_tags_added_validator = UserTagsAddedType_validator
+EventType._user_tags_removed_validator = UserTagsRemovedType_validator
+EventType._email_ingest_receive_file_validator = EmailIngestReceiveFileType_validator
 EventType._file_request_change_validator = FileRequestChangeType_validator
 EventType._file_request_close_validator = FileRequestCloseType_validator
 EventType._file_request_create_validator = FileRequestCreateType_validator
@@ -70979,9 +76512,12 @@ EventType._team_folder_permanently_delete_validator = TeamFolderPermanentlyDelet
 EventType._team_folder_rename_validator = TeamFolderRenameType_validator
 EventType._team_selective_sync_settings_changed_validator = TeamSelectiveSyncSettingsChangedType_validator
 EventType._account_capture_change_policy_validator = AccountCaptureChangePolicyType_validator
+EventType._admin_email_reminders_changed_validator = AdminEmailRemindersChangedType_validator
 EventType._allow_download_disabled_validator = AllowDownloadDisabledType_validator
 EventType._allow_download_enabled_validator = AllowDownloadEnabledType_validator
+EventType._app_permissions_changed_validator = AppPermissionsChangedType_validator
 EventType._camera_uploads_policy_changed_validator = CameraUploadsPolicyChangedType_validator
+EventType._capture_transcript_policy_changed_validator = CaptureTranscriptPolicyChangedType_validator
 EventType._classification_change_policy_validator = ClassificationChangePolicyType_validator
 EventType._computer_backup_policy_changed_validator = ComputerBackupPolicyChangedType_validator
 EventType._content_administration_policy_changed_validator = ContentAdministrationPolicyChangedType_validator
@@ -70995,12 +76531,16 @@ EventType._device_approvals_change_unlink_action_validator = DeviceApprovalsChan
 EventType._device_approvals_remove_exception_validator = DeviceApprovalsRemoveExceptionType_validator
 EventType._directory_restrictions_add_members_validator = DirectoryRestrictionsAddMembersType_validator
 EventType._directory_restrictions_remove_members_validator = DirectoryRestrictionsRemoveMembersType_validator
+EventType._dropbox_passwords_policy_changed_validator = DropboxPasswordsPolicyChangedType_validator
+EventType._email_ingest_policy_changed_validator = EmailIngestPolicyChangedType_validator
 EventType._emm_add_exception_validator = EmmAddExceptionType_validator
 EventType._emm_change_policy_validator = EmmChangePolicyType_validator
 EventType._emm_remove_exception_validator = EmmRemoveExceptionType_validator
 EventType._extended_version_history_change_policy_validator = ExtendedVersionHistoryChangePolicyType_validator
+EventType._external_drive_backup_policy_changed_validator = ExternalDriveBackupPolicyChangedType_validator
 EventType._file_comments_change_policy_validator = FileCommentsChangePolicyType_validator
 EventType._file_locking_policy_changed_validator = FileLockingPolicyChangedType_validator
+EventType._file_provider_migration_policy_changed_validator = FileProviderMigrationPolicyChangedType_validator
 EventType._file_requests_change_policy_validator = FileRequestsChangePolicyType_validator
 EventType._file_requests_emails_enabled_validator = FileRequestsEmailsEnabledType_validator
 EventType._file_requests_emails_restricted_to_team_only_validator = FileRequestsEmailsRestrictedToTeamOnlyType_validator
@@ -71008,6 +76548,7 @@ EventType._file_transfers_policy_changed_validator = FileTransfersPolicyChangedT
 EventType._google_sso_change_policy_validator = GoogleSsoChangePolicyType_validator
 EventType._group_user_management_change_policy_validator = GroupUserManagementChangePolicyType_validator
 EventType._integration_policy_changed_validator = IntegrationPolicyChangedType_validator
+EventType._invite_acceptance_email_policy_changed_validator = InviteAcceptanceEmailPolicyChangedType_validator
 EventType._member_requests_change_policy_validator = MemberRequestsChangePolicyType_validator
 EventType._member_send_invite_policy_changed_validator = MemberSendInvitePolicyChangedType_validator
 EventType._member_space_limits_add_exception_validator = MemberSpaceLimitsAddExceptionType_validator
@@ -71031,6 +76572,9 @@ EventType._reseller_support_change_policy_validator = ResellerSupportChangePolic
 EventType._rewind_policy_changed_validator = RewindPolicyChangedType_validator
 EventType._send_for_signature_policy_changed_validator = SendForSignaturePolicyChangedType_validator
 EventType._sharing_change_folder_join_policy_validator = SharingChangeFolderJoinPolicyType_validator
+EventType._sharing_change_link_allow_change_expiration_policy_validator = SharingChangeLinkAllowChangeExpirationPolicyType_validator
+EventType._sharing_change_link_default_expiration_policy_validator = SharingChangeLinkDefaultExpirationPolicyType_validator
+EventType._sharing_change_link_enforce_password_policy_validator = SharingChangeLinkEnforcePasswordPolicyType_validator
 EventType._sharing_change_link_policy_validator = SharingChangeLinkPolicyType_validator
 EventType._sharing_change_member_policy_validator = SharingChangeMemberPolicyType_validator
 EventType._showcase_change_download_policy_validator = ShowcaseChangeDownloadPolicyType_validator
@@ -71054,6 +76598,8 @@ EventType._watermarking_policy_changed_validator = WatermarkingPolicyChangedType
 EventType._web_sessions_change_active_session_limit_validator = WebSessionsChangeActiveSessionLimitType_validator
 EventType._web_sessions_change_fixed_length_policy_validator = WebSessionsChangeFixedLengthPolicyType_validator
 EventType._web_sessions_change_idle_length_policy_validator = WebSessionsChangeIdleLengthPolicyType_validator
+EventType._data_residency_migration_request_successful_validator = DataResidencyMigrationRequestSuccessfulType_validator
+EventType._data_residency_migration_request_unsuccessful_validator = DataResidencyMigrationRequestUnsuccessfulType_validator
 EventType._team_merge_from_validator = TeamMergeFromType_validator
 EventType._team_merge_to_validator = TeamMergeToType_validator
 EventType._team_profile_add_background_validator = TeamProfileAddBackgroundType_validator
@@ -71098,8 +76644,10 @@ EventType._team_merge_request_sent_shown_to_primary_team_validator = TeamMergeRe
 EventType._team_merge_request_sent_shown_to_secondary_team_validator = TeamMergeRequestSentShownToSecondaryTeamType_validator
 EventType._other_validator = bv.Void()
 EventType._tagmap = {
+    'admin_alerting_alert_state_changed': EventType._admin_alerting_alert_state_changed_validator,
     'admin_alerting_changed_alert_config': EventType._admin_alerting_changed_alert_config_validator,
     'admin_alerting_triggered_alert': EventType._admin_alerting_triggered_alert_validator,
+    'app_blocked_by_permissions': EventType._app_blocked_by_permissions_validator,
     'app_link_team': EventType._app_link_team_validator,
     'app_link_user': EventType._app_link_user_validator,
     'app_unlink_team': EventType._app_unlink_team_validator,
@@ -71116,6 +76664,7 @@ EventType._tagmap = {
     'file_unresolve_comment': EventType._file_unresolve_comment_validator,
     'governance_policy_add_folders': EventType._governance_policy_add_folders_validator,
     'governance_policy_add_folder_failed': EventType._governance_policy_add_folder_failed_validator,
+    'governance_policy_content_disposed': EventType._governance_policy_content_disposed_validator,
     'governance_policy_create': EventType._governance_policy_create_validator,
     'governance_policy_delete': EventType._governance_policy_delete_validator,
     'governance_policy_edit_details': EventType._governance_policy_edit_details_validator,
@@ -71150,6 +76699,8 @@ EventType._tagmap = {
     'dropbox_passwords_exported': EventType._dropbox_passwords_exported_validator,
     'dropbox_passwords_new_device_enrolled': EventType._dropbox_passwords_new_device_enrolled_validator,
     'emm_refresh_auth_token': EventType._emm_refresh_auth_token_validator,
+    'external_drive_backup_eligibility_status_checked': EventType._external_drive_backup_eligibility_status_checked_validator,
+    'external_drive_backup_status_changed': EventType._external_drive_backup_status_changed_validator,
     'account_capture_change_availability': EventType._account_capture_change_availability_validator,
     'account_capture_migrate_account': EventType._account_capture_migrate_account_validator,
     'account_capture_notification_emails_sent': EventType._account_capture_notification_emails_sent_validator,
@@ -71165,6 +76716,7 @@ EventType._tagmap = {
     'domain_verification_add_domain_success': EventType._domain_verification_add_domain_success_validator,
     'domain_verification_remove_domain': EventType._domain_verification_remove_domain_validator,
     'enabled_domain_invites': EventType._enabled_domain_invites_validator,
+    'apply_naming_convention': EventType._apply_naming_convention_validator,
     'create_folder': EventType._create_folder_validator,
     'file_add': EventType._file_add_validator,
     'file_copy': EventType._file_copy_validator,
@@ -71184,7 +76736,16 @@ EventType._tagmap = {
     'folder_overview_description_changed': EventType._folder_overview_description_changed_validator,
     'folder_overview_item_pinned': EventType._folder_overview_item_pinned_validator,
     'folder_overview_item_unpinned': EventType._folder_overview_item_unpinned_validator,
+    'object_label_added': EventType._object_label_added_validator,
+    'object_label_removed': EventType._object_label_removed_validator,
+    'object_label_updated_value': EventType._object_label_updated_value_validator,
+    'organize_folder_with_tidy': EventType._organize_folder_with_tidy_validator,
     'rewind_folder': EventType._rewind_folder_validator,
+    'undo_naming_convention': EventType._undo_naming_convention_validator,
+    'undo_organize_folder_with_tidy': EventType._undo_organize_folder_with_tidy_validator,
+    'user_tags_added': EventType._user_tags_added_validator,
+    'user_tags_removed': EventType._user_tags_removed_validator,
+    'email_ingest_receive_file': EventType._email_ingest_receive_file_validator,
     'file_request_change': EventType._file_request_change_validator,
     'file_request_close': EventType._file_request_close_validator,
     'file_request_create': EventType._file_request_create_validator,
@@ -71436,9 +76997,12 @@ EventType._tagmap = {
     'team_folder_rename': EventType._team_folder_rename_validator,
     'team_selective_sync_settings_changed': EventType._team_selective_sync_settings_changed_validator,
     'account_capture_change_policy': EventType._account_capture_change_policy_validator,
+    'admin_email_reminders_changed': EventType._admin_email_reminders_changed_validator,
     'allow_download_disabled': EventType._allow_download_disabled_validator,
     'allow_download_enabled': EventType._allow_download_enabled_validator,
+    'app_permissions_changed': EventType._app_permissions_changed_validator,
     'camera_uploads_policy_changed': EventType._camera_uploads_policy_changed_validator,
+    'capture_transcript_policy_changed': EventType._capture_transcript_policy_changed_validator,
     'classification_change_policy': EventType._classification_change_policy_validator,
     'computer_backup_policy_changed': EventType._computer_backup_policy_changed_validator,
     'content_administration_policy_changed': EventType._content_administration_policy_changed_validator,
@@ -71452,12 +77016,16 @@ EventType._tagmap = {
     'device_approvals_remove_exception': EventType._device_approvals_remove_exception_validator,
     'directory_restrictions_add_members': EventType._directory_restrictions_add_members_validator,
     'directory_restrictions_remove_members': EventType._directory_restrictions_remove_members_validator,
+    'dropbox_passwords_policy_changed': EventType._dropbox_passwords_policy_changed_validator,
+    'email_ingest_policy_changed': EventType._email_ingest_policy_changed_validator,
     'emm_add_exception': EventType._emm_add_exception_validator,
     'emm_change_policy': EventType._emm_change_policy_validator,
     'emm_remove_exception': EventType._emm_remove_exception_validator,
     'extended_version_history_change_policy': EventType._extended_version_history_change_policy_validator,
+    'external_drive_backup_policy_changed': EventType._external_drive_backup_policy_changed_validator,
     'file_comments_change_policy': EventType._file_comments_change_policy_validator,
     'file_locking_policy_changed': EventType._file_locking_policy_changed_validator,
+    'file_provider_migration_policy_changed': EventType._file_provider_migration_policy_changed_validator,
     'file_requests_change_policy': EventType._file_requests_change_policy_validator,
     'file_requests_emails_enabled': EventType._file_requests_emails_enabled_validator,
     'file_requests_emails_restricted_to_team_only': EventType._file_requests_emails_restricted_to_team_only_validator,
@@ -71465,6 +77033,7 @@ EventType._tagmap = {
     'google_sso_change_policy': EventType._google_sso_change_policy_validator,
     'group_user_management_change_policy': EventType._group_user_management_change_policy_validator,
     'integration_policy_changed': EventType._integration_policy_changed_validator,
+    'invite_acceptance_email_policy_changed': EventType._invite_acceptance_email_policy_changed_validator,
     'member_requests_change_policy': EventType._member_requests_change_policy_validator,
     'member_send_invite_policy_changed': EventType._member_send_invite_policy_changed_validator,
     'member_space_limits_add_exception': EventType._member_space_limits_add_exception_validator,
@@ -71488,6 +77057,9 @@ EventType._tagmap = {
     'rewind_policy_changed': EventType._rewind_policy_changed_validator,
     'send_for_signature_policy_changed': EventType._send_for_signature_policy_changed_validator,
     'sharing_change_folder_join_policy': EventType._sharing_change_folder_join_policy_validator,
+    'sharing_change_link_allow_change_expiration_policy': EventType._sharing_change_link_allow_change_expiration_policy_validator,
+    'sharing_change_link_default_expiration_policy': EventType._sharing_change_link_default_expiration_policy_validator,
+    'sharing_change_link_enforce_password_policy': EventType._sharing_change_link_enforce_password_policy_validator,
     'sharing_change_link_policy': EventType._sharing_change_link_policy_validator,
     'sharing_change_member_policy': EventType._sharing_change_member_policy_validator,
     'showcase_change_download_policy': EventType._showcase_change_download_policy_validator,
@@ -71511,6 +77083,8 @@ EventType._tagmap = {
     'web_sessions_change_active_session_limit': EventType._web_sessions_change_active_session_limit_validator,
     'web_sessions_change_fixed_length_policy': EventType._web_sessions_change_fixed_length_policy_validator,
     'web_sessions_change_idle_length_policy': EventType._web_sessions_change_idle_length_policy_validator,
+    'data_residency_migration_request_successful': EventType._data_residency_migration_request_successful_validator,
+    'data_residency_migration_request_unsuccessful': EventType._data_residency_migration_request_unsuccessful_validator,
     'team_merge_from': EventType._team_merge_from_validator,
     'team_merge_to': EventType._team_merge_to_validator,
     'team_profile_add_background': EventType._team_profile_add_background_validator,
@@ -71558,8 +77132,10 @@ EventType._tagmap = {
 
 EventType.other = EventType('other')
 
+EventTypeArg._admin_alerting_alert_state_changed_validator = bv.Void()
 EventTypeArg._admin_alerting_changed_alert_config_validator = bv.Void()
 EventTypeArg._admin_alerting_triggered_alert_validator = bv.Void()
+EventTypeArg._app_blocked_by_permissions_validator = bv.Void()
 EventTypeArg._app_link_team_validator = bv.Void()
 EventTypeArg._app_link_user_validator = bv.Void()
 EventTypeArg._app_unlink_team_validator = bv.Void()
@@ -71576,6 +77152,7 @@ EventTypeArg._file_unlike_comment_validator = bv.Void()
 EventTypeArg._file_unresolve_comment_validator = bv.Void()
 EventTypeArg._governance_policy_add_folders_validator = bv.Void()
 EventTypeArg._governance_policy_add_folder_failed_validator = bv.Void()
+EventTypeArg._governance_policy_content_disposed_validator = bv.Void()
 EventTypeArg._governance_policy_create_validator = bv.Void()
 EventTypeArg._governance_policy_delete_validator = bv.Void()
 EventTypeArg._governance_policy_edit_details_validator = bv.Void()
@@ -71610,6 +77187,8 @@ EventTypeArg._device_unlink_validator = bv.Void()
 EventTypeArg._dropbox_passwords_exported_validator = bv.Void()
 EventTypeArg._dropbox_passwords_new_device_enrolled_validator = bv.Void()
 EventTypeArg._emm_refresh_auth_token_validator = bv.Void()
+EventTypeArg._external_drive_backup_eligibility_status_checked_validator = bv.Void()
+EventTypeArg._external_drive_backup_status_changed_validator = bv.Void()
 EventTypeArg._account_capture_change_availability_validator = bv.Void()
 EventTypeArg._account_capture_migrate_account_validator = bv.Void()
 EventTypeArg._account_capture_notification_emails_sent_validator = bv.Void()
@@ -71625,6 +77204,7 @@ EventTypeArg._domain_verification_add_domain_fail_validator = bv.Void()
 EventTypeArg._domain_verification_add_domain_success_validator = bv.Void()
 EventTypeArg._domain_verification_remove_domain_validator = bv.Void()
 EventTypeArg._enabled_domain_invites_validator = bv.Void()
+EventTypeArg._apply_naming_convention_validator = bv.Void()
 EventTypeArg._create_folder_validator = bv.Void()
 EventTypeArg._file_add_validator = bv.Void()
 EventTypeArg._file_copy_validator = bv.Void()
@@ -71644,7 +77224,16 @@ EventTypeArg._file_save_copy_reference_validator = bv.Void()
 EventTypeArg._folder_overview_description_changed_validator = bv.Void()
 EventTypeArg._folder_overview_item_pinned_validator = bv.Void()
 EventTypeArg._folder_overview_item_unpinned_validator = bv.Void()
+EventTypeArg._object_label_added_validator = bv.Void()
+EventTypeArg._object_label_removed_validator = bv.Void()
+EventTypeArg._object_label_updated_value_validator = bv.Void()
+EventTypeArg._organize_folder_with_tidy_validator = bv.Void()
 EventTypeArg._rewind_folder_validator = bv.Void()
+EventTypeArg._undo_naming_convention_validator = bv.Void()
+EventTypeArg._undo_organize_folder_with_tidy_validator = bv.Void()
+EventTypeArg._user_tags_added_validator = bv.Void()
+EventTypeArg._user_tags_removed_validator = bv.Void()
+EventTypeArg._email_ingest_receive_file_validator = bv.Void()
 EventTypeArg._file_request_change_validator = bv.Void()
 EventTypeArg._file_request_close_validator = bv.Void()
 EventTypeArg._file_request_create_validator = bv.Void()
@@ -71896,9 +77485,12 @@ EventTypeArg._team_folder_permanently_delete_validator = bv.Void()
 EventTypeArg._team_folder_rename_validator = bv.Void()
 EventTypeArg._team_selective_sync_settings_changed_validator = bv.Void()
 EventTypeArg._account_capture_change_policy_validator = bv.Void()
+EventTypeArg._admin_email_reminders_changed_validator = bv.Void()
 EventTypeArg._allow_download_disabled_validator = bv.Void()
 EventTypeArg._allow_download_enabled_validator = bv.Void()
+EventTypeArg._app_permissions_changed_validator = bv.Void()
 EventTypeArg._camera_uploads_policy_changed_validator = bv.Void()
+EventTypeArg._capture_transcript_policy_changed_validator = bv.Void()
 EventTypeArg._classification_change_policy_validator = bv.Void()
 EventTypeArg._computer_backup_policy_changed_validator = bv.Void()
 EventTypeArg._content_administration_policy_changed_validator = bv.Void()
@@ -71912,12 +77504,16 @@ EventTypeArg._device_approvals_change_unlink_action_validator = bv.Void()
 EventTypeArg._device_approvals_remove_exception_validator = bv.Void()
 EventTypeArg._directory_restrictions_add_members_validator = bv.Void()
 EventTypeArg._directory_restrictions_remove_members_validator = bv.Void()
+EventTypeArg._dropbox_passwords_policy_changed_validator = bv.Void()
+EventTypeArg._email_ingest_policy_changed_validator = bv.Void()
 EventTypeArg._emm_add_exception_validator = bv.Void()
 EventTypeArg._emm_change_policy_validator = bv.Void()
 EventTypeArg._emm_remove_exception_validator = bv.Void()
 EventTypeArg._extended_version_history_change_policy_validator = bv.Void()
+EventTypeArg._external_drive_backup_policy_changed_validator = bv.Void()
 EventTypeArg._file_comments_change_policy_validator = bv.Void()
 EventTypeArg._file_locking_policy_changed_validator = bv.Void()
+EventTypeArg._file_provider_migration_policy_changed_validator = bv.Void()
 EventTypeArg._file_requests_change_policy_validator = bv.Void()
 EventTypeArg._file_requests_emails_enabled_validator = bv.Void()
 EventTypeArg._file_requests_emails_restricted_to_team_only_validator = bv.Void()
@@ -71925,6 +77521,7 @@ EventTypeArg._file_transfers_policy_changed_validator = bv.Void()
 EventTypeArg._google_sso_change_policy_validator = bv.Void()
 EventTypeArg._group_user_management_change_policy_validator = bv.Void()
 EventTypeArg._integration_policy_changed_validator = bv.Void()
+EventTypeArg._invite_acceptance_email_policy_changed_validator = bv.Void()
 EventTypeArg._member_requests_change_policy_validator = bv.Void()
 EventTypeArg._member_send_invite_policy_changed_validator = bv.Void()
 EventTypeArg._member_space_limits_add_exception_validator = bv.Void()
@@ -71948,6 +77545,9 @@ EventTypeArg._reseller_support_change_policy_validator = bv.Void()
 EventTypeArg._rewind_policy_changed_validator = bv.Void()
 EventTypeArg._send_for_signature_policy_changed_validator = bv.Void()
 EventTypeArg._sharing_change_folder_join_policy_validator = bv.Void()
+EventTypeArg._sharing_change_link_allow_change_expiration_policy_validator = bv.Void()
+EventTypeArg._sharing_change_link_default_expiration_policy_validator = bv.Void()
+EventTypeArg._sharing_change_link_enforce_password_policy_validator = bv.Void()
 EventTypeArg._sharing_change_link_policy_validator = bv.Void()
 EventTypeArg._sharing_change_member_policy_validator = bv.Void()
 EventTypeArg._showcase_change_download_policy_validator = bv.Void()
@@ -71971,6 +77571,8 @@ EventTypeArg._watermarking_policy_changed_validator = bv.Void()
 EventTypeArg._web_sessions_change_active_session_limit_validator = bv.Void()
 EventTypeArg._web_sessions_change_fixed_length_policy_validator = bv.Void()
 EventTypeArg._web_sessions_change_idle_length_policy_validator = bv.Void()
+EventTypeArg._data_residency_migration_request_successful_validator = bv.Void()
+EventTypeArg._data_residency_migration_request_unsuccessful_validator = bv.Void()
 EventTypeArg._team_merge_from_validator = bv.Void()
 EventTypeArg._team_merge_to_validator = bv.Void()
 EventTypeArg._team_profile_add_background_validator = bv.Void()
@@ -72015,8 +77617,10 @@ EventTypeArg._team_merge_request_sent_shown_to_primary_team_validator = bv.Void(
 EventTypeArg._team_merge_request_sent_shown_to_secondary_team_validator = bv.Void()
 EventTypeArg._other_validator = bv.Void()
 EventTypeArg._tagmap = {
+    'admin_alerting_alert_state_changed': EventTypeArg._admin_alerting_alert_state_changed_validator,
     'admin_alerting_changed_alert_config': EventTypeArg._admin_alerting_changed_alert_config_validator,
     'admin_alerting_triggered_alert': EventTypeArg._admin_alerting_triggered_alert_validator,
+    'app_blocked_by_permissions': EventTypeArg._app_blocked_by_permissions_validator,
     'app_link_team': EventTypeArg._app_link_team_validator,
     'app_link_user': EventTypeArg._app_link_user_validator,
     'app_unlink_team': EventTypeArg._app_unlink_team_validator,
@@ -72033,6 +77637,7 @@ EventTypeArg._tagmap = {
     'file_unresolve_comment': EventTypeArg._file_unresolve_comment_validator,
     'governance_policy_add_folders': EventTypeArg._governance_policy_add_folders_validator,
     'governance_policy_add_folder_failed': EventTypeArg._governance_policy_add_folder_failed_validator,
+    'governance_policy_content_disposed': EventTypeArg._governance_policy_content_disposed_validator,
     'governance_policy_create': EventTypeArg._governance_policy_create_validator,
     'governance_policy_delete': EventTypeArg._governance_policy_delete_validator,
     'governance_policy_edit_details': EventTypeArg._governance_policy_edit_details_validator,
@@ -72067,6 +77672,8 @@ EventTypeArg._tagmap = {
     'dropbox_passwords_exported': EventTypeArg._dropbox_passwords_exported_validator,
     'dropbox_passwords_new_device_enrolled': EventTypeArg._dropbox_passwords_new_device_enrolled_validator,
     'emm_refresh_auth_token': EventTypeArg._emm_refresh_auth_token_validator,
+    'external_drive_backup_eligibility_status_checked': EventTypeArg._external_drive_backup_eligibility_status_checked_validator,
+    'external_drive_backup_status_changed': EventTypeArg._external_drive_backup_status_changed_validator,
     'account_capture_change_availability': EventTypeArg._account_capture_change_availability_validator,
     'account_capture_migrate_account': EventTypeArg._account_capture_migrate_account_validator,
     'account_capture_notification_emails_sent': EventTypeArg._account_capture_notification_emails_sent_validator,
@@ -72082,6 +77689,7 @@ EventTypeArg._tagmap = {
     'domain_verification_add_domain_success': EventTypeArg._domain_verification_add_domain_success_validator,
     'domain_verification_remove_domain': EventTypeArg._domain_verification_remove_domain_validator,
     'enabled_domain_invites': EventTypeArg._enabled_domain_invites_validator,
+    'apply_naming_convention': EventTypeArg._apply_naming_convention_validator,
     'create_folder': EventTypeArg._create_folder_validator,
     'file_add': EventTypeArg._file_add_validator,
     'file_copy': EventTypeArg._file_copy_validator,
@@ -72101,7 +77709,16 @@ EventTypeArg._tagmap = {
     'folder_overview_description_changed': EventTypeArg._folder_overview_description_changed_validator,
     'folder_overview_item_pinned': EventTypeArg._folder_overview_item_pinned_validator,
     'folder_overview_item_unpinned': EventTypeArg._folder_overview_item_unpinned_validator,
+    'object_label_added': EventTypeArg._object_label_added_validator,
+    'object_label_removed': EventTypeArg._object_label_removed_validator,
+    'object_label_updated_value': EventTypeArg._object_label_updated_value_validator,
+    'organize_folder_with_tidy': EventTypeArg._organize_folder_with_tidy_validator,
     'rewind_folder': EventTypeArg._rewind_folder_validator,
+    'undo_naming_convention': EventTypeArg._undo_naming_convention_validator,
+    'undo_organize_folder_with_tidy': EventTypeArg._undo_organize_folder_with_tidy_validator,
+    'user_tags_added': EventTypeArg._user_tags_added_validator,
+    'user_tags_removed': EventTypeArg._user_tags_removed_validator,
+    'email_ingest_receive_file': EventTypeArg._email_ingest_receive_file_validator,
     'file_request_change': EventTypeArg._file_request_change_validator,
     'file_request_close': EventTypeArg._file_request_close_validator,
     'file_request_create': EventTypeArg._file_request_create_validator,
@@ -72353,9 +77970,12 @@ EventTypeArg._tagmap = {
     'team_folder_rename': EventTypeArg._team_folder_rename_validator,
     'team_selective_sync_settings_changed': EventTypeArg._team_selective_sync_settings_changed_validator,
     'account_capture_change_policy': EventTypeArg._account_capture_change_policy_validator,
+    'admin_email_reminders_changed': EventTypeArg._admin_email_reminders_changed_validator,
     'allow_download_disabled': EventTypeArg._allow_download_disabled_validator,
     'allow_download_enabled': EventTypeArg._allow_download_enabled_validator,
+    'app_permissions_changed': EventTypeArg._app_permissions_changed_validator,
     'camera_uploads_policy_changed': EventTypeArg._camera_uploads_policy_changed_validator,
+    'capture_transcript_policy_changed': EventTypeArg._capture_transcript_policy_changed_validator,
     'classification_change_policy': EventTypeArg._classification_change_policy_validator,
     'computer_backup_policy_changed': EventTypeArg._computer_backup_policy_changed_validator,
     'content_administration_policy_changed': EventTypeArg._content_administration_policy_changed_validator,
@@ -72369,12 +77989,16 @@ EventTypeArg._tagmap = {
     'device_approvals_remove_exception': EventTypeArg._device_approvals_remove_exception_validator,
     'directory_restrictions_add_members': EventTypeArg._directory_restrictions_add_members_validator,
     'directory_restrictions_remove_members': EventTypeArg._directory_restrictions_remove_members_validator,
+    'dropbox_passwords_policy_changed': EventTypeArg._dropbox_passwords_policy_changed_validator,
+    'email_ingest_policy_changed': EventTypeArg._email_ingest_policy_changed_validator,
     'emm_add_exception': EventTypeArg._emm_add_exception_validator,
     'emm_change_policy': EventTypeArg._emm_change_policy_validator,
     'emm_remove_exception': EventTypeArg._emm_remove_exception_validator,
     'extended_version_history_change_policy': EventTypeArg._extended_version_history_change_policy_validator,
+    'external_drive_backup_policy_changed': EventTypeArg._external_drive_backup_policy_changed_validator,
     'file_comments_change_policy': EventTypeArg._file_comments_change_policy_validator,
     'file_locking_policy_changed': EventTypeArg._file_locking_policy_changed_validator,
+    'file_provider_migration_policy_changed': EventTypeArg._file_provider_migration_policy_changed_validator,
     'file_requests_change_policy': EventTypeArg._file_requests_change_policy_validator,
     'file_requests_emails_enabled': EventTypeArg._file_requests_emails_enabled_validator,
     'file_requests_emails_restricted_to_team_only': EventTypeArg._file_requests_emails_restricted_to_team_only_validator,
@@ -72382,6 +78006,7 @@ EventTypeArg._tagmap = {
     'google_sso_change_policy': EventTypeArg._google_sso_change_policy_validator,
     'group_user_management_change_policy': EventTypeArg._group_user_management_change_policy_validator,
     'integration_policy_changed': EventTypeArg._integration_policy_changed_validator,
+    'invite_acceptance_email_policy_changed': EventTypeArg._invite_acceptance_email_policy_changed_validator,
     'member_requests_change_policy': EventTypeArg._member_requests_change_policy_validator,
     'member_send_invite_policy_changed': EventTypeArg._member_send_invite_policy_changed_validator,
     'member_space_limits_add_exception': EventTypeArg._member_space_limits_add_exception_validator,
@@ -72405,6 +78030,9 @@ EventTypeArg._tagmap = {
     'rewind_policy_changed': EventTypeArg._rewind_policy_changed_validator,
     'send_for_signature_policy_changed': EventTypeArg._send_for_signature_policy_changed_validator,
     'sharing_change_folder_join_policy': EventTypeArg._sharing_change_folder_join_policy_validator,
+    'sharing_change_link_allow_change_expiration_policy': EventTypeArg._sharing_change_link_allow_change_expiration_policy_validator,
+    'sharing_change_link_default_expiration_policy': EventTypeArg._sharing_change_link_default_expiration_policy_validator,
+    'sharing_change_link_enforce_password_policy': EventTypeArg._sharing_change_link_enforce_password_policy_validator,
     'sharing_change_link_policy': EventTypeArg._sharing_change_link_policy_validator,
     'sharing_change_member_policy': EventTypeArg._sharing_change_member_policy_validator,
     'showcase_change_download_policy': EventTypeArg._showcase_change_download_policy_validator,
@@ -72428,6 +78056,8 @@ EventTypeArg._tagmap = {
     'web_sessions_change_active_session_limit': EventTypeArg._web_sessions_change_active_session_limit_validator,
     'web_sessions_change_fixed_length_policy': EventTypeArg._web_sessions_change_fixed_length_policy_validator,
     'web_sessions_change_idle_length_policy': EventTypeArg._web_sessions_change_idle_length_policy_validator,
+    'data_residency_migration_request_successful': EventTypeArg._data_residency_migration_request_successful_validator,
+    'data_residency_migration_request_unsuccessful': EventTypeArg._data_residency_migration_request_unsuccessful_validator,
     'team_merge_from': EventTypeArg._team_merge_from_validator,
     'team_merge_to': EventTypeArg._team_merge_to_validator,
     'team_profile_add_background': EventTypeArg._team_profile_add_background_validator,
@@ -72473,8 +78103,10 @@ EventTypeArg._tagmap = {
     'other': EventTypeArg._other_validator,
 }
 
+EventTypeArg.admin_alerting_alert_state_changed = EventTypeArg('admin_alerting_alert_state_changed')
 EventTypeArg.admin_alerting_changed_alert_config = EventTypeArg('admin_alerting_changed_alert_config')
 EventTypeArg.admin_alerting_triggered_alert = EventTypeArg('admin_alerting_triggered_alert')
+EventTypeArg.app_blocked_by_permissions = EventTypeArg('app_blocked_by_permissions')
 EventTypeArg.app_link_team = EventTypeArg('app_link_team')
 EventTypeArg.app_link_user = EventTypeArg('app_link_user')
 EventTypeArg.app_unlink_team = EventTypeArg('app_unlink_team')
@@ -72491,6 +78123,7 @@ EventTypeArg.file_unlike_comment = EventTypeArg('file_unlike_comment')
 EventTypeArg.file_unresolve_comment = EventTypeArg('file_unresolve_comment')
 EventTypeArg.governance_policy_add_folders = EventTypeArg('governance_policy_add_folders')
 EventTypeArg.governance_policy_add_folder_failed = EventTypeArg('governance_policy_add_folder_failed')
+EventTypeArg.governance_policy_content_disposed = EventTypeArg('governance_policy_content_disposed')
 EventTypeArg.governance_policy_create = EventTypeArg('governance_policy_create')
 EventTypeArg.governance_policy_delete = EventTypeArg('governance_policy_delete')
 EventTypeArg.governance_policy_edit_details = EventTypeArg('governance_policy_edit_details')
@@ -72525,6 +78158,8 @@ EventTypeArg.device_unlink = EventTypeArg('device_unlink')
 EventTypeArg.dropbox_passwords_exported = EventTypeArg('dropbox_passwords_exported')
 EventTypeArg.dropbox_passwords_new_device_enrolled = EventTypeArg('dropbox_passwords_new_device_enrolled')
 EventTypeArg.emm_refresh_auth_token = EventTypeArg('emm_refresh_auth_token')
+EventTypeArg.external_drive_backup_eligibility_status_checked = EventTypeArg('external_drive_backup_eligibility_status_checked')
+EventTypeArg.external_drive_backup_status_changed = EventTypeArg('external_drive_backup_status_changed')
 EventTypeArg.account_capture_change_availability = EventTypeArg('account_capture_change_availability')
 EventTypeArg.account_capture_migrate_account = EventTypeArg('account_capture_migrate_account')
 EventTypeArg.account_capture_notification_emails_sent = EventTypeArg('account_capture_notification_emails_sent')
@@ -72540,6 +78175,7 @@ EventTypeArg.domain_verification_add_domain_fail = EventTypeArg('domain_verifica
 EventTypeArg.domain_verification_add_domain_success = EventTypeArg('domain_verification_add_domain_success')
 EventTypeArg.domain_verification_remove_domain = EventTypeArg('domain_verification_remove_domain')
 EventTypeArg.enabled_domain_invites = EventTypeArg('enabled_domain_invites')
+EventTypeArg.apply_naming_convention = EventTypeArg('apply_naming_convention')
 EventTypeArg.create_folder = EventTypeArg('create_folder')
 EventTypeArg.file_add = EventTypeArg('file_add')
 EventTypeArg.file_copy = EventTypeArg('file_copy')
@@ -72559,7 +78195,16 @@ EventTypeArg.file_save_copy_reference = EventTypeArg('file_save_copy_reference')
 EventTypeArg.folder_overview_description_changed = EventTypeArg('folder_overview_description_changed')
 EventTypeArg.folder_overview_item_pinned = EventTypeArg('folder_overview_item_pinned')
 EventTypeArg.folder_overview_item_unpinned = EventTypeArg('folder_overview_item_unpinned')
+EventTypeArg.object_label_added = EventTypeArg('object_label_added')
+EventTypeArg.object_label_removed = EventTypeArg('object_label_removed')
+EventTypeArg.object_label_updated_value = EventTypeArg('object_label_updated_value')
+EventTypeArg.organize_folder_with_tidy = EventTypeArg('organize_folder_with_tidy')
 EventTypeArg.rewind_folder = EventTypeArg('rewind_folder')
+EventTypeArg.undo_naming_convention = EventTypeArg('undo_naming_convention')
+EventTypeArg.undo_organize_folder_with_tidy = EventTypeArg('undo_organize_folder_with_tidy')
+EventTypeArg.user_tags_added = EventTypeArg('user_tags_added')
+EventTypeArg.user_tags_removed = EventTypeArg('user_tags_removed')
+EventTypeArg.email_ingest_receive_file = EventTypeArg('email_ingest_receive_file')
 EventTypeArg.file_request_change = EventTypeArg('file_request_change')
 EventTypeArg.file_request_close = EventTypeArg('file_request_close')
 EventTypeArg.file_request_create = EventTypeArg('file_request_create')
@@ -72811,9 +78456,12 @@ EventTypeArg.team_folder_permanently_delete = EventTypeArg('team_folder_permanen
 EventTypeArg.team_folder_rename = EventTypeArg('team_folder_rename')
 EventTypeArg.team_selective_sync_settings_changed = EventTypeArg('team_selective_sync_settings_changed')
 EventTypeArg.account_capture_change_policy = EventTypeArg('account_capture_change_policy')
+EventTypeArg.admin_email_reminders_changed = EventTypeArg('admin_email_reminders_changed')
 EventTypeArg.allow_download_disabled = EventTypeArg('allow_download_disabled')
 EventTypeArg.allow_download_enabled = EventTypeArg('allow_download_enabled')
+EventTypeArg.app_permissions_changed = EventTypeArg('app_permissions_changed')
 EventTypeArg.camera_uploads_policy_changed = EventTypeArg('camera_uploads_policy_changed')
+EventTypeArg.capture_transcript_policy_changed = EventTypeArg('capture_transcript_policy_changed')
 EventTypeArg.classification_change_policy = EventTypeArg('classification_change_policy')
 EventTypeArg.computer_backup_policy_changed = EventTypeArg('computer_backup_policy_changed')
 EventTypeArg.content_administration_policy_changed = EventTypeArg('content_administration_policy_changed')
@@ -72827,12 +78475,16 @@ EventTypeArg.device_approvals_change_unlink_action = EventTypeArg('device_approv
 EventTypeArg.device_approvals_remove_exception = EventTypeArg('device_approvals_remove_exception')
 EventTypeArg.directory_restrictions_add_members = EventTypeArg('directory_restrictions_add_members')
 EventTypeArg.directory_restrictions_remove_members = EventTypeArg('directory_restrictions_remove_members')
+EventTypeArg.dropbox_passwords_policy_changed = EventTypeArg('dropbox_passwords_policy_changed')
+EventTypeArg.email_ingest_policy_changed = EventTypeArg('email_ingest_policy_changed')
 EventTypeArg.emm_add_exception = EventTypeArg('emm_add_exception')
 EventTypeArg.emm_change_policy = EventTypeArg('emm_change_policy')
 EventTypeArg.emm_remove_exception = EventTypeArg('emm_remove_exception')
 EventTypeArg.extended_version_history_change_policy = EventTypeArg('extended_version_history_change_policy')
+EventTypeArg.external_drive_backup_policy_changed = EventTypeArg('external_drive_backup_policy_changed')
 EventTypeArg.file_comments_change_policy = EventTypeArg('file_comments_change_policy')
 EventTypeArg.file_locking_policy_changed = EventTypeArg('file_locking_policy_changed')
+EventTypeArg.file_provider_migration_policy_changed = EventTypeArg('file_provider_migration_policy_changed')
 EventTypeArg.file_requests_change_policy = EventTypeArg('file_requests_change_policy')
 EventTypeArg.file_requests_emails_enabled = EventTypeArg('file_requests_emails_enabled')
 EventTypeArg.file_requests_emails_restricted_to_team_only = EventTypeArg('file_requests_emails_restricted_to_team_only')
@@ -72840,6 +78492,7 @@ EventTypeArg.file_transfers_policy_changed = EventTypeArg('file_transfers_policy
 EventTypeArg.google_sso_change_policy = EventTypeArg('google_sso_change_policy')
 EventTypeArg.group_user_management_change_policy = EventTypeArg('group_user_management_change_policy')
 EventTypeArg.integration_policy_changed = EventTypeArg('integration_policy_changed')
+EventTypeArg.invite_acceptance_email_policy_changed = EventTypeArg('invite_acceptance_email_policy_changed')
 EventTypeArg.member_requests_change_policy = EventTypeArg('member_requests_change_policy')
 EventTypeArg.member_send_invite_policy_changed = EventTypeArg('member_send_invite_policy_changed')
 EventTypeArg.member_space_limits_add_exception = EventTypeArg('member_space_limits_add_exception')
@@ -72863,6 +78516,9 @@ EventTypeArg.reseller_support_change_policy = EventTypeArg('reseller_support_cha
 EventTypeArg.rewind_policy_changed = EventTypeArg('rewind_policy_changed')
 EventTypeArg.send_for_signature_policy_changed = EventTypeArg('send_for_signature_policy_changed')
 EventTypeArg.sharing_change_folder_join_policy = EventTypeArg('sharing_change_folder_join_policy')
+EventTypeArg.sharing_change_link_allow_change_expiration_policy = EventTypeArg('sharing_change_link_allow_change_expiration_policy')
+EventTypeArg.sharing_change_link_default_expiration_policy = EventTypeArg('sharing_change_link_default_expiration_policy')
+EventTypeArg.sharing_change_link_enforce_password_policy = EventTypeArg('sharing_change_link_enforce_password_policy')
 EventTypeArg.sharing_change_link_policy = EventTypeArg('sharing_change_link_policy')
 EventTypeArg.sharing_change_member_policy = EventTypeArg('sharing_change_member_policy')
 EventTypeArg.showcase_change_download_policy = EventTypeArg('showcase_change_download_policy')
@@ -72886,6 +78542,8 @@ EventTypeArg.watermarking_policy_changed = EventTypeArg('watermarking_policy_cha
 EventTypeArg.web_sessions_change_active_session_limit = EventTypeArg('web_sessions_change_active_session_limit')
 EventTypeArg.web_sessions_change_fixed_length_policy = EventTypeArg('web_sessions_change_fixed_length_policy')
 EventTypeArg.web_sessions_change_idle_length_policy = EventTypeArg('web_sessions_change_idle_length_policy')
+EventTypeArg.data_residency_migration_request_successful = EventTypeArg('data_residency_migration_request_successful')
+EventTypeArg.data_residency_migration_request_unsuccessful = EventTypeArg('data_residency_migration_request_unsuccessful')
 EventTypeArg.team_merge_from = EventTypeArg('team_merge_from')
 EventTypeArg.team_merge_to = EventTypeArg('team_merge_to')
 EventTypeArg.team_profile_add_background = EventTypeArg('team_profile_add_background')
@@ -72978,6 +78636,111 @@ ExtendedVersionHistoryPolicy.explicitly_unlimited = ExtendedVersionHistoryPolicy
 ExtendedVersionHistoryPolicy.implicitly_limited = ExtendedVersionHistoryPolicy('implicitly_limited')
 ExtendedVersionHistoryPolicy.implicitly_unlimited = ExtendedVersionHistoryPolicy('implicitly_unlimited')
 ExtendedVersionHistoryPolicy.other = ExtendedVersionHistoryPolicy('other')
+
+ExternalDriveBackupEligibilityStatus._exceed_license_cap_validator = bv.Void()
+ExternalDriveBackupEligibilityStatus._success_validator = bv.Void()
+ExternalDriveBackupEligibilityStatus._other_validator = bv.Void()
+ExternalDriveBackupEligibilityStatus._tagmap = {
+    'exceed_license_cap': ExternalDriveBackupEligibilityStatus._exceed_license_cap_validator,
+    'success': ExternalDriveBackupEligibilityStatus._success_validator,
+    'other': ExternalDriveBackupEligibilityStatus._other_validator,
+}
+
+ExternalDriveBackupEligibilityStatus.exceed_license_cap = ExternalDriveBackupEligibilityStatus('exceed_license_cap')
+ExternalDriveBackupEligibilityStatus.success = ExternalDriveBackupEligibilityStatus('success')
+ExternalDriveBackupEligibilityStatus.other = ExternalDriveBackupEligibilityStatus('other')
+
+ExternalDriveBackupEligibilityStatusCheckedDetails.desktop_device_session_info.validator = DesktopDeviceSessionLogInfo_validator
+ExternalDriveBackupEligibilityStatusCheckedDetails.status.validator = ExternalDriveBackupEligibilityStatus_validator
+ExternalDriveBackupEligibilityStatusCheckedDetails.number_of_external_drive_backup.validator = bv.UInt64()
+ExternalDriveBackupEligibilityStatusCheckedDetails._all_field_names_ = set([
+    'desktop_device_session_info',
+    'status',
+    'number_of_external_drive_backup',
+])
+ExternalDriveBackupEligibilityStatusCheckedDetails._all_fields_ = [
+    ('desktop_device_session_info', ExternalDriveBackupEligibilityStatusCheckedDetails.desktop_device_session_info.validator),
+    ('status', ExternalDriveBackupEligibilityStatusCheckedDetails.status.validator),
+    ('number_of_external_drive_backup', ExternalDriveBackupEligibilityStatusCheckedDetails.number_of_external_drive_backup.validator),
+]
+
+ExternalDriveBackupEligibilityStatusCheckedType.description.validator = bv.String()
+ExternalDriveBackupEligibilityStatusCheckedType._all_field_names_ = set(['description'])
+ExternalDriveBackupEligibilityStatusCheckedType._all_fields_ = [('description', ExternalDriveBackupEligibilityStatusCheckedType.description.validator)]
+
+ExternalDriveBackupPolicy._default_validator = bv.Void()
+ExternalDriveBackupPolicy._disabled_validator = bv.Void()
+ExternalDriveBackupPolicy._enabled_validator = bv.Void()
+ExternalDriveBackupPolicy._other_validator = bv.Void()
+ExternalDriveBackupPolicy._tagmap = {
+    'default': ExternalDriveBackupPolicy._default_validator,
+    'disabled': ExternalDriveBackupPolicy._disabled_validator,
+    'enabled': ExternalDriveBackupPolicy._enabled_validator,
+    'other': ExternalDriveBackupPolicy._other_validator,
+}
+
+ExternalDriveBackupPolicy.default = ExternalDriveBackupPolicy('default')
+ExternalDriveBackupPolicy.disabled = ExternalDriveBackupPolicy('disabled')
+ExternalDriveBackupPolicy.enabled = ExternalDriveBackupPolicy('enabled')
+ExternalDriveBackupPolicy.other = ExternalDriveBackupPolicy('other')
+
+ExternalDriveBackupPolicyChangedDetails.new_value.validator = ExternalDriveBackupPolicy_validator
+ExternalDriveBackupPolicyChangedDetails.previous_value.validator = ExternalDriveBackupPolicy_validator
+ExternalDriveBackupPolicyChangedDetails._all_field_names_ = set([
+    'new_value',
+    'previous_value',
+])
+ExternalDriveBackupPolicyChangedDetails._all_fields_ = [
+    ('new_value', ExternalDriveBackupPolicyChangedDetails.new_value.validator),
+    ('previous_value', ExternalDriveBackupPolicyChangedDetails.previous_value.validator),
+]
+
+ExternalDriveBackupPolicyChangedType.description.validator = bv.String()
+ExternalDriveBackupPolicyChangedType._all_field_names_ = set(['description'])
+ExternalDriveBackupPolicyChangedType._all_fields_ = [('description', ExternalDriveBackupPolicyChangedType.description.validator)]
+
+ExternalDriveBackupStatus._broken_validator = bv.Void()
+ExternalDriveBackupStatus._created_validator = bv.Void()
+ExternalDriveBackupStatus._created_or_broken_validator = bv.Void()
+ExternalDriveBackupStatus._deleted_validator = bv.Void()
+ExternalDriveBackupStatus._empty_validator = bv.Void()
+ExternalDriveBackupStatus._unknown_validator = bv.Void()
+ExternalDriveBackupStatus._other_validator = bv.Void()
+ExternalDriveBackupStatus._tagmap = {
+    'broken': ExternalDriveBackupStatus._broken_validator,
+    'created': ExternalDriveBackupStatus._created_validator,
+    'created_or_broken': ExternalDriveBackupStatus._created_or_broken_validator,
+    'deleted': ExternalDriveBackupStatus._deleted_validator,
+    'empty': ExternalDriveBackupStatus._empty_validator,
+    'unknown': ExternalDriveBackupStatus._unknown_validator,
+    'other': ExternalDriveBackupStatus._other_validator,
+}
+
+ExternalDriveBackupStatus.broken = ExternalDriveBackupStatus('broken')
+ExternalDriveBackupStatus.created = ExternalDriveBackupStatus('created')
+ExternalDriveBackupStatus.created_or_broken = ExternalDriveBackupStatus('created_or_broken')
+ExternalDriveBackupStatus.deleted = ExternalDriveBackupStatus('deleted')
+ExternalDriveBackupStatus.empty = ExternalDriveBackupStatus('empty')
+ExternalDriveBackupStatus.unknown = ExternalDriveBackupStatus('unknown')
+ExternalDriveBackupStatus.other = ExternalDriveBackupStatus('other')
+
+ExternalDriveBackupStatusChangedDetails.desktop_device_session_info.validator = DesktopDeviceSessionLogInfo_validator
+ExternalDriveBackupStatusChangedDetails.previous_value.validator = ExternalDriveBackupStatus_validator
+ExternalDriveBackupStatusChangedDetails.new_value.validator = ExternalDriveBackupStatus_validator
+ExternalDriveBackupStatusChangedDetails._all_field_names_ = set([
+    'desktop_device_session_info',
+    'previous_value',
+    'new_value',
+])
+ExternalDriveBackupStatusChangedDetails._all_fields_ = [
+    ('desktop_device_session_info', ExternalDriveBackupStatusChangedDetails.desktop_device_session_info.validator),
+    ('previous_value', ExternalDriveBackupStatusChangedDetails.previous_value.validator),
+    ('new_value', ExternalDriveBackupStatusChangedDetails.new_value.validator),
+]
+
+ExternalDriveBackupStatusChangedType.description.validator = bv.String()
+ExternalDriveBackupStatusChangedType._all_field_names_ = set(['description'])
+ExternalDriveBackupStatusChangedType._all_fields_ = [('description', ExternalDriveBackupStatusChangedType.description.validator)]
 
 ExternalSharingCreateReportDetails._all_field_names_ = set([])
 ExternalSharingCreateReportDetails._all_fields_ = []
@@ -73287,6 +79050,21 @@ FilePreviewDetails._all_fields_ = []
 FilePreviewType.description.validator = bv.String()
 FilePreviewType._all_field_names_ = set(['description'])
 FilePreviewType._all_fields_ = [('description', FilePreviewType.description.validator)]
+
+FileProviderMigrationPolicyChangedDetails.new_value.validator = team_policies.FileProviderMigrationPolicyState_validator
+FileProviderMigrationPolicyChangedDetails.previous_value.validator = team_policies.FileProviderMigrationPolicyState_validator
+FileProviderMigrationPolicyChangedDetails._all_field_names_ = set([
+    'new_value',
+    'previous_value',
+])
+FileProviderMigrationPolicyChangedDetails._all_fields_ = [
+    ('new_value', FileProviderMigrationPolicyChangedDetails.new_value.validator),
+    ('previous_value', FileProviderMigrationPolicyChangedDetails.previous_value.validator),
+]
+
+FileProviderMigrationPolicyChangedType.description.validator = bv.String()
+FileProviderMigrationPolicyChangedType._all_field_names_ = set(['description'])
+FileProviderMigrationPolicyChangedType._all_fields_ = [('description', FileProviderMigrationPolicyChangedType.description.validator)]
 
 FileRenameDetails.relocate_action_details.validator = bv.List(RelocateAssetReferencesLogInfo_validator)
 FileRenameDetails._all_field_names_ = set(['relocate_action_details'])
@@ -73765,6 +79543,27 @@ GovernancePolicyAddFoldersDetails._all_fields_ = [
 GovernancePolicyAddFoldersType.description.validator = bv.String()
 GovernancePolicyAddFoldersType._all_field_names_ = set(['description'])
 GovernancePolicyAddFoldersType._all_fields_ = [('description', GovernancePolicyAddFoldersType.description.validator)]
+
+GovernancePolicyContentDisposedDetails.governance_policy_id.validator = bv.String()
+GovernancePolicyContentDisposedDetails.name.validator = bv.String()
+GovernancePolicyContentDisposedDetails.policy_type.validator = bv.Nullable(PolicyType_validator)
+GovernancePolicyContentDisposedDetails.disposition_type.validator = DispositionActionType_validator
+GovernancePolicyContentDisposedDetails._all_field_names_ = set([
+    'governance_policy_id',
+    'name',
+    'policy_type',
+    'disposition_type',
+])
+GovernancePolicyContentDisposedDetails._all_fields_ = [
+    ('governance_policy_id', GovernancePolicyContentDisposedDetails.governance_policy_id.validator),
+    ('name', GovernancePolicyContentDisposedDetails.name.validator),
+    ('policy_type', GovernancePolicyContentDisposedDetails.policy_type.validator),
+    ('disposition_type', GovernancePolicyContentDisposedDetails.disposition_type.validator),
+]
+
+GovernancePolicyContentDisposedType.description.validator = bv.String()
+GovernancePolicyContentDisposedType._all_field_names_ = set(['description'])
+GovernancePolicyContentDisposedType._all_fields_ = [('description', GovernancePolicyContentDisposedType.description.validator)]
 
 GovernancePolicyCreateDetails.governance_policy_id.validator = bv.String()
 GovernancePolicyCreateDetails.name.validator = bv.String()
@@ -74262,6 +80061,34 @@ IntegrationPolicyChangedType.description.validator = bv.String()
 IntegrationPolicyChangedType._all_field_names_ = set(['description'])
 IntegrationPolicyChangedType._all_fields_ = [('description', IntegrationPolicyChangedType.description.validator)]
 
+InviteAcceptanceEmailPolicy._disabled_validator = bv.Void()
+InviteAcceptanceEmailPolicy._enabled_validator = bv.Void()
+InviteAcceptanceEmailPolicy._other_validator = bv.Void()
+InviteAcceptanceEmailPolicy._tagmap = {
+    'disabled': InviteAcceptanceEmailPolicy._disabled_validator,
+    'enabled': InviteAcceptanceEmailPolicy._enabled_validator,
+    'other': InviteAcceptanceEmailPolicy._other_validator,
+}
+
+InviteAcceptanceEmailPolicy.disabled = InviteAcceptanceEmailPolicy('disabled')
+InviteAcceptanceEmailPolicy.enabled = InviteAcceptanceEmailPolicy('enabled')
+InviteAcceptanceEmailPolicy.other = InviteAcceptanceEmailPolicy('other')
+
+InviteAcceptanceEmailPolicyChangedDetails.new_value.validator = InviteAcceptanceEmailPolicy_validator
+InviteAcceptanceEmailPolicyChangedDetails.previous_value.validator = InviteAcceptanceEmailPolicy_validator
+InviteAcceptanceEmailPolicyChangedDetails._all_field_names_ = set([
+    'new_value',
+    'previous_value',
+])
+InviteAcceptanceEmailPolicyChangedDetails._all_fields_ = [
+    ('new_value', InviteAcceptanceEmailPolicyChangedDetails.new_value.validator),
+    ('previous_value', InviteAcceptanceEmailPolicyChangedDetails.previous_value.validator),
+]
+
+InviteAcceptanceEmailPolicyChangedType.description.validator = bv.String()
+InviteAcceptanceEmailPolicyChangedType._all_field_names_ = set(['description'])
+InviteAcceptanceEmailPolicyChangedType._all_fields_ = [('description', InviteAcceptanceEmailPolicyChangedType.description.validator)]
+
 InviteMethod._auto_approve_validator = bv.Void()
 InviteMethod._invite_link_validator = bv.Void()
 InviteMethod._member_invite_validator = bv.Void()
@@ -74312,6 +80139,22 @@ JoinTeamDetails._all_fields_ = [
     ('has_linked_devices', JoinTeamDetails.has_linked_devices.validator),
     ('has_linked_shared_folders', JoinTeamDetails.has_linked_shared_folders.validator),
 ]
+
+LabelType._personal_information_validator = bv.Void()
+LabelType._test_only_validator = bv.Void()
+LabelType._user_defined_tag_validator = bv.Void()
+LabelType._other_validator = bv.Void()
+LabelType._tagmap = {
+    'personal_information': LabelType._personal_information_validator,
+    'test_only': LabelType._test_only_validator,
+    'user_defined_tag': LabelType._user_defined_tag_validator,
+    'other': LabelType._other_validator,
+}
+
+LabelType.personal_information = LabelType('personal_information')
+LabelType.test_only = LabelType('test_only')
+LabelType.user_defined_tag = LabelType('user_defined_tag')
+LabelType.other = LabelType('other')
 
 LegacyDeviceSessionLogInfo.session_info.validator = bv.Nullable(SessionLogInfo_validator)
 LegacyDeviceSessionLogInfo.display_name.validator = bv.Nullable(bv.String())
@@ -75049,6 +80892,17 @@ MemberTransferAccountContentsType.description.validator = bv.String()
 MemberTransferAccountContentsType._all_field_names_ = set(['description'])
 MemberTransferAccountContentsType._all_fields_ = [('description', MemberTransferAccountContentsType.description.validator)]
 
+MemberTransferredInternalFields.source_team_id.validator = team_common.TeamId_validator
+MemberTransferredInternalFields.target_team_id.validator = team_common.TeamId_validator
+MemberTransferredInternalFields._all_field_names_ = set([
+    'source_team_id',
+    'target_team_id',
+])
+MemberTransferredInternalFields._all_fields_ = [
+    ('source_team_id', MemberTransferredInternalFields.source_team_id.validator),
+    ('target_team_id', MemberTransferredInternalFields.target_team_id.validator),
+]
+
 MicrosoftOfficeAddinChangePolicyDetails.new_value.validator = MicrosoftOfficeAddinPolicy_validator
 MicrosoftOfficeAddinChangePolicyDetails.previous_value.validator = bv.Nullable(MicrosoftOfficeAddinPolicy_validator)
 MicrosoftOfficeAddinChangePolicyDetails._all_field_names_ = set([
@@ -75239,14 +81093,14 @@ UserLogInfo._fields_ = [
 UserLogInfo._all_fields_ = UserLogInfo._fields_
 
 UserLogInfo._tag_to_subtype_ = {
-    (u'team_member',): TeamMemberLogInfo_validator,
-    (u'trusted_non_team_member',): TrustedNonTeamMemberLogInfo_validator,
-    (u'non_team_member',): NonTeamMemberLogInfo_validator,
+    ('team_member',): TeamMemberLogInfo_validator,
+    ('trusted_non_team_member',): TrustedNonTeamMemberLogInfo_validator,
+    ('non_team_member',): NonTeamMemberLogInfo_validator,
 }
 UserLogInfo._pytype_to_tag_and_subtype_ = {
-    TeamMemberLogInfo: ((u'team_member',), TeamMemberLogInfo_validator),
-    TrustedNonTeamMemberLogInfo: ((u'trusted_non_team_member',), TrustedNonTeamMemberLogInfo_validator),
-    NonTeamMemberLogInfo: ((u'non_team_member',), NonTeamMemberLogInfo_validator),
+    TeamMemberLogInfo: (('team_member',), TeamMemberLogInfo_validator),
+    TrustedNonTeamMemberLogInfo: (('trusted_non_team_member',), TrustedNonTeamMemberLogInfo_validator),
+    NonTeamMemberLogInfo: (('non_team_member',), NonTeamMemberLogInfo_validator),
 }
 UserLogInfo._is_catch_all_ = True
 
@@ -75294,6 +81148,30 @@ NoteSharedType.description.validator = bv.String()
 NoteSharedType._all_field_names_ = set(['description'])
 NoteSharedType._all_fields_ = [('description', NoteSharedType.description.validator)]
 
+ObjectLabelAddedDetails.label_type.validator = LabelType_validator
+ObjectLabelAddedDetails._all_field_names_ = set(['label_type'])
+ObjectLabelAddedDetails._all_fields_ = [('label_type', ObjectLabelAddedDetails.label_type.validator)]
+
+ObjectLabelAddedType.description.validator = bv.String()
+ObjectLabelAddedType._all_field_names_ = set(['description'])
+ObjectLabelAddedType._all_fields_ = [('description', ObjectLabelAddedType.description.validator)]
+
+ObjectLabelRemovedDetails.label_type.validator = LabelType_validator
+ObjectLabelRemovedDetails._all_field_names_ = set(['label_type'])
+ObjectLabelRemovedDetails._all_fields_ = [('label_type', ObjectLabelRemovedDetails.label_type.validator)]
+
+ObjectLabelRemovedType.description.validator = bv.String()
+ObjectLabelRemovedType._all_field_names_ = set(['description'])
+ObjectLabelRemovedType._all_fields_ = [('description', ObjectLabelRemovedType.description.validator)]
+
+ObjectLabelUpdatedValueDetails.label_type.validator = LabelType_validator
+ObjectLabelUpdatedValueDetails._all_field_names_ = set(['label_type'])
+ObjectLabelUpdatedValueDetails._all_fields_ = [('label_type', ObjectLabelUpdatedValueDetails.label_type.validator)]
+
+ObjectLabelUpdatedValueType.description.validator = bv.String()
+ObjectLabelUpdatedValueType._all_field_names_ = set(['description'])
+ObjectLabelUpdatedValueType._all_fields_ = [('description', ObjectLabelUpdatedValueType.description.validator)]
+
 OpenNoteSharedDetails._all_field_names_ = set([])
 OpenNoteSharedDetails._all_fields_ = []
 
@@ -75308,6 +81186,13 @@ OrganizationDetails._all_fields_ = [('organization', OrganizationDetails.organiz
 OrganizationName.organization.validator = bv.String()
 OrganizationName._all_field_names_ = set(['organization'])
 OrganizationName._all_fields_ = [('organization', OrganizationName.organization.validator)]
+
+OrganizeFolderWithTidyDetails._all_field_names_ = set([])
+OrganizeFolderWithTidyDetails._all_fields_ = []
+
+OrganizeFolderWithTidyType.description.validator = bv.String()
+OrganizeFolderWithTidyType._all_field_names_ = set(['description'])
+OrganizeFolderWithTidyType._all_fields_ = [('description', OrganizeFolderWithTidyType.description.validator)]
 
 OriginLogInfo.geo_location.validator = bv.Nullable(GeoLocationLogInfo_validator)
 OriginLogInfo.access_method.validator = AccessMethodLogInfo_validator
@@ -76094,12 +81979,16 @@ PlacementRestriction._australia_only_validator = bv.Void()
 PlacementRestriction._europe_only_validator = bv.Void()
 PlacementRestriction._japan_only_validator = bv.Void()
 PlacementRestriction._none_validator = bv.Void()
+PlacementRestriction._uk_only_validator = bv.Void()
+PlacementRestriction._us_s3_only_validator = bv.Void()
 PlacementRestriction._other_validator = bv.Void()
 PlacementRestriction._tagmap = {
     'australia_only': PlacementRestriction._australia_only_validator,
     'europe_only': PlacementRestriction._europe_only_validator,
     'japan_only': PlacementRestriction._japan_only_validator,
     'none': PlacementRestriction._none_validator,
+    'uk_only': PlacementRestriction._uk_only_validator,
+    'us_s3_only': PlacementRestriction._us_s3_only_validator,
     'other': PlacementRestriction._other_validator,
 }
 
@@ -76107,15 +81996,20 @@ PlacementRestriction.australia_only = PlacementRestriction('australia_only')
 PlacementRestriction.europe_only = PlacementRestriction('europe_only')
 PlacementRestriction.japan_only = PlacementRestriction('japan_only')
 PlacementRestriction.none = PlacementRestriction('none')
+PlacementRestriction.uk_only = PlacementRestriction('uk_only')
+PlacementRestriction.us_s3_only = PlacementRestriction('us_s3_only')
 PlacementRestriction.other = PlacementRestriction('other')
 
+PolicyType._disposition_validator = bv.Void()
 PolicyType._retention_validator = bv.Void()
 PolicyType._other_validator = bv.Void()
 PolicyType._tagmap = {
+    'disposition': PolicyType._disposition_validator,
     'retention': PolicyType._retention_validator,
     'other': PolicyType._other_validator,
 }
 
+PolicyType.disposition = PolicyType('disposition')
 PolicyType.retention = PolicyType('retention')
 PolicyType.other = PolicyType('other')
 
@@ -76187,6 +82081,20 @@ QuickActionType.unlink_app = QuickActionType('unlink_app')
 QuickActionType.unlink_device = QuickActionType('unlink_device')
 QuickActionType.unlink_session = QuickActionType('unlink_session')
 QuickActionType.other = QuickActionType('other')
+
+RecipientsConfiguration.recipient_setting_type.validator = bv.Nullable(AlertRecipientsSettingType_validator)
+RecipientsConfiguration.emails.validator = bv.Nullable(bv.List(EmailAddress_validator))
+RecipientsConfiguration.groups.validator = bv.Nullable(bv.List(bv.String()))
+RecipientsConfiguration._all_field_names_ = set([
+    'recipient_setting_type',
+    'emails',
+    'groups',
+])
+RecipientsConfiguration._all_fields_ = [
+    ('recipient_setting_type', RecipientsConfiguration.recipient_setting_type.validator),
+    ('emails', RecipientsConfiguration.emails.validator),
+    ('groups', RecipientsConfiguration.groups.validator),
+]
 
 RelocateAssetReferencesLogInfo.src_asset_index.validator = bv.UInt64()
 RelocateAssetReferencesLogInfo.dest_asset_index.validator = bv.UInt64()
@@ -77358,6 +83266,51 @@ SharingChangeFolderJoinPolicyType.description.validator = bv.String()
 SharingChangeFolderJoinPolicyType._all_field_names_ = set(['description'])
 SharingChangeFolderJoinPolicyType._all_fields_ = [('description', SharingChangeFolderJoinPolicyType.description.validator)]
 
+SharingChangeLinkAllowChangeExpirationPolicyDetails.new_value.validator = EnforceLinkPasswordPolicy_validator
+SharingChangeLinkAllowChangeExpirationPolicyDetails.previous_value.validator = bv.Nullable(EnforceLinkPasswordPolicy_validator)
+SharingChangeLinkAllowChangeExpirationPolicyDetails._all_field_names_ = set([
+    'new_value',
+    'previous_value',
+])
+SharingChangeLinkAllowChangeExpirationPolicyDetails._all_fields_ = [
+    ('new_value', SharingChangeLinkAllowChangeExpirationPolicyDetails.new_value.validator),
+    ('previous_value', SharingChangeLinkAllowChangeExpirationPolicyDetails.previous_value.validator),
+]
+
+SharingChangeLinkAllowChangeExpirationPolicyType.description.validator = bv.String()
+SharingChangeLinkAllowChangeExpirationPolicyType._all_field_names_ = set(['description'])
+SharingChangeLinkAllowChangeExpirationPolicyType._all_fields_ = [('description', SharingChangeLinkAllowChangeExpirationPolicyType.description.validator)]
+
+SharingChangeLinkDefaultExpirationPolicyDetails.new_value.validator = DefaultLinkExpirationDaysPolicy_validator
+SharingChangeLinkDefaultExpirationPolicyDetails.previous_value.validator = bv.Nullable(DefaultLinkExpirationDaysPolicy_validator)
+SharingChangeLinkDefaultExpirationPolicyDetails._all_field_names_ = set([
+    'new_value',
+    'previous_value',
+])
+SharingChangeLinkDefaultExpirationPolicyDetails._all_fields_ = [
+    ('new_value', SharingChangeLinkDefaultExpirationPolicyDetails.new_value.validator),
+    ('previous_value', SharingChangeLinkDefaultExpirationPolicyDetails.previous_value.validator),
+]
+
+SharingChangeLinkDefaultExpirationPolicyType.description.validator = bv.String()
+SharingChangeLinkDefaultExpirationPolicyType._all_field_names_ = set(['description'])
+SharingChangeLinkDefaultExpirationPolicyType._all_fields_ = [('description', SharingChangeLinkDefaultExpirationPolicyType.description.validator)]
+
+SharingChangeLinkEnforcePasswordPolicyDetails.new_value.validator = ChangeLinkExpirationPolicy_validator
+SharingChangeLinkEnforcePasswordPolicyDetails.previous_value.validator = bv.Nullable(ChangeLinkExpirationPolicy_validator)
+SharingChangeLinkEnforcePasswordPolicyDetails._all_field_names_ = set([
+    'new_value',
+    'previous_value',
+])
+SharingChangeLinkEnforcePasswordPolicyDetails._all_fields_ = [
+    ('new_value', SharingChangeLinkEnforcePasswordPolicyDetails.new_value.validator),
+    ('previous_value', SharingChangeLinkEnforcePasswordPolicyDetails.previous_value.validator),
+]
+
+SharingChangeLinkEnforcePasswordPolicyType.description.validator = bv.String()
+SharingChangeLinkEnforcePasswordPolicyType._all_field_names_ = set(['description'])
+SharingChangeLinkEnforcePasswordPolicyType._all_fields_ = [('description', SharingChangeLinkEnforcePasswordPolicyType.description.validator)]
+
 SharingChangeLinkPolicyDetails.new_value.validator = SharingLinkPolicy_validator
 SharingChangeLinkPolicyDetails.previous_value.validator = bv.Nullable(SharingLinkPolicy_validator)
 SharingChangeLinkPolicyDetails._all_field_names_ = set([
@@ -77401,17 +83354,20 @@ SharingFolderJoinPolicy.from_anyone = SharingFolderJoinPolicy('from_anyone')
 SharingFolderJoinPolicy.from_team_only = SharingFolderJoinPolicy('from_team_only')
 SharingFolderJoinPolicy.other = SharingFolderJoinPolicy('other')
 
+SharingLinkPolicy._default_no_one_validator = bv.Void()
 SharingLinkPolicy._default_private_validator = bv.Void()
 SharingLinkPolicy._default_public_validator = bv.Void()
 SharingLinkPolicy._only_private_validator = bv.Void()
 SharingLinkPolicy._other_validator = bv.Void()
 SharingLinkPolicy._tagmap = {
+    'default_no_one': SharingLinkPolicy._default_no_one_validator,
     'default_private': SharingLinkPolicy._default_private_validator,
     'default_public': SharingLinkPolicy._default_public_validator,
     'only_private': SharingLinkPolicy._only_private_validator,
     'other': SharingLinkPolicy._other_validator,
 }
 
+SharingLinkPolicy.default_no_one = SharingLinkPolicy('default_no_one')
 SharingLinkPolicy.default_private = SharingLinkPolicy('default_private')
 SharingLinkPolicy.default_public = SharingLinkPolicy('default_public')
 SharingLinkPolicy.only_private = SharingLinkPolicy('only_private')
@@ -78257,15 +84213,18 @@ TeamMemberLogInfo._all_fields_ = UserLogInfo._all_fields_ + TeamMemberLogInfo._f
 
 TeamMembershipType._free_validator = bv.Void()
 TeamMembershipType._full_validator = bv.Void()
+TeamMembershipType._guest_validator = bv.Void()
 TeamMembershipType._other_validator = bv.Void()
 TeamMembershipType._tagmap = {
     'free': TeamMembershipType._free_validator,
     'full': TeamMembershipType._full_validator,
+    'guest': TeamMembershipType._guest_validator,
     'other': TeamMembershipType._other_validator,
 }
 
 TeamMembershipType.free = TeamMembershipType('free')
 TeamMembershipType.full = TeamMembershipType('full')
+TeamMembershipType.guest = TeamMembershipType('guest')
 TeamMembershipType.other = TeamMembershipType('other')
 
 TeamMergeFromDetails.team_name.validator = bv.String()
@@ -78900,6 +84859,20 @@ TwoAccountPolicy.disabled = TwoAccountPolicy('disabled')
 TwoAccountPolicy.enabled = TwoAccountPolicy('enabled')
 TwoAccountPolicy.other = TwoAccountPolicy('other')
 
+UndoNamingConventionDetails._all_field_names_ = set([])
+UndoNamingConventionDetails._all_fields_ = []
+
+UndoNamingConventionType.description.validator = bv.String()
+UndoNamingConventionType._all_field_names_ = set(['description'])
+UndoNamingConventionType._all_fields_ = [('description', UndoNamingConventionType.description.validator)]
+
+UndoOrganizeFolderWithTidyDetails._all_field_names_ = set([])
+UndoOrganizeFolderWithTidyDetails._all_fields_ = []
+
+UndoOrganizeFolderWithTidyType.description.validator = bv.String()
+UndoOrganizeFolderWithTidyType._all_field_names_ = set(['description'])
+UndoOrganizeFolderWithTidyType._all_fields_ = [('description', UndoOrganizeFolderWithTidyType.description.validator)]
+
 UserLinkedAppLogInfo._field_names_ = set([])
 UserLinkedAppLogInfo._all_field_names_ = AppLogInfo._all_field_names_.union(UserLinkedAppLogInfo._field_names_)
 UserLinkedAppLogInfo._fields_ = []
@@ -78923,6 +84896,22 @@ UserOrTeamLinkedAppLogInfo._field_names_ = set([])
 UserOrTeamLinkedAppLogInfo._all_field_names_ = AppLogInfo._all_field_names_.union(UserOrTeamLinkedAppLogInfo._field_names_)
 UserOrTeamLinkedAppLogInfo._fields_ = []
 UserOrTeamLinkedAppLogInfo._all_fields_ = AppLogInfo._all_fields_ + UserOrTeamLinkedAppLogInfo._fields_
+
+UserTagsAddedDetails.values.validator = bv.List(bv.String())
+UserTagsAddedDetails._all_field_names_ = set(['values'])
+UserTagsAddedDetails._all_fields_ = [('values', UserTagsAddedDetails.values.validator)]
+
+UserTagsAddedType.description.validator = bv.String()
+UserTagsAddedType._all_field_names_ = set(['description'])
+UserTagsAddedType._all_fields_ = [('description', UserTagsAddedType.description.validator)]
+
+UserTagsRemovedDetails.values.validator = bv.List(bv.String())
+UserTagsRemovedDetails._all_field_names_ = set(['values'])
+UserTagsRemovedDetails._all_fields_ = [('values', UserTagsRemovedDetails.values.validator)]
+
+UserTagsRemovedType.description.validator = bv.String()
+UserTagsRemovedType._all_field_names_ = set(['description'])
+UserTagsRemovedType._all_fields_ = [('description', UserTagsRemovedType.description.validator)]
 
 ViewerInfoPolicyChangedDetails.previous_value.validator = PassPolicy_validator
 ViewerInfoPolicyChangedDetails.new_value.validator = PassPolicy_validator
@@ -79068,8 +85057,9 @@ get_events = bb.Route(
     GetTeamEventsArg_validator,
     GetTeamEventsResult_validator,
     GetTeamEventsError_validator,
-    {'host': u'api',
-     'style': u'rpc'},
+    {'auth': 'team',
+     'host': 'api',
+     'style': 'rpc'},
 )
 get_events_continue = bb.Route(
     'get_events/continue',
@@ -79078,8 +85068,9 @@ get_events_continue = bb.Route(
     GetTeamEventsContinueArg_validator,
     GetTeamEventsResult_validator,
     GetTeamEventsContinueError_validator,
-    {'host': u'api',
-     'style': u'rpc'},
+    {'auth': 'team',
+     'host': 'api',
+     'style': 'rpc'},
 )
 
 ROUTES = {

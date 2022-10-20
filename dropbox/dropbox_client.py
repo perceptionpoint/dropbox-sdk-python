@@ -6,8 +6,9 @@ __all__ = [
 
 # This should always be 0.0.0 in main. Only update this after tagging
 # before release.
-__version__ = '11.0.0'
+__version__ = '11.35.1+pp'
 
+import base64
 import contextlib
 import json
 import logging
@@ -59,6 +60,11 @@ SELECT_ADMIN_HEADER = 'Dropbox-API-Select-Admin'
 
 SELECT_USER_HEADER = 'Dropbox-API-Select-User'
 
+USER_AUTH = 'user'
+TEAM_AUTH = 'team'
+APP_AUTH = 'app'
+NO_AUTH = 'noauth'
+
 class RouteResult(object):
     """The successful result of a call to a route."""
 
@@ -91,7 +97,7 @@ class RouteErrorResult(object):
         self.request_id = request_id
         self.obj_result = obj_result
 
-def create_session(max_connections=8, proxies=None):
+def create_session(max_connections=8, proxies=None, ca_certs=None):
     """
     Creates a session object that can be used by multiple :class:`Dropbox` and
     :class:`DropboxTeam` instances. This lets you share a connection pool
@@ -106,7 +112,7 @@ def create_session(max_connections=8, proxies=None):
         for more details.
     """
     # We only need as many pool_connections as we have unique hostnames.
-    session = pinned_session(pool_maxsize=max_connections)
+    session = pinned_session(pool_maxsize=max_connections, ca_certs=ca_certs)
     if proxies:
         session.proxies = proxies
     return session
@@ -145,7 +151,8 @@ class _DropboxTransport(object):
                  oauth2_access_token_expiration=None,
                  app_key=None,
                  app_secret=None,
-                 scope=None,):
+                 scope=None,
+                 ca_certs=None):
         """
         :param str oauth2_access_token: OAuth2 access token for making client
             requests.
@@ -174,10 +181,14 @@ class _DropboxTransport(object):
             Not required if PKCE was used to authorize the token
         :param list scope: list of scopes to request on refresh.  If left blank,
             refresh will request all available scopes for application
+        :param str ca_certs: path to CA certificate. If left blank, default certificate location \
+            will be used
         """
 
-        if not (oauth2_access_token or oauth2_refresh_token):
-            raise BadInputException('OAuth2 access token or refresh token must be set')
+        if not (oauth2_access_token or oauth2_refresh_token or (app_key and app_secret)):
+            raise BadInputException(
+                'OAuth2 access token or refresh token or app key/secret must be set'
+            )
 
         if headers is not None and not isinstance(headers, dict):
             raise BadInputException('Expected dict, got {}'.format(headers))
@@ -204,7 +215,7 @@ class _DropboxTransport(object):
                                         .format(session))
             self._session = session
         else:
-            self._session = create_session()
+            self._session = create_session(ca_certs=ca_certs)
         self._headers = headers
 
         base_user_agent = 'OfficialDropboxPythonSDKv2/' + __version__
@@ -293,6 +304,7 @@ class _DropboxTransport(object):
         self.check_and_refresh_access_token()
 
         host = route.attrs['host'] or 'api'
+        auth_type = route.attrs['auth']
         route_name = namespace + '/' + route.name
         if route.version > 1:
             route_name += '_v{}'.format(route.version)
@@ -315,6 +327,7 @@ class _DropboxTransport(object):
                                                   route_name,
                                                   route_style,
                                                   serialized_arg,
+                                                  auth_type,
                                                   request_binary,
                                                   timeout=timeout)
         decoded_obj_result = json.loads(res.obj_result)
@@ -350,9 +363,10 @@ class _DropboxTransport(object):
         :return:
         """
         can_refresh = self._oauth2_refresh_token and self._app_key
-        needs_refresh = self._oauth2_access_token_expiration and \
-            (datetime.utcnow() + timedelta(seconds=TOKEN_EXPIRATION_BUFFER)) >= \
-            self._oauth2_access_token_expiration
+        needs_refresh = self._oauth2_refresh_token and \
+            (not self._oauth2_access_token_expiration or
+            (datetime.utcnow() + timedelta(seconds=TOKEN_EXPIRATION_BUFFER)) >=
+            self._oauth2_access_token_expiration)
         needs_token = not self._oauth2_access_token
         if (needs_refresh or needs_token) and can_refresh:
             self.refresh_access_token(scope=self._scope)
@@ -365,7 +379,6 @@ class _DropboxTransport(object):
         :param scope: list of permission scopes for access token
         :return:
         """
-
         if scope is not None and (len(scope) == 0 or not isinstance(scope, list)):
             raise BadInputException("Scope list must be of type list")
 
@@ -390,12 +403,7 @@ class _DropboxTransport(object):
         if self._timeout:
             timeout = self._timeout
         res = self._session.post(url, data=body, timeout=timeout)
-        if res.status_code == 400 and res.json()['error'] == 'invalid_grant':
-            request_id = res.headers.get('x-dropbox-request-id')
-            err = stone_serializers.json_compat_obj_decode(
-                AuthError_validator, 'invalid_access_token')
-            raise AuthError(request_id, err)
-        res.raise_for_status()
+        self.raise_dropbox_error_for_resp(res)
 
         token_content = res.json()
         self._oauth2_access_token = token_content["access_token"]
@@ -407,6 +415,7 @@ class _DropboxTransport(object):
                             route_name,
                             route_style,
                             request_arg,
+                            auth_type,
                             request_binary,
                             timeout=None):
         """
@@ -418,6 +427,7 @@ class _DropboxTransport(object):
         :param route_style: The style of the route.
         :param str request_arg: A JSON-serializable Python object representing
             the argument for the route.
+        :param auth_type str
         :param Optional[bytes] request_binary: Bytes representing the binary
             payload. Use None if there is no binary payload.
         :param Optional[float] timeout: Maximum duration in seconds
@@ -432,6 +442,7 @@ class _DropboxTransport(object):
                                                   route_name,
                                                   route_style,
                                                   serialized_arg,
+                                                  auth_type,
                                                   request_binary,
                                                   timeout=timeout)
         # This can throw a ValueError if the result is not deserializable,
@@ -447,6 +458,7 @@ class _DropboxTransport(object):
                                        route_name,
                                        route_style,
                                        request_json_arg,
+                                       auth_type,
                                        request_binary,
                                        timeout=None):
         """
@@ -465,6 +477,7 @@ class _DropboxTransport(object):
                                                 route_name,
                                                 route_style,
                                                 request_json_arg,
+                                                auth_type,
                                                 request_binary,
                                                 timeout=timeout)
             except AuthError as e:
@@ -507,6 +520,7 @@ class _DropboxTransport(object):
                             func_name,
                             route_style,
                             request_json_arg,
+                            auth_type,
                             request_binary,
                             timeout=None):
         """
@@ -529,10 +543,25 @@ class _DropboxTransport(object):
         url = self._get_route_url(fq_hostname, func_name)
 
         headers = {'User-Agent': self._user_agent}
-        if host != HOST_NOTIFY:
+        auth_types = auth_type.replace(' ', '').split(',')
+        if (USER_AUTH in auth_types or TEAM_AUTH in auth_types) and self._oauth2_access_token:
             headers['Authorization'] = 'Bearer %s' % self._oauth2_access_token
             if self._headers:
                 headers.update(self._headers)
+        elif APP_AUTH in auth_types:
+            if self._app_key is None or self._app_secret is None:
+                raise BadInputException(
+                    'Client id and client secret are required for routes with app auth')
+            auth_header = base64.b64encode(
+                "{}:{}".format(self._app_key, self._app_secret).encode("utf-8")
+            )
+            headers['Authorization'] = 'Basic {}'.format(auth_header.decode("utf-8"))
+            if self._headers:
+                headers.update(self._headers)
+        elif auth_type == NO_AUTH:
+            pass
+        else:
+            raise BadInputException('Unhandled auth type: {}'.format(auth_type))
 
         # The contents of the body of the HTTP request
         body = None
@@ -564,53 +593,72 @@ class _DropboxTransport(object):
                                verify=True,
                                timeout=timeout,
                                )
-
+        self.raise_dropbox_error_for_resp(r)
         request_id = r.headers.get('x-dropbox-request-id')
-        if r.status_code >= 500:
-            raise InternalServerError(request_id, r.status_code, r.text)
-        elif r.status_code == 400:
-            raise BadInputError(request_id, r.text)
-        elif r.status_code == 401:
+        if r.status_code in (403, 404, 409):
+            raw_resp = r.content.decode('utf-8')
+            return RouteErrorResult(request_id, raw_resp)
+
+        if route_style == self._ROUTE_STYLE_DOWNLOAD:
+            raw_resp = r.headers['dropbox-api-result']
+        else:
             assert r.headers.get('content-type') == 'application/json', (
                 'Expected content-type to be application/json, got %r' %
                 r.headers.get('content-type'))
+            raw_resp = r.content.decode('utf-8')
+        if route_style == self._ROUTE_STYLE_DOWNLOAD:
+            return RouteResult(raw_resp, r)
+        else:
+            return RouteResult(raw_resp)
+
+    def raise_dropbox_error_for_resp(self, res):
+        """Checks for errors from a res and handles appropiately.
+
+        :param res: Response of an api request.
+        """
+        request_id = res.headers.get('x-dropbox-request-id')
+        if res.status_code >= 500:
+            raise InternalServerError(request_id, res.status_code, res.text)
+        elif res.status_code == 400:
+            try:
+                if res.json()['error'] == 'invalid_grant':
+                    request_id = res.headers.get('x-dropbox-request-id')
+                    err = stone_serializers.json_compat_obj_decode(
+                        AuthError_validator, 'invalid_access_token')
+                    raise AuthError(request_id, err)
+                else:
+                    raise BadInputError(request_id, res.text)
+            except ValueError:
+                raise BadInputError(request_id, res.text)
+        elif res.status_code == 401:
+            assert res.headers.get('content-type') == 'application/json', (
+                'Expected content-type to be application/json, got %r' %
+                res.headers.get('content-type'))
             err = stone_serializers.json_compat_obj_decode(
-                AuthError_validator, r.json()['error'])
+                AuthError_validator, res.json()['error'])
             raise AuthError(request_id, err)
-        elif r.status_code == HTTP_STATUS_INVALID_PATH_ROOT:
+        elif res.status_code == HTTP_STATUS_INVALID_PATH_ROOT:
             err = stone_serializers.json_compat_obj_decode(
-                PathRootError_validator, r.json()['error'])
+                PathRootError_validator, res.json()['error'])
             raise PathRootError(request_id, err)
-        elif r.status_code == 429:
+        elif res.status_code == 429:
             err = None
-            if r.headers.get('content-type') == 'application/json':
+            if res.headers.get('content-type') == 'application/json':
                 err = stone_serializers.json_compat_obj_decode(
-                    RateLimitError_validator, r.json()['error'])
+                    RateLimitError_validator, res.json()['error'])
                 retry_after = err.retry_after
             else:
-                retry_after_str = r.headers.get('retry-after')
+                retry_after_str = res.headers.get('retry-after')
                 if retry_after_str is not None:
                     retry_after = int(retry_after_str)
                 else:
                     retry_after = None
             raise RateLimitError(request_id, err, retry_after)
-        elif 200 <= r.status_code <= 299:
-            if route_style == self._ROUTE_STYLE_DOWNLOAD:
-                raw_resp = r.headers['dropbox-api-result']
-            else:
-                assert r.headers.get('content-type') == 'application/json', (
-                    'Expected content-type to be application/json, got %r' %
-                    r.headers.get('content-type'))
-                raw_resp = r.content.decode('utf-8')
-            if route_style == self._ROUTE_STYLE_DOWNLOAD:
-                return RouteResult(raw_resp, r)
-            else:
-                return RouteResult(raw_resp)
-        elif r.status_code in (403, 404, 409):
-            raw_resp = r.content.decode('utf-8')
-            return RouteErrorResult(request_id, raw_resp)
-        else:
-            raise HttpError(request_id, r.status_code, r.text)
+        elif res.status_code in (403, 404, 409):
+            # special case handled by requester
+            return
+        elif not (200 <= res.status_code <= 299):
+            raise HttpError(request_id, res.status_code, res.text)
 
     def _get_route_url(self, hostname, route_name):
         """Returns the URL of the route.
