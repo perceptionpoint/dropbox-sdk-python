@@ -1,4 +1,4 @@
-include ez_setup.py
 include LICENSE
 include *.rst
+include requirements.txt
 include test/requirements.txt

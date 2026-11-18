@@ -1,5 +1,4 @@
 pytest
-mock
 pytest-mock
 coverage
-stone>=2.*
+stone>=3.5.3,<4

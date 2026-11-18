@@ -8,7 +8,10 @@ import random
 import re
 import string
 import sys
+import uuid
 import pytest
+
+import dropbox.dropbox_client as dropbox_client
 
 try:
     from io import BytesIO
@@ -16,6 +19,7 @@ except ImportError:
     from StringIO import StringIO as BytesIO
 
 from dropbox import (
+    create_session,
     Dropbox,
     DropboxOAuth2Flow,
     DropboxTeam,
@@ -34,11 +38,13 @@ from dropbox.files import (
     ListFolderError,
     PathOrLink,
     SharedLinkFileInfo,
+    WriteMode,
 )
 from dropbox.common import (
     PathRoot,
     PathRoot_validator,
 )
+from dropbox.session import SSLError
 
 # Key Types
 REFRESH_TOKEN_KEY = "REFRESH_TOKEN"
@@ -54,45 +60,90 @@ TEAM_KEY = "TEAM"
 # Misc types
 SHARED_LINK_KEY = "DROPBOX_SHARED_LINK"
 
+
 def format_env_name(app_type=SCOPED_KEY, user_type=USER_KEY, key_type=ACCESS_TOKEN_KEY):
-    return '{}_{}_{}'.format(app_type, user_type, key_type)
+    return "{}_{}_{}".format(app_type, user_type, key_type)
+
 
 def _value_from_env_or_die(env_name):
     value = os.environ.get(env_name)
     if value is None:
-        print('Set {} environment variable to a valid value.'.format(env_name),
-              file=sys.stderr)
+        print(
+            "Set {} environment variable to a valid value.".format(env_name),
+            file=sys.stderr,
+        )
         sys.exit(1)
     return value
 
 
-@pytest.fixture()
-def dbx_from_env():
-    oauth2_token = _value_from_env_or_die(format_env_name())
-    return Dropbox(oauth2_token)
+_TRUSTED_CERTS_FILE = os.path.join(os.path.dirname(__file__), "trusted-certs.crt")
+_EXPIRED_CERTS_FILE = os.path.join(os.path.dirname(__file__), "expired-certs.crt")
 
 
-@pytest.fixture()
-def refresh_dbx_from_env():
+# enables testing both with and without a manually-provided CA bundle
+@pytest.fixture(params=[None, _TRUSTED_CERTS_FILE], ids=["no-pinning", "pinning"])
+def dbx_session(request):
+    return create_session(ca_certs=request.param)
+
+
+def _refresh_dbx(dbx_session=None):
+    # Build a user client from the refresh token instead of a stored access
+    # token; the SDK mints a short-lived access token on demand. Access tokens
+    # were the recurring cause of CI auth failures, so this removes them from
+    # the required credentials.
     refresh_token = _value_from_env_or_die(format_env_name(SCOPED_KEY, USER_KEY, REFRESH_TOKEN_KEY))
     app_key = _value_from_env_or_die(format_env_name(SCOPED_KEY, USER_KEY, CLIENT_ID_KEY))
     app_secret = _value_from_env_or_die(format_env_name(SCOPED_KEY, USER_KEY, CLIENT_SECRET_KEY))
-    return Dropbox(oauth2_refresh_token=refresh_token,
-                   app_key=app_key, app_secret=app_secret)
+    return Dropbox(
+        oauth2_refresh_token=refresh_token,
+        app_key=app_key,
+        app_secret=app_secret,
+        session=dbx_session,
+    )
 
 
 @pytest.fixture()
-def dbx_team_from_env():
-    team_oauth2_token = _value_from_env_or_die(
-        format_env_name(SCOPED_KEY, TEAM_KEY, ACCESS_TOKEN_KEY))
-    return DropboxTeam(team_oauth2_token)
+def dbx_from_env(dbx_session):
+    return _refresh_dbx(dbx_session)
 
 
 @pytest.fixture()
-def dbx_app_auth_from_env():
+def refresh_dbx_from_env(dbx_session):
+    return _refresh_dbx(dbx_session)
+
+
+@pytest.fixture()
+def bad_secret_dbx_from_env(dbx_session):
+    # Valid refresh token and app key, but a wrong app secret, so the token
+    # endpoint rejects the refresh.
+    refresh_token = _value_from_env_or_die(format_env_name(SCOPED_KEY, USER_KEY, REFRESH_TOKEN_KEY))
+    app_key = _value_from_env_or_die(format_env_name(SCOPED_KEY, USER_KEY, CLIENT_ID_KEY))
+    return Dropbox(
+        oauth2_refresh_token=refresh_token,
+        app_key=app_key,
+        app_secret="invalid_app_secret",
+        session=dbx_session,
+    )
+
+
+@pytest.fixture()
+def dbx_team_from_env(dbx_session):
+    refresh_token = _value_from_env_or_die(format_env_name(SCOPED_KEY, TEAM_KEY, REFRESH_TOKEN_KEY))
+    app_key = _value_from_env_or_die(format_env_name(SCOPED_KEY, TEAM_KEY, CLIENT_ID_KEY))
+    app_secret = _value_from_env_or_die(format_env_name(SCOPED_KEY, TEAM_KEY, CLIENT_SECRET_KEY))
+    return DropboxTeam(
+        oauth2_refresh_token=refresh_token,
+        app_key=app_key,
+        app_secret=app_secret,
+        session=dbx_session,
+    )
+
+
+@pytest.fixture()
+def dbx_app_auth_from_env(dbx_session):
     app_key = _value_from_env_or_die(format_env_name(SCOPED_KEY, USER_KEY, CLIENT_ID_KEY))
     app_secret = _value_from_env_or_die(format_env_name(SCOPED_KEY, USER_KEY, CLIENT_SECRET_KEY))
-    return Dropbox(app_key=app_key, app_secret=app_secret)
+    return Dropbox(app_key=app_key, app_secret=app_secret, session=dbx_session)
 
 
 @pytest.fixture()
@@ -100,69 +151,55 @@ def dbx_share_url_from_env():
     return _value_from_env_or_die(SHARED_LINK_KEY)
 
 
-MALFORMED_TOKEN = 'asdf'
-INVALID_TOKEN = 'z' * 62
+MALFORMED_TOKEN = "asdf"
+INVALID_TOKEN = "z" * 62
 
 # Need bytes type for Python3
-DUMMY_PAYLOAD = string.ascii_letters.encode('ascii')
+DUMMY_PAYLOAD = string.ascii_letters.encode("ascii")
 
 RANDOM_FOLDER = random.sample(string.ascii_letters, 15)
-TIMESTAMP = str(datetime.datetime.utcnow())
-STATIC_FILE = "/test.txt"
+TIMESTAMP = str(datetime.datetime.now(datetime.timezone.utc))
+# Unique per test process (once per pytest run = once per CI workflow run) so
+# concurrent runs against the shared test account never collide on the same
+# paths. See test/integration/README or CI notes for why this matters.
+RUN_ID = "%s-%s" % (TIMESTAMP, uuid.uuid4().hex)
+TEST_FOLDER = "/Test/%s" % RUN_ID
+STATIC_FILE = "%s/test.txt" % TEST_FOLDER
 
-@pytest.fixture(scope='module', autouse=True)
+
+@pytest.fixture(scope="module")
 def pytest_setup():
     print("Setup")
-    dbx = Dropbox(_value_from_env_or_die(format_env_name()))
+    dbx = _refresh_dbx()
 
-    try:
-        dbx.files_delete(STATIC_FILE)
-    except Exception:
-        print("File not found")
+    # Paths are unique per run, but clean up defensively in case a prior aborted
+    # run left this run's namespace behind (extremely unlikely with the UUID).
+    for path in (TEST_FOLDER, "/Test/%s" % TIMESTAMP):
+        try:
+            dbx.files_delete_v2(path)
+        except Exception:
+            print("File not found: %s" % path)
 
-    try:
-        dbx.files_delete('/Test/%s' % TIMESTAMP)
-    except Exception:
-        print("File not found")
+    yield
+
+    # Teardown: always remove this run's namespace so the shared test account
+    # does not accumulate cruft and stale files cannot poison later runs.
+    print("Teardown")
+    for path in (TEST_FOLDER, "/Test/%s" % TIMESTAMP):
+        try:
+            dbx.files_delete_v2(path)
+        except Exception:
+            print("Nothing to clean up: %s" % path)
 
 
 @pytest.mark.usefixtures(
+    "pytest_setup",
     "dbx_from_env",
     "refresh_dbx_from_env",
     "dbx_app_auth_from_env",
-    "dbx_share_url_from_env"
+    "dbx_share_url_from_env",
 )
 class TestDropbox:
-    def test_default_oauth2_urls(self):
-        flow_obj = DropboxOAuth2Flow('dummy_app_key', 'dummy_app_secret',
-            'http://localhost/dummy', 'dummy_session', 'dbx-auth-csrf-token')
-
-        assert re.match(
-            r'^https://{}/oauth2/authorize\?'.format(re.escape(session.WEB_HOST)),
-            flow_obj._get_authorize_url('http://localhost/redirect', 'state', 'legacy'),
-        )
-
-        assert flow_obj.build_url(
-            '/oauth2/authorize'
-        ) == 'https://{}/oauth2/authorize'.format(session.API_HOST)
-
-        assert flow_obj.build_url(
-            '/oauth2/authorize', host=session.WEB_HOST
-        ) == 'https://{}/oauth2/authorize'.format(session.WEB_HOST)
-
-    def test_bad_auth(self):
-        # Test malformed token
-        malformed_token_dbx = Dropbox(MALFORMED_TOKEN)
-        with pytest.raises(BadInputError,) as cm:
-            malformed_token_dbx.files_list_folder('')
-        assert 'token is malformed' in cm.value.message
-
-        # Test reasonable-looking invalid token
-        invalid_token_dbx = Dropbox(INVALID_TOKEN)
-        with pytest.raises(AuthError) as cm:
-            invalid_token_dbx.files_list_folder('')
-        assert cm.value.error.is_invalid_access_token()
-
     def test_multi_auth(self, dbx_from_env, dbx_app_auth_from_env, dbx_share_url_from_env):
         # Test for user (with oauth token)
         preview_result, resp = dbx_from_env.files_get_thumbnail_v2(
@@ -179,30 +216,34 @@ class TestDropbox:
     def test_refresh(self, refresh_dbx_from_env):
         refresh_dbx_from_env.users_get_current_account()
 
+    def test_refresh_failure_error_detail(self, bad_secret_dbx_from_env):
+        with pytest.raises(BadInputError) as cm:
+            bad_secret_dbx_from_env.users_get_current_account()
+        assert "invalid_client" in cm.value.message
+
     def test_app_auth(self, dbx_app_auth_from_env):
         dbx_app_auth_from_env.check_app(query="hello world")
 
     def test_downscope(self, refresh_dbx_from_env):
         refresh_dbx_from_env.users_get_current_account()
-        refresh_dbx_from_env.refresh_access_token(scope=['files.metadata.read'])
+        refresh_dbx_from_env.refresh_access_token(scope=["files.metadata.read"])
         with pytest.raises(AuthError):
             # Should fail because downscoped to not include needed scope
             refresh_dbx_from_env.users_get_current_account()
 
     def test_rpc(self, dbx_from_env):
-        dbx_from_env.files_list_folder('')
+        dbx_from_env.files_list_folder("")
 
         # Test API error
-        random_folder_path = '/' + \
-                             ''.join(RANDOM_FOLDER)
+        random_folder_path = "/" + "".join(RANDOM_FOLDER)
         with pytest.raises(ApiError) as cm:
             dbx_from_env.files_list_folder(random_folder_path)
         assert isinstance(cm.value.error, ListFolderError)
 
     def test_upload_download(self, dbx_from_env):
         # Upload file
-        random_filename = ''.join(RANDOM_FOLDER)
-        random_path = '/Test/%s/%s' % (TIMESTAMP, random_filename)
+        random_filename = "".join(RANDOM_FOLDER)
+        random_path = "/Test/%s/%s" % (TIMESTAMP, random_filename)
         test_contents = DUMMY_PAYLOAD
         dbx_from_env.files_upload(test_contents, random_path)
 
@@ -211,11 +252,21 @@ class TestDropbox:
         assert DUMMY_PAYLOAD == resp.content
 
         # Cleanup folder
-        dbx_from_env.files_delete('/Test/%s' % TIMESTAMP)
+        dbx_from_env.files_delete("/Test/%s" % TIMESTAMP)
+
+    def test_upload_auto_content_hash(self, dbx_from_env, monkeypatch):
+        # A deliberately incorrect auto-computed hash must be rejected by the
+        # server, proving the default hash is included in the request.
+        monkeypatch.setattr(dropbox_client, "_content_hash", lambda _: "0" * 64)
+        random_filename = "".join(RANDOM_FOLDER)
+        random_path = "/Test/%s/%s" % (TIMESTAMP, random_filename)
+        with pytest.raises(ApiError) as cm:
+            dbx_from_env.files_upload(DUMMY_PAYLOAD, random_path)
+        assert cm.value.error.is_content_hash_mismatch()
 
     def test_bad_upload_types(self, dbx_from_env):
         with pytest.raises(TypeError):
-            dbx_from_env.files_upload(BytesIO(b'test'), '/Test')
+            dbx_from_env.files_upload(BytesIO(b"test"), "/Test")
 
     def test_clone_when_user_linked(self, dbx_from_env):
         new_dbx = dbx_from_env.clone()
@@ -246,38 +297,43 @@ class TestDropbox:
 
         # verify home mode
         dbxpr = dbx_from_env.with_path_root(PathRoot.home)
-        dbxpr.files_list_folder('')
+        dbxpr.files_list_folder("")
 
         # verify root mode
         dbxpr = dbx_from_env.with_path_root(PathRoot.root(root_ns))
-        dbxpr.files_list_folder('')
+        dbxpr.files_list_folder("")
 
         # verify namespace_id mode
         dbxpr = dbx_from_env.with_path_root(PathRoot.namespace_id(home_ns))
-        dbxpr.files_list_folder('')
+        dbxpr.files_list_folder("")
 
     def test_path_root_err(self, dbx_from_env):
         # verify invalid namespace return is_no_permission error
         dbxpr = dbx_from_env.with_path_root(PathRoot.namespace_id("1234567890"))
         with pytest.raises(PathRootError) as cm:
-            dbxpr.files_list_folder('')
+            dbxpr.files_list_folder("")
         assert cm.value.error.is_no_permission()
 
         dbxpr = dbx_from_env.with_path_root(PathRoot.root("1234567890"))
         with pytest.raises(PathRootError) as cm:
-            dbxpr.files_list_folder('')
+            dbxpr.files_list_folder("")
         assert cm.value.error.is_invalid_root()
 
     def test_versioned_route(self, dbx_from_env):
-        # Upload a test file
-        dbx_from_env.files_upload(DUMMY_PAYLOAD, STATIC_FILE)
+        # Upload a test file. Use overwrite so a leftover file from an aborted
+        # run cannot cause a spurious write conflict.
+        dbx_from_env.files_upload(DUMMY_PAYLOAD, STATIC_FILE, mode=WriteMode.overwrite)
 
         # Delete the file with v2 route
         resp = dbx_from_env.files_delete_v2(STATIC_FILE)
         # Verify response type is of v2 route
         assert isinstance(resp, DeleteResult)
 
-@pytest.mark.usefixtures("dbx_team_from_env")
+
+@pytest.mark.usefixtures(
+    "pytest_setup",
+    "dbx_team_from_env",
+)
 class TestDropboxTeam:
     def test_team(self, dbx_team_from_env):
         dbx_team_from_env.team_groups_list()
@@ -285,25 +341,83 @@ class TestDropboxTeam:
         if r.members:
             # Only test assuming a member if there is a member
             team_member_id = r.members[0].profile.team_member_id
-            dbx_team_from_env.as_user(team_member_id).files_list_folder('')
+            dbx_team_from_env.as_user(team_member_id).files_list_folder("")
 
     def test_as_user(self, dbx_team_from_env):
-        dbx_as_user = dbx_team_from_env.as_user('1')
+        dbx_as_user = dbx_team_from_env.as_user("1")
         path_root = PathRoot.root("123")
 
         dbx_new = dbx_as_user.with_path_root(path_root)
 
         assert isinstance(dbx_new, Dropbox)
-        assert dbx_new._headers.get(SELECT_USER_HEADER) == '1'
+        assert dbx_new._headers.get(SELECT_USER_HEADER) == "1"
 
         expected = stone_serializers.json_encode(PathRoot_validator, path_root)
         assert dbx_new._headers.get(PATH_ROOT_HEADER) == expected
 
     def test_as_admin(self, dbx_team_from_env):
-        dbx_as_admin = dbx_team_from_env.as_admin('1')
+        dbx_as_admin = dbx_team_from_env.as_admin("1")
         assert isinstance(dbx_as_admin, Dropbox)
 
     def test_clone_when_team_linked(self, dbx_team_from_env):
         new_dbxt = dbx_team_from_env.clone()
         assert dbx_team_from_env is not new_dbxt
         assert isinstance(new_dbxt, dbx_team_from_env.__class__)
+
+
+def test_default_oauth2_urls():
+    flow_obj = DropboxOAuth2Flow(
+        "dummy_app_key",
+        "dummy_app_secret",
+        "http://localhost/dummy",
+        "dummy_session",
+        "dbx-auth-csrf-token",
+    )
+
+    assert re.match(
+        r"^https://{}/oauth2/authorize\?".format(re.escape(session.WEB_HOST)),
+        flow_obj._get_authorize_url("http://localhost/redirect", "state", "legacy"),
+    )
+
+    assert flow_obj.build_url("/oauth2/authorize") == "https://{}/oauth2/authorize".format(
+        session.API_HOST
+    )
+
+    assert flow_obj.build_url(
+        "/oauth2/authorize", host=session.WEB_HOST
+    ) == "https://{}/oauth2/authorize".format(session.WEB_HOST)
+
+
+def test_bad_auth(dbx_session):
+    # Test malformed token
+    malformed_token_dbx = Dropbox(MALFORMED_TOKEN, session=dbx_session)
+    # TODO: backend is no longer returning `BadInputError`
+    # with pytest.raises(BadInputError,) as cm:
+    #     malformed_token_dbx.files_list_folder('')
+    # assert 'token is malformed' in cm.value.message
+    with pytest.raises(AuthError):
+        malformed_token_dbx.files_list_folder("")
+
+    # Test reasonable-looking invalid token
+    invalid_token_dbx = Dropbox(INVALID_TOKEN, session=dbx_session)
+    with pytest.raises(AuthError) as cm:
+        invalid_token_dbx.files_list_folder("")
+    assert cm.value.error.is_invalid_access_token()
+
+
+def test_bad_pins():
+    # sanity-check: if we're pinning using expired pins, we should fail w/ an SSL error
+    _dbx = Dropbox("dummy_token", ca_certs=_EXPIRED_CERTS_FILE)
+    with pytest.raises(
+        SSLError,
+    ):
+        _dbx.files_list_folder("")
+
+
+def test_bad_pins_session():
+    _session = create_session(ca_certs=_EXPIRED_CERTS_FILE)
+    _dbx = Dropbox("dummy_token2", session=_session)
+    with pytest.raises(
+        SSLError,
+    ):
+        _dbx.files_list_folder("")

@@ -7,7 +7,7 @@ Dropbox for Python Documentation
    tutorial
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
 
    api/async
    api/auth
@@ -15,6 +15,7 @@ Dropbox for Python Documentation
    api/contacts
    api/dropbox
    api/exceptions
+   api/file_transfer
    api/file_properties
    api/file_requests
    api/files
