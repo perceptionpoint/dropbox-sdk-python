@@ -1,16 +1,11 @@
-.PHONY: build publish
+.PHONY: build clean publish
 
 build:
-	rm -rf ./dist
-	rm -rf ./build
-	rm -rf /.eggs
-	python3 setup.py sdist bdist_wheel --universal
+	rm -rf ./dist ./build
+	python3 -m build
 
 publish:
 	twine upload dist/*
 
-build-python2:
-	python2 setup.py bdist_wheel
-
 clean:
-	rm -rf build dist vba_engine.egg-info
+	rm -rf build dist *.egg-info dropbox/_version.py
