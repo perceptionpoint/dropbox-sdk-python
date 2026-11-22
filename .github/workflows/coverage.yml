@@ -62,7 +62,7 @@ jobs:
           role-to-assume: arn:aws:iam::082972943155:role/oidc-github-dropbox-dropbox-sdk-python-repo
           aws-region: us-west-2
       - name: Get Codecov token from AWS Secrets Manager
-        uses: aws-actions/aws-secretsmanager-get-secrets@v3
+        uses: aws-actions/aws-secretsmanager-get-secrets@v4
         with:
           secret-ids: |
             CODECOV_TOKEN,codecov-token-dropbox-sdk-python
@@ -104,13 +104,13 @@ jobs:
           role-to-assume: arn:aws:iam::082972943155:role/oidc-github-dropbox-dropbox-sdk-python-repo
           aws-region: us-west-2
       - name: Get integration credentials from AWS Secrets Manager
-        uses: aws-actions/aws-secretsmanager-get-secrets@v3
+        uses: aws-actions/aws-secretsmanager-get-secrets@v4
         with:
           secret-ids: |
             CREDS,api-sdk-integration-test-creds
           parse-json-secrets: true
       - name: Get Codecov token from AWS Secrets Manager
-        uses: aws-actions/aws-secretsmanager-get-secrets@v3
+        uses: aws-actions/aws-secretsmanager-get-secrets@v4
         with:
           secret-ids: |
             CODECOV_TOKEN,codecov-token-dropbox-sdk-python
