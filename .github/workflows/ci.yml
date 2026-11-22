@@ -144,7 +144,7 @@ jobs:
           aws-region: us-west-2
 
       - name: Get integration credentials from AWS Secrets Manager
-        uses: aws-actions/aws-secretsmanager-get-secrets@v3
+        uses: aws-actions/aws-secretsmanager-get-secrets@v4
         with:
           secret-ids: |
             CREDS,api-sdk-integration-test-creds
